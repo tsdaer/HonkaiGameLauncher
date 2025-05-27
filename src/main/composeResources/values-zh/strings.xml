@@ -1,0 +1,13 @@
+<!-- values-zh/string.xml -->
+<resources>
+    <string name="appTitle">崩坏-RTS启动器</string>
+    <string name="setting">设置</string>
+    <string name="openWindow">打开窗口</string>
+    <string name="exit">退出</string>
+
+    <string name="screen_home">主页</string>
+    <string name="screen_plugin">插件</string>
+    <string name="screen_website">网站</string>
+    <string name="screen_env">运行环境</string>
+    <string name="screen_doc">文档</string>
+</resources>

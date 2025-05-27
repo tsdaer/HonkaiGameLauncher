@@ -1,0 +1,13 @@
+<!-- values-en/string.xml -->
+<resources>
+    <string name="appTitle">honkai game launcher</string>
+    <string name="setting">setting</string>
+    <string name="openWindow">open window</string>
+    <string name="exit">exit</string>
+
+    <string name="screen_home">home</string>
+    <string name="screen_plugin">plugin</string>
+    <string name="screen_website">website</string>
+    <string name="screen_env">runtime environment</string>
+    <string name="screen_doc">docs</string>
+</resources>
