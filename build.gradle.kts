@@ -14,8 +14,6 @@ val nativeTrayVersion = "0.6.3"
 val filekitVersion = "0.10.0-beta04"
 val settingsVersion = "1.3.0"
 
-val koinversion = "4.0.4"
-
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
@@ -41,6 +39,10 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-navigator:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-transitions:${voyagerVersion}")
+
+    //  协程
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
 
     // filekit文件管理
     implementation("io.github.vinceglb:filekit-dialogs-compose:${filekitVersion}")

@@ -8,22 +8,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="创建项目">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/NavigationService.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ui/components/SettingsCard.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.run/desktop.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/desktop.run.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/service/appService.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/service/navigation/SharedScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/NavigationBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/ui/components/NavigationBar.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/util/IScreenInterface.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/util/localization.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/localization/localization.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +122,7 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "settings.codegpt.prompts",
+    "settings.editor.selected.configurable": "http.proxy",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
@@ -217,7 +207,7 @@
       <workItem from="1748165229624" duration="8296000" />
       <workItem from="1748232123374" duration="38761000" />
       <workItem from="1748308891099" duration="43247000" />
-      <workItem from="1748399966260" duration="31212000" />
+      <workItem from="1748399966260" duration="38622000" />
     </task>
     <task id="LOCAL-00001" summary="创建项目">
       <option name="closed" value="true" />
@@ -227,7 +217,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748363198063</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="refactor(navigation): :truck: 重构导航相关代码结构&#10;&#10;将导航相关代码从service包移动到navigation包，并优化导航服务实现&#10;- 移动SharedScreen到navigation包&#10;- 新增NavigationService提供统一导航方法&#10;- 更新相关界面引用路径&#10;- 优化导航栏动画效果和交互体验&#10;&#10;重构代码结构以提高可维护性，为后续功能扩展做准备">
+      <option name="closed" value="true" />
+      <created>1748438633435</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1748438633435</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -246,7 +244,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="创建项目" />
-    <option name="LAST_COMMIT_MESSAGE" value="创建项目" />
+    <MESSAGE value="refactor(navigation): :truck: 重构导航相关代码结构&#10;&#10;将导航相关代码从service包移动到navigation包，并优化导航服务实现&#10;- 移动SharedScreen到navigation包&#10;- 新增NavigationService提供统一导航方法&#10;- 更新相关界面引用路径&#10;- 优化导航栏动画效果和交互体验&#10;&#10;重构代码结构以提高可维护性，为后续功能扩展做准备" />
+    <MESSAGE value="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
