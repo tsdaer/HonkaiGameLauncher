@@ -1,4 +1,4 @@
-package service.navigation
+package navigation
 
 import cafe.adriel.voyager.core.registry.ScreenProvider
 import cafe.adriel.voyager.core.registry.ScreenRegistry
@@ -7,11 +7,12 @@ import screen.SettingScreen
 import screen.feature.PluginScreen
 
 //导航模块声明了所有可达的界面
-sealed class SharedScreen: ScreenProvider {
-    object Home: SharedScreen()
-    object Setting: SharedScreen()
+sealed class SharedScreen : ScreenProvider {
+    object Home : SharedScreen()
+    object Setting : SharedScreen()
+    object Plugin : SharedScreen()
 
-    object Plugin: SharedScreen()
+    //更多界面
 }
 
 fun registerNavigation() {

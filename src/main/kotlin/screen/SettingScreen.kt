@@ -8,7 +8,6 @@ import com.honkai_rts.honkaigamelauncher.generated.resources.Res
 import com.honkai_rts.honkaigamelauncher.generated.resources.setting
 import compose.icons.feathericons.Settings
 import org.jetbrains.compose.resources.stringResource
-import util.IScreenInterface
 
 class SettingScreen: Screen, IScreenInterface {
 

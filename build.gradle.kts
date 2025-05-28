@@ -14,6 +14,8 @@ val nativeTrayVersion = "0.6.3"
 val filekitVersion = "0.10.0-beta04"
 val settingsVersion = "1.3.0"
 
+val koinversion = "4.0.4"
+
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
@@ -27,6 +29,8 @@ dependencies {
     // With compose.desktop.common you will also lose @Preview functionality
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
+
     implementation("br.com.devsrsouza.compose.icons:eva-icons:1.1.1")
     implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
     implementation("br.com.devsrsouza.compose.icons:line-awesome:1.1.1")
@@ -43,6 +47,7 @@ dependencies {
 
     // 设置
     implementation("com.russhwolf:multiplatform-settings-no-arg:${settingsVersion}")
+
 }
 
 compose.desktop {

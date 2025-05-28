@@ -1,18 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AnalysisUIOptions">
+    <option name="ANALYZE_INJECTED_CODE" value="false" />
+    <option name="SCOPE_TYPE" value="3" />
+  </component>
   <component name="AutoImportSettings">
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/AndroidProjectSystem.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/Project.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/util/IScreenInterface.kt" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="创建项目">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/NavigationService.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.run/desktop.run.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.run/desktop.run.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/service/appService.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/service/navigation/SharedScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/NavigationBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/ui/components/NavigationBar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/util/IScreenInterface.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/util/localization.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/localization/localization.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -57,19 +68,42 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
+        <option value="Kotlin Interface" />
         <option value="Kotlin Class" />
         <option value="Kotlin File" />
-        <option value="Kotlin Interface" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "tsdaer"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/tsdaer/HonkaiGameLauncher.git",
+    "accountId": "90267cf1-bf90-4406-af41-77acf1925c66"
+  }
+}]]></component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/cafe.adriel.voyager/voyager-core-desktop/1.1.0-beta03/d65ee739bc0a3219057c47c6db390ed74e43f8b5/voyager-core-desktop-1.1.0-beta03-sources.jar!/commonMain/cafe/adriel/voyager/core/registry/ScreenModule.kt" root0="SKIP_INSPECTION" />
+    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material/material-desktop/1.8.1/77a83c979d5eafeb00b0bce9967766a2b9d53813/material-desktop-1.8.1-sources.jar!/commonMain/androidx/compose/material/MaterialTheme.kt" root0="SKIP_INSPECTION" />
+    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material/material-desktop/1.8.1/77a83c979d5eafeb00b0bce9967766a2b9d53813/material-desktop-1.8.1-sources.jar!/commonMain/androidx/compose/material/Typography.kt" root0="SKIP_INSPECTION" />
+  </component>
+  <component name="ProblemsViewState">
+    <option name="selectedTabId" value="CurrentFile" />
+  </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 0
 }</component>
   <component name="ProjectId" id="2xV5cJyGJvj9TrQSBuZqKcnKgHc" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -84,6 +118,7 @@
     "Kotlin.MainKt.executor": "Debug",
     "ModuleVcsDetector.initialDetectionPerformed": "true",
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "master",
@@ -96,7 +131,8 @@
     "project.structure.last.edited": "模块",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "http.proxy",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "settings.codegpt.prompts",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
@@ -109,10 +145,10 @@
       <recent name="J:\Projects\HonkaiGameLauncher\src\main\kotlin" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="screen" />
       <recent name="util" />
       <recent name="ut" />
       <recent name="u" />
-      <recent name="screen" />
       <recent name="service" />
     </key>
   </component>
@@ -180,8 +216,18 @@
       <workItem from="1748141048176" duration="9887000" />
       <workItem from="1748165229624" duration="8296000" />
       <workItem from="1748232123374" duration="38761000" />
-      <workItem from="1748308891099" duration="42546000" />
+      <workItem from="1748308891099" duration="43247000" />
+      <workItem from="1748399966260" duration="31212000" />
     </task>
+    <task id="LOCAL-00001" summary="创建项目">
+      <option name="closed" value="true" />
+      <created>1748363198063</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1748363198063</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -197,6 +243,10 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="创建项目" />
+    <option name="LAST_COMMIT_MESSAGE" value="创建项目" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

@@ -30,17 +30,17 @@ import com.honkai_rts.honkaigamelauncher.generated.resources.appTitle
 import com.honkai_rts.honkaigamelauncher.generated.resources.exit
 import com.honkai_rts.honkaigamelauncher.generated.resources.logo
 import com.honkai_rts.honkaigamelauncher.generated.resources.openWindow
-import service.navigation.SharedScreen
-import util.IScreenInterface
+import navigation.SharedScreen
+import screen.IScreenInterface
 
-import service.navigation.registerNavigation
 
 import ui.theme.DarkColorScheme
 import ui.theme.LightColorScheme
 import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
 import ui.theme.HarmonyTypography
-import util.changeLanguage
+import localization.changeLanguage
+import navigation.registerNavigation
 import kotlin.system.exitProcess
 
 @Composable
@@ -76,21 +76,20 @@ fun MainView(){
 }
 
 fun main() = application {
-
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
-    val state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
     var isDarkTheme by remember { mutableStateOf(false) }
     val colorScheme = if (isDarkTheme) DarkColorScheme else LightColorScheme
 
     val localLocalization = staticCompositionLocalOf { "zh" }
     var languageCode by remember { mutableStateOf("zh") }
 
-    registerNavigation()
-
     var openWindowStr = ""
     var exitApplicationStr = ""
 
+    val state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
+
+    registerNavigation()
 
     Tray(
         iconContent = {
@@ -128,18 +127,6 @@ fun main() = application {
         ) {
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("swing.aatext", "true")
-            /**
-            window.addComponentListener(object : ComponentAdapter() {
-                override fun componentResized(e: ComponentEvent?) {
-                    if (state.placement == WindowPlacement.Floating) {
-                        window.shape = RoundRectangle2D.Double(
-                            0.0, 0.0, window.width.toDouble(), window.height.toDouble(), 16.0, 16.0
-                        )
-                    }
-                }
-            })
-            **/
-
             MaterialTheme(colors = colorScheme, typography = HarmonyTypography()) {
                 Surface(
                     modifier = Modifier.padding(5.dp)

@@ -9,7 +9,7 @@ import com.honkai_rts.honkaigamelauncher.generated.resources.screen_plugin
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.PlugSolid
 import org.jetbrains.compose.resources.stringResource
-import util.IScreenInterface
+import screen.IScreenInterface
 
 class PluginScreen: Screen, IScreenInterface {
 
