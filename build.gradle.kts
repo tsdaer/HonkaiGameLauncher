@@ -14,9 +14,12 @@ val nativeTrayVersion = "0.6.3"
 val filekitVersion = "0.10.0-beta04"
 val settingsVersion = "1.3.0"
 
+val webviewVersion = "1.9.40"
+
 repositories {
     mavenCentral()
     maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://jogamp.org/deployment/maven")
     google()
 }
 
@@ -50,6 +53,8 @@ dependencies {
     // 设置
     implementation("com.russhwolf:multiplatform-settings-no-arg:${settingsVersion}")
 
+    // WebView
+    api("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
 }
 
 compose.desktop {
@@ -60,6 +65,23 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
             packageName = "HonkaiGameLauncher"
             packageVersion = "1.0.0"
+        }
+
+        buildTypes.release.proguard {
+            configurationFiles.from("compose-desktop.pro")
+        }
+    }
+}
+
+afterEvaluate {
+    tasks.withType<JavaExec> {
+        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
+
+        if (System.getProperty("os.name").contains("Mac")) {
+            jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
+            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
         }
     }
 }

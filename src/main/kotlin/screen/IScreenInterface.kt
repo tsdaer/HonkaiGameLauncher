@@ -9,6 +9,14 @@ interface IScreenInterface {
 
     fun getIcon(): ImageVector
 
+    fun hideTitle(): Boolean {
+        return false
+    }
+
+    fun diableAnimation(): Boolean {
+        return false
+    }
+
     @Composable
     fun getTitle(): String
 

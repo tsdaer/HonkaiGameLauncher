@@ -10,4 +10,6 @@
     <string name="screen_website">网站</string>
     <string name="screen_env">运行环境</string>
     <string name="screen_doc">文档</string>
+
+    <string name="setGamePath">设置游戏路径</string>
 </resources>

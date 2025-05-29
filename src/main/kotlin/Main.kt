@@ -1,72 +1,85 @@
+import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Icon
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
+import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
 import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
+import com.honkai_rts.honkaigamelauncher.generated.resources.*
+import com.kdroid.composetray.tray.api.Tray
+import localization.changeLanguage
+import navigation.SharedScreen
+import navigation.registerNavigation
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-
-import com.kdroid.composetray.tray.api.Tray
-
-import com.honkai_rts.honkaigamelauncher.generated.resources.Res
-import com.honkai_rts.honkaigamelauncher.generated.resources.appTitle
-import com.honkai_rts.honkaigamelauncher.generated.resources.exit
-import com.honkai_rts.honkaigamelauncher.generated.resources.logo
-import com.honkai_rts.honkaigamelauncher.generated.resources.openWindow
-import navigation.SharedScreen
 import screen.IScreenInterface
-
-
-import ui.theme.DarkColorScheme
-import ui.theme.LightColorScheme
 import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
+import ui.theme.DarkColorScheme
 import ui.theme.HarmonyTypography
-import localization.changeLanguage
-import navigation.registerNavigation
+import ui.theme.LightColorScheme
 import kotlin.system.exitProcess
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainView(){
+fun MainView() {
     val navigator = LocalNavigator.current
     val data = navigator?.let { it.lastItem as? IScreenInterface }
-    Box(modifier = Modifier.fillMaxSize()){
+    Box(modifier = Modifier.fillMaxSize()) {
         Column {
-            Row{
+            Row {
                 NavigationBar()
-                Box(modifier = Modifier.fillMaxSize())
-                {
+                Box(modifier = Modifier.fillMaxSize()) {
                     Surface(
                         color = MaterialTheme.colors.background,
-                        border = BorderStroke(1.dp,MaterialTheme.colors.primary.copy(0.1f)),
+                        border = BorderStroke(1.dp, MaterialTheme.colors.primary.copy(0.1f)),
                         modifier = Modifier.fillMaxSize()
-                            .shadow(elevation = 8.dp,
-                                shape = RoundedCornerShape(8.dp,0.dp,0.dp,0.dp),
+                            .shadow(
+                                elevation = 8.dp,
+                                shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp),
                                 ambientColor = MaterialTheme.colors.primary,
-                                spotColor = MaterialTheme.colors.primary),
-                        shape = RoundedCornerShape(8.dp,0.dp,0.dp,0.dp))
-                    {
+                                spotColor = MaterialTheme.colors.primary
+                            ),
+                        shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp)
+                    ) {
                         Column(modifier = Modifier.fillMaxSize().padding(60.dp)) {
 
-                            data?.let { Text(text = it.getTitle(), style = MaterialTheme.typography.h5, fontWeight = FontWeight.Bold,modifier = Modifier.padding(bottom = 10.dp)) }
-                            CurrentScreen()
+                            data?.let {
+                                Text(
+                                    text = it.getTitle(),
+                                    style = MaterialTheme.typography.h5,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(bottom = 10.dp)
+                                )
+                            }
+
+                            navigator?.let {
+                                val slowAnimation = tween<IntOffset>(durationMillis = 300)
+                                val slowAnimation2 = tween<Float>(durationMillis = 300)
+                                AnimatedContent(
+                                    targetState = navigator.lastItem.key,
+                                    transitionSpec = {
+                                        (slideInVertically(animationSpec = slowAnimation) { fullHeight -> (0.1*fullHeight).toInt() } + fadeIn(animationSpec = slowAnimation2)).
+                                        togetherWith(slideOutVertically(animationSpec = slowAnimation) { fullHeight -> (-0.1*fullHeight).toInt() } + fadeOut(slowAnimation2)) },
+                                    contentKey = { navigator.lastItem.key }) {
+                                    CurrentScreen()
+                                }
+                            }
                         }
                     }
                 }
@@ -75,6 +88,7 @@ fun MainView(){
     }
 }
 
+@OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
@@ -97,11 +111,13 @@ fun main() = application {
                 appIcon,
                 contentDescription = "",
                 tint = Color.Unspecified,
-                modifier = Modifier.fillMaxSize()) },
+                modifier = Modifier.fillMaxSize()
+            )
+        },
         tooltip = stringResource(Res.string.appTitle),
-        primaryAction = {isVisible = !isVisible})
+        primaryAction = { isVisible = !isVisible })
     {
-        Item(label =   openWindowStr , onClick = {
+        Item(label = openWindowStr, onClick = {
             isVisible = true
         })
         Divider()
@@ -132,14 +148,14 @@ fun main() = application {
                     modifier = Modifier.padding(5.dp)
                         .shadow(
                             elevation = 3.dp,
-                            shape = RoundedCornerShape(10.dp)),
+                            shape = RoundedCornerShape(10.dp)
+                        ),
                     border = BorderStroke(1.dp, MaterialTheme.colors.background),
                     color = MaterialTheme.colors.background,
                     shape = RoundedCornerShape(10.dp) //窗口现在有圆角
                 ) {
-
                     Box {
-                        Navigator(rememberScreen(SharedScreen.Home)){ navigator ->
+                        Navigator(rememberScreen(SharedScreen.Home)) { navigator ->
                             Scaffold(
                                 topBar = {
                                     AppWindowTitleBar(
@@ -158,7 +174,7 @@ fun main() = application {
                                         isDarkTheme = !isDarkTheme
                                     )
                                 },
-                                content = {MainView()}
+                                content = { MainView() }
                             )
                         }
                     }

@@ -8,12 +8,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/ui/components/SettingsCard.kt" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/compose-desktop.pro" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreenModel.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/DocsScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/WebScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -59,26 +69,26 @@
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="Kotlin Interface" />
-        <option value="Kotlin Class" />
         <option value="Kotlin File" />
+        <option value="Kotlin Class" />
       </list>
     </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "tsdaer"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;tsdaer&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/tsdaer/HonkaiGameLauncher.git",
-    "accountId": "90267cf1-bf90-4406-af41-77acf1925c66"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/tsdaer/HonkaiGameLauncher.git&quot;,
+    &quot;accountId&quot;: &quot;90267cf1-bf90-4406-af41-77acf1925c66&quot;
   }
-}]]></component>
+}</component>
   <component name="HighlightingSettingsPerFile">
     <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/cafe.adriel.voyager/voyager-core-desktop/1.1.0-beta03/d65ee739bc0a3219057c47c6db390ed74e43f8b5/voyager-core-desktop-1.1.0-beta03-sources.jar!/commonMain/cafe/adriel/voyager/core/registry/ScreenModule.kt" root0="SKIP_INSPECTION" />
     <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material/material-desktop/1.8.1/77a83c979d5eafeb00b0bce9967766a2b9d53813/material-desktop-1.8.1-sources.jar!/commonMain/androidx/compose/material/MaterialTheme.kt" root0="SKIP_INSPECTION" />
@@ -122,7 +132,7 @@
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "http.proxy",
+    "settings.editor.selected.configurable": "preferences.JavaFX",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
@@ -207,7 +217,10 @@
       <workItem from="1748165229624" duration="8296000" />
       <workItem from="1748232123374" duration="38761000" />
       <workItem from="1748308891099" duration="43247000" />
-      <workItem from="1748399966260" duration="38622000" />
+      <workItem from="1748399966260" duration="38652000" />
+      <workItem from="1748484004511" duration="969000" />
+      <workItem from="1748485235138" duration="385000" />
+      <workItem from="1748486303878" duration="26463000" />
     </task>
     <task id="LOCAL-00001" summary="创建项目">
       <option name="closed" value="true" />
@@ -225,7 +238,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748438633435</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作">
+      <option name="closed" value="true" />
+      <created>1748446058341</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1748446058341</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -246,7 +267,8 @@
     <MESSAGE value="创建项目" />
     <MESSAGE value="refactor(navigation): :truck: 重构导航相关代码结构&#10;&#10;将导航相关代码从service包移动到navigation包，并优化导航服务实现&#10;- 移动SharedScreen到navigation包&#10;- 新增NavigationService提供统一导航方法&#10;- 更新相关界面引用路径&#10;- 优化导航栏动画效果和交互体验&#10;&#10;重构代码结构以提高可维护性，为后续功能扩展做准备" />
     <MESSAGE value="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作" />
+    <MESSAGE value="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
