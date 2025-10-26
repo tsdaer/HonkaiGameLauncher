@@ -9,21 +9,12 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/compose-desktop.pro" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreenModel.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/DocsScreen.kt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/WebScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/core/GameService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -52,6 +43,12 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
                 <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
+                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
+                <item name="compileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
               </path>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
@@ -89,11 +86,7 @@
     &quot;accountId&quot;: &quot;90267cf1-bf90-4406-af41-77acf1925c66&quot;
   }
 }</component>
-  <component name="HighlightingSettingsPerFile">
-    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/cafe.adriel.voyager/voyager-core-desktop/1.1.0-beta03/d65ee739bc0a3219057c47c6db390ed74e43f8b5/voyager-core-desktop-1.1.0-beta03-sources.jar!/commonMain/cafe/adriel/voyager/core/registry/ScreenModule.kt" root0="SKIP_INSPECTION" />
-    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material/material-desktop/1.8.1/77a83c979d5eafeb00b0bce9967766a2b9d53813/material-desktop-1.8.1-sources.jar!/commonMain/androidx/compose/material/MaterialTheme.kt" root0="SKIP_INSPECTION" />
-    <setting file="jar://$PROJECT_DIR$/../../Gradle/caches/modules-2/files-2.1/org.jetbrains.compose.material/material-desktop/1.8.1/77a83c979d5eafeb00b0bce9967766a2b9d53813/material-desktop-1.8.1-sources.jar!/commonMain/androidx/compose/material/Typography.kt" root0="SKIP_INSPECTION" />
-  </component>
+  <component name="GradleScriptDefinitionsStorage" workingDir="$PROJECT_DIR$" gradleHome="J:\Gradle\wrapper\dists\gradle-8.7-bin\bhs2wmbdwecv87pi65oeuq5iu\gradle-8.7" javaHome="J:\JDK\21" gradleVersion="8.7" />
   <component name="ProblemsViewState">
     <option name="selectedTabId" value="CurrentFile" />
   </component>
@@ -112,7 +105,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Gradle.HonkaiGameLauncher [packageExe].executor": "Run",
-    "Gradle.desktop.executor": "Debug",
+    "Gradle.desktop.executor": "Run",
     "Gradle.下载源代码.executor": "Run",
     "Gradle.构建 HonkaiGameLauncher.executor": "Run",
     "Kotlin.MainKt.executor": "Debug",
@@ -122,17 +115,18 @@
     "SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "dart.analysis.tool.window.visible": "false",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "J:/Projects/HonkaiGameLauncher/src/main/composeResources",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "J:/Download/CustomOpenAiSettings.json",
     "node.js.detected.package.eslint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "模块",
+    "project.structure.last.edited": "项目",
     "project.structure.proportion": "0.15",
     "project.structure.side.proportion": "0.2",
     "run.code.analysis.last.selected.profile": "pProject Default",
-    "settings.editor.selected.configurable": "preferences.JavaFX",
+    "settings.editor.selected.configurable": "settings.codegpt.prompts",
     "show.migrate.to.gradle.popup": "false",
     "vue.rearranger.settings.migration": "true"
   }
@@ -197,8 +191,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.25410.129" />
-        <option value="bundled-js-predefined-d6986cc7102b-6a121458b545-JavaScript-IU-251.25410.129" />
+        <option value="bundled-jdk-9823dce3aa75-bf35d07a577b-intellij.indexing.shared.core-IU-252.27397.103" />
       </set>
     </attachedChunks>
   </component>
@@ -220,7 +213,8 @@
       <workItem from="1748399966260" duration="38652000" />
       <workItem from="1748484004511" duration="969000" />
       <workItem from="1748485235138" duration="385000" />
-      <workItem from="1748486303878" duration="26463000" />
+      <workItem from="1748486303878" duration="26877000" />
+      <workItem from="1751767027718" duration="1345000" />
     </task>
     <task id="LOCAL-00001" summary="创建项目">
       <option name="closed" value="true" />
@@ -246,7 +240,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748446058341</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题">
+      <option name="closed" value="true" />
+      <created>1748519286110</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1748519286110</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">

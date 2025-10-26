@@ -22,6 +22,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
 import com.honkai_rts.honkaigamelauncher.generated.resources.*
 import com.kdroid.composetray.tray.api.Tray
+import core.GameService
 import localization.changeLanguage
 import navigation.SharedScreen
 import navigation.registerNavigation
@@ -88,8 +89,13 @@ fun MainView() {
     }
 }
 
+val gameService = GameService()
+
 @OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
+
+    gameService.start()
+
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
     var isDarkTheme by remember { mutableStateOf(false) }
@@ -122,6 +128,7 @@ fun main() = application {
         })
         Divider()
         Item(label = exitApplicationStr, onClick = {
+            gameService.stop()
             dispose()
             exitProcess(0)
         })

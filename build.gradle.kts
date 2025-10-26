@@ -4,6 +4,8 @@ plugins {
     kotlin("jvm")
     id("org.jetbrains.compose")
     id("org.jetbrains.kotlin.plugin.compose")
+
+    kotlin("plugin.serialization") version "2.2.0"
 }
 
 group = "com.honkai_rts"
@@ -15,6 +17,8 @@ val filekitVersion = "0.10.0-beta04"
 val settingsVersion = "1.3.0"
 
 val webviewVersion = "1.9.40"
+
+val ktorVersion = "3.3.1"
 
 repositories {
     mavenCentral()
@@ -52,6 +56,15 @@ dependencies {
 
     // 设置
     implementation("com.russhwolf:multiplatform-settings-no-arg:${settingsVersion}")
+
+    //ktor
+    implementation("io.ktor:ktor-server-core:${ktorVersion}")
+    implementation("io.ktor:ktor-server-netty:${ktorVersion}")
+    implementation("io.ktor:ktor-server-content-negotiation:${ktorVersion}")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
+
+    //json
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     // WebView
     api("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
