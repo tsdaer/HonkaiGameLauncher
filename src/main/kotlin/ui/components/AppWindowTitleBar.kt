@@ -21,9 +21,13 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import com.honkai_rts.honkaigamelauncher.generated.resources.Res
 import com.honkai_rts.honkaigamelauncher.generated.resources.appTitle
 import com.honkai_rts.honkaigamelauncher.generated.resources.logo
-import compose.icons.EvaIcons
-import compose.icons.evaicons.Fill
-import compose.icons.evaicons.fill.*
+import compose.icons.feathericons.CornerUpLeft
+import compose.icons.feathericons.Maximize
+import compose.icons.feathericons.Minimize
+import compose.icons.feathericons.Minus
+import compose.icons.feathericons.Moon
+import compose.icons.feathericons.Sun
+import compose.icons.feathericons.X
 import compose.icons.lineawesomeicons.LanguageSolid
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -37,7 +41,7 @@ fun WindowScope.AppWindowTitleBar(state: WindowState, onCloseRequest: () -> Unit
         Row(verticalAlignment = Alignment.CenterVertically) {
             CustomIconButton(
                 iconSize = 42.dp,
-                imageVector = EvaIcons.Fill.ArrowBack,
+                imageVector = compose.icons.FeatherIcons.CornerUpLeft,
                 contentDescription = "回退",
                 enabled = navigator?.canPop == true,
                 onClick = {
@@ -56,7 +60,7 @@ fun WindowScope.AppWindowTitleBar(state: WindowState, onCloseRequest: () -> Unit
                 CustomIconButton(
                     iconSize = 32.dp,
                     imageVector = remember(isDarkTheme) {
-                        if (isDarkTheme) EvaIcons.Fill.Sun else EvaIcons.Fill.Moon
+                        if (isDarkTheme) compose.icons.FeatherIcons.Sun else compose.icons.FeatherIcons.Moon
                     },
                     contentDescription = if (isDarkTheme) "切换至亮色主题" else "切换至暗色主题",
                     onClick = onThemeChanged)
@@ -68,16 +72,16 @@ fun WindowScope.AppWindowTitleBar(state: WindowState, onCloseRequest: () -> Unit
                     )
                 CustomIconButton(
                     iconSize = 32.dp,
-                    imageVector = EvaIcons.Fill.Minus,
+                    imageVector = compose.icons.FeatherIcons.Minus,
                     contentDescription = "最小化",
                     onClick = { state.isMinimized = !state.isMinimized })
                 CustomIconButton(
                     iconSize = 32.dp,
                     imageVector = remember(state.placement) {
                         if (state.placement == WindowPlacement.Fullscreen) {
-                            EvaIcons.Fill.Expand // 全屏时显示"恢复"图标
+                            compose.icons.FeatherIcons.Minimize // 全屏时显示"恢复"图标
                         } else {
-                            EvaIcons.Fill.Collapse // 浮动时显示"最大化"图标
+                            compose.icons.FeatherIcons.Maximize // 浮动时显示"最大化"图标
                         }
                     },
                     contentDescription = if (state.placement == WindowPlacement.Fullscreen) "恢复窗口" else "最大化",
@@ -90,7 +94,7 @@ fun WindowScope.AppWindowTitleBar(state: WindowState, onCloseRequest: () -> Unit
                     })
                 CustomIconButton(
                     iconSize = 32.dp,
-                    imageVector = EvaIcons.Fill.Close,
+                    imageVector = compose.icons.FeatherIcons.X,
                     contentDescription = "退出",
                     onClick = onCloseRequest
                 )

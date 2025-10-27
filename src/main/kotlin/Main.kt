@@ -94,6 +94,10 @@ val gameService = GameService()
 @OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
 
+    System.setProperty("file.encoding", "UTF-8")
+    System.setOut(java.io.PrintStream(System.out, true, "UTF-8"))
+    System.setErr(java.io.PrintStream(System.err, true, "UTF-8"))
+
     gameService.start()
 
     var isVisible by remember { mutableStateOf(true) }

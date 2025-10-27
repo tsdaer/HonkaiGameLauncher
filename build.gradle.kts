@@ -47,7 +47,7 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-screenmodel:${voyagerVersion}")
     implementation("cafe.adriel.voyager:voyager-transitions:${voyagerVersion}")
 
-    //  协程
+    // 协程
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
 
@@ -63,7 +63,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:${ktorVersion}")
     implementation("io.ktor:ktor-serialization-kotlinx-json:${ktorVersion}")
 
-    //json
+    // json
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     // WebView

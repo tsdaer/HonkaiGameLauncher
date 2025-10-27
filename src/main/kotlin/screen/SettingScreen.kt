@@ -21,6 +21,7 @@ import compose.icons.evaicons.fill.Folder
 import compose.icons.feathericons.Settings
 import org.jetbrains.compose.resources.stringResource
 import ui.components.SettingsCard
+import viewModel.SettingScreenModel
 
 class SettingScreen: Screen, IScreenInterface {
 
@@ -41,7 +42,7 @@ class SettingScreen: Screen, IScreenInterface {
 
     @Composable
     override fun Content() {
-        val screenModel = rememberScreenModel{ SettingScreenModel()}
+        val screenModel = rememberScreenModel{ SettingScreenModel() }
         val state = rememberScrollState(0)
         Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
             SettingsCard(stringResource(Res.string.setGamePath), EvaIcons.Fill.Folder) {

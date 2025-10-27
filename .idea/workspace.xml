@@ -8,13 +8,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题">
-      <change afterPath="$PROJECT_DIR$/src/main/kotlin/core/GameService.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="build(deps): ⬆️ 升级Kotlin版本至2.2.0并添加游戏服务功能&#10;&#10;- 将Kotlin版本从2.1.20升级到2.2.0&#10;- 添加Kotlin序列化插件支持&#10;- 新增GameService类实现HTTP服务功能&#10;- 集成Ktor框架用于游戏状态通信&#10;- 在应用启动时启动游戏服务，退出时停止服务&#10;- 自动查找可用端口并写入临时文件供游戏进程访问&#10;&#10;新增依赖：&#10;- kotlinx-serialization-json: 1.9.0&#10;- ktor-server-core: 3.3.1&#10;- ktor-server-netty: 3.3.1&#10;- ktor-server-content-negotiation: 3.3.1&#10;- ktor-serialization-kotlinx-json: 3.3.1">
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/core/LauncherLogEntry.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/LogScreen.kt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/kotlin/viewModel/LogScreenModel.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/GameService.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/core/GameService.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreenModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/viewModel/HomeScreenModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreenModel.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/viewModel/SettingScreenModel.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/WebScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/screen/feature/WebScreen.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/AppWindowTitleBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/kotlin/ui/components/AppWindowTitleBar.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -39,22 +48,6 @@
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
                 <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
               </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
-                <item name="Dependencies" type="6de06a37:ExternalSystemViewDefaultContributor$MyDependenciesNode" />
-                <item name="compileClasspath" type="62daadca:ExternalSystemViewDefaultContributor$DependencyScopeExternalSystemNode" />
-              </path>
-              <path>
-                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="HonkaiGameLauncher" type="f1a62948:ProjectNode" />
-                <item name="运行配置" type="7b0102dc:RunConfigurationsNode" />
-              </path>
             </expand>
             <select />
           </tree_state>
@@ -67,6 +60,7 @@
       <list>
         <option value="Kotlin Interface" />
         <option value="Kotlin File" />
+        <option value="Kotlin Data Class" />
         <option value="Kotlin Class" />
       </list>
     </option>
@@ -105,7 +99,7 @@
   "keyToString": {
     "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
     "Gradle.HonkaiGameLauncher [packageExe].executor": "Run",
-    "Gradle.desktop.executor": "Run",
+    "Gradle.desktop.executor": "Debug",
     "Gradle.下载源代码.executor": "Run",
     "Gradle.构建 HonkaiGameLauncher.executor": "Run",
     "Kotlin.MainKt.executor": "Debug",
@@ -139,11 +133,11 @@
       <recent name="J:\Projects\HonkaiGameLauncher\src\main\kotlin" />
     </key>
     <key name="K2MoveDeclarationsDialog.RECENT_PACKAGE_KEY">
+      <recent name="viewModel" />
       <recent name="screen" />
       <recent name="util" />
       <recent name="ut" />
       <recent name="u" />
-      <recent name="service" />
     </key>
   </component>
   <component name="RunManager" selected="Gradle.desktop">
@@ -248,7 +242,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748519286110</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="build(deps): ⬆️ 升级Kotlin版本至2.2.0并添加游戏服务功能&#10;&#10;- 将Kotlin版本从2.1.20升级到2.2.0&#10;- 添加Kotlin序列化插件支持&#10;- 新增GameService类实现HTTP服务功能&#10;- 集成Ktor框架用于游戏状态通信&#10;- 在应用启动时启动游戏服务，退出时停止服务&#10;- 自动查找可用端口并写入临时文件供游戏进程访问&#10;&#10;新增依赖：&#10;- kotlinx-serialization-json: 1.9.0&#10;- ktor-server-core: 3.3.1&#10;- ktor-server-netty: 3.3.1&#10;- ktor-server-content-negotiation: 3.3.1&#10;- ktor-serialization-kotlinx-json: 3.3.1">
+      <option name="closed" value="true" />
+      <created>1761497806190</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1761497806191</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -270,7 +272,8 @@
     <MESSAGE value="refactor(navigation): :truck: 重构导航相关代码结构&#10;&#10;将导航相关代码从service包移动到navigation包，并优化导航服务实现&#10;- 移动SharedScreen到navigation包&#10;- 新增NavigationService提供统一导航方法&#10;- 更新相关界面引用路径&#10;- 优化导航栏动画效果和交互体验&#10;&#10;重构代码结构以提高可维护性，为后续功能扩展做准备" />
     <MESSAGE value="feat(ui): ✨ 新增设置卡片组件并优化主页布局&#10;&#10;新增SettingsCard组件用于统一设置项UI展示&#10;- 实现带图标和标题的设置卡片布局&#10;- 支持自定义内容区域&#10;- 添加阴影和圆角效果提升视觉体验&#10;&#10;重构HomeScreen使用新组件&#10;- 替换原有简单按钮布局&#10;- 集成文件选择功能&#10;- 通过HomeScreenModel管理游戏路径状态&#10;&#10;更新build.gradle添加协程依赖以支持异步文件操作" />
     <MESSAGE value="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 新增WebView支持及多语言设置项&#10;&#10;- 添加compose-webview-multiplatform依赖实现WebView功能&#10;- 新增WebScreen和DocsScreen两个功能页面&#10;- 重构SettingScreen使用SettingsCard组件&#10;- 添加游戏路径设置功能及相关多语言字符串&#10;- 配置ProGuard规则保留CEF和协程相关类&#10;- 优化窗口动画效果和导航体验&#10;&#10;修复主页与设置页面的路径设置功能重复问题" />
+    <MESSAGE value="build(deps): ⬆️ 升级Kotlin版本至2.2.0并添加游戏服务功能&#10;&#10;- 将Kotlin版本从2.1.20升级到2.2.0&#10;- 添加Kotlin序列化插件支持&#10;- 新增GameService类实现HTTP服务功能&#10;- 集成Ktor框架用于游戏状态通信&#10;- 在应用启动时启动游戏服务，退出时停止服务&#10;- 自动查找可用端口并写入临时文件供游戏进程访问&#10;&#10;新增依赖：&#10;- kotlinx-serialization-json: 1.9.0&#10;- ktor-server-core: 3.3.1&#10;- ktor-server-netty: 3.3.1&#10;- ktor-server-content-negotiation: 3.3.1&#10;- ktor-serialization-kotlinx-json: 3.3.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="build(deps): ⬆️ 升级Kotlin版本至2.2.0并添加游戏服务功能&#10;&#10;- 将Kotlin版本从2.1.20升级到2.2.0&#10;- 添加Kotlin序列化插件支持&#10;- 新增GameService类实现HTTP服务功能&#10;- 集成Ktor框架用于游戏状态通信&#10;- 在应用启动时启动游戏服务，退出时停止服务&#10;- 自动查找可用端口并写入临时文件供游戏进程访问&#10;&#10;新增依赖：&#10;- kotlinx-serialization-json: 1.9.0&#10;- ktor-server-core: 3.3.1&#10;- ktor-server-netty: 3.3.1&#10;- ktor-server-content-negotiation: 3.3.1&#10;- ktor-serialization-kotlinx-json: 3.3.1" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

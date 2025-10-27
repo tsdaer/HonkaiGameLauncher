@@ -1,4 +1,4 @@
-package screen
+package viewModel
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.russhwolf.settings.Settings

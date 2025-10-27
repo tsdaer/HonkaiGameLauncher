@@ -10,6 +10,7 @@
     <string name="screen_website">website</string>
     <string name="screen_env">runtime environment</string>
     <string name="screen_doc">docs</string>
+    <string name="screen_log">log</string>
 
     <string name="setGamePath">set game path</string>
 </resources>

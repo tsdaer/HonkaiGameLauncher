@@ -3,35 +3,67 @@ package core
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.flow.MutableStateFlow
+import io.ktor.utils.io.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.ServerSocket
 import kotlin.concurrent.thread
 
 class GameService {
-    private var server: ApplicationEngine? = null
+    private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
     private var port: Int = -1
 
-    private val logs = MutableStateFlow("")
+    private val uiScope = CoroutineScope(Dispatchers.Main)
 
+    // ✅ 定义事件监听器集合
+    private val logListeners = mutableListOf<(List<LauncherLogEntry>) -> Unit>()
 
-    public fun start() {
+    fun addLogListener(listener: (List<LauncherLogEntry>) -> Unit) {
+        logListeners += listener
+    }
+
+    fun removeLogListener(listener: (List<LauncherLogEntry>) -> Unit) {
+        logListeners -= listener
+    }
+
+    private fun notifyLogListeners(logs: List<LauncherLogEntry>) {
+        uiScope.launch {
+            logListeners.forEach { it.invoke(logs) }
+        }
+    }
+
+    fun start() {
         if (server != null) return
         port = findFreePort()
         writePortFile(port)
 
         // 在后台线程启动 HTTP 服务
-        server = embeddedServer(Netty, port) {
+        server = embeddedServer(Netty, port,"127.0.0.1") {
             routing {
                 post("/game/status") {
-                    val body = call.receiveText()
-                    println("Game says: $body")
-                    call.respondText("""{"ok":true}""")
+                    val bytes = call.receiveChannel().toByteArray()
+                    val text  = bytes.toString(Charsets.UTF_8)
+
+                    // 尝试解析 JSON
+                    try {
+                        val parsed = if (text.trim().startsWith("[")) {
+                            Json.decodeFromString<List<LauncherLogEntry>>(text)
+                        } else {
+                            listOf(Json.decodeFromString<LauncherLogEntry>(text))
+                        }
+
+                        println("Received ${parsed.size} log(s) from game.")
+                        notifyLogListeners(parsed)
+                    } catch (e: Exception) {
+                        println("Log parse error: ${e.message}")
+                    }
                 }
             }
-        }.engine
+        }
         thread(isDaemon = true, name = "LauncherService") {
             server!!.start(wait = true)
         }

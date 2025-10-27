@@ -5,6 +5,7 @@ import cafe.adriel.voyager.core.registry.ScreenRegistry
 import screen.HomeScreen
 import screen.SettingScreen
 import screen.feature.DocsScreen
+import screen.feature.LogScreen
 import screen.feature.PluginScreen
 import screen.feature.WebScreen
 
@@ -18,6 +19,8 @@ sealed class SharedScreen : ScreenProvider {
     object Plugin : SharedScreen()
     object Docs : SharedScreen()
     object Web : SharedScreen()
+
+    object Log : SharedScreen()
 }
 
 fun registerNavigation() {
@@ -28,13 +31,15 @@ fun registerNavigation() {
         register<SharedScreen.Plugin> { PluginScreen() }
         register<SharedScreen.Docs> { DocsScreen() }
         register<SharedScreen.Web> { WebScreen() }
+        register<SharedScreen.Log> { LogScreen() }
     }
 }
 
 val featureScreens = listOf(
     SharedScreen.Plugin,
     SharedScreen.Docs,
-    SharedScreen.Web
+    SharedScreen.Web,
+    SharedScreen.Log
     // Add more screens here as needed
     // SharedScreen.AnotherFeature,
     // SharedScreen.YetAnotherFeature

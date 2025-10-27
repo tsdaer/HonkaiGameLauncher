@@ -51,5 +51,4 @@ class WebScreen: Screen, IScreenInterface {
             )
         }
     }
-
 }
