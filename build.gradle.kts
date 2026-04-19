@@ -81,20 +81,23 @@ compose.desktop {
         }
 
         buildTypes.release.proguard {
-            configurationFiles.from("compose-desktop.pro")
+            isEnabled.set(false)
         }
-    }
-}
 
-afterEvaluate {
-    tasks.withType<JavaExec> {
-        jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-        jvmArgs("--add-opens", "java.desktop/java.awt.peer=ALL-UNNAMED")
-
-        if (System.getProperty("os.name").contains("Mac")) {
-            jvmArgs("--add-opens", "java.desktop/sun.awt=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt=ALL-UNNAMED")
-            jvmArgs("--add-opens", "java.desktop/sun.lwawt.macosx=ALL-UNNAMED")
+        if(System.getProperty("os.name").contains("Mac"))
+        {
+            jvmArgs(
+                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+                "--add-opens=java.desktop/sun.lwawt=ALL-UNNAMED",
+                "--add-opens=java.desktop/sun.lwawt.macosx=ALL-UNNAMED"
+            )
+        }
+        else
+        {
+            jvmArgs(
+                "--add-opens=java.desktop/sun.awt=ALL-UNNAMED",
+                "--add-opens=java.desktop/java.awt.peer=ALL-UNNAMED",
+            )
         }
     }
 }

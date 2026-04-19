@@ -1,6 +1,7 @@
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -13,6 +14,7 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
 import cafe.adriel.voyager.core.annotation.ExperimentalVoyagerApi
@@ -150,46 +152,56 @@ fun main() = application {
             title = stringResource(Res.string.appTitle),
             transparent = true,
             undecorated = true,
-            icon = appIcon
+            icon = appIcon,
+            resizable = state.placement == WindowPlacement.Floating
         ) {
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("swing.aatext", "true")
             MaterialTheme(colors = colorScheme, typography = HarmonyTypography()) {
-                Surface(
-                    modifier = Modifier.padding(5.dp)
-                        .shadow(
-                            elevation = 3.dp,
-                            shape = RoundedCornerShape(10.dp)
-                        ),
-                    border = BorderStroke(1.dp, MaterialTheme.colors.background),
-                    color = MaterialTheme.colors.background,
-                    shape = RoundedCornerShape(10.dp) //窗口现在有圆角
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(Color.Transparent)
                 ) {
-                    Box {
-                        Navigator(rememberScreen(SharedScreen.Home)) { navigator ->
-                            Scaffold(
-                                topBar = {
-                                    AppWindowTitleBar(
-                                        state = state,
-                                        onCloseRequest = { isVisible = false },
-                                        onThemeChanged = { isDarkTheme = !isDarkTheme },
-                                        onLanguageChanged = {
-                                            if (languageCode == "en") {
-                                                languageCode = "zh"
-                                                changeLanguage("zh")
-                                            } else {
-                                                languageCode = "en"
-                                                changeLanguage("en")
-                                            }
-                                        },
-                                        isDarkTheme = !isDarkTheme
-                                    )
-                                },
-                                content = { MainView() }
-                            )
+                    val isFloating = state.placement == WindowPlacement.Floating
+
+                    Surface(
+                        modifier = Modifier.padding(if (isFloating) 5.dp else 0.dp)
+                            .shadow(
+                                elevation = if (isFloating) 3.dp else 0.dp, // 全屏时关闭阴影
+                                shape = RoundedCornerShape(if (isFloating) 10.dp else 0.dp)
+                            ),
+                        border = if (isFloating) BorderStroke(1.dp, MaterialTheme.colors.background) else null,
+                        color = MaterialTheme.colors.background,
+                        shape = RoundedCornerShape(if (isFloating) 10.dp else 0.dp)
+                    ) {
+                        Box {
+                            Navigator(rememberScreen(SharedScreen.Home)) { navigator ->
+                                Scaffold(
+                                    topBar = {
+                                        AppWindowTitleBar(
+                                            state = state,
+                                            onCloseRequest = { isVisible = false },
+                                            onThemeChanged = { isDarkTheme = !isDarkTheme },
+                                            onLanguageChanged = {
+                                                if (languageCode == "en") {
+                                                    languageCode = "zh"
+                                                    changeLanguage("zh")
+                                                } else {
+                                                    languageCode = "en"
+                                                    changeLanguage("en")
+                                                }
+                                            },
+                                            isDarkTheme = !isDarkTheme
+                                        )
+                                    },
+                                    content = { MainView() }
+                                )
+                            }
                         }
                     }
                 }
+
             }
         }
     }
