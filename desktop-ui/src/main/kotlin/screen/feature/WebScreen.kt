@@ -2,7 +2,6 @@ package screen.feature
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -15,8 +14,10 @@ import com.multiplatform.webview.web.rememberWebViewState
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.Globe
+import io.github.composefluent.component.Text as FluentText
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
+import ui.fluent.components.FluentSection
 
 
 class WebScreen: Screen, IScreenInterface {
@@ -44,7 +45,12 @@ class WebScreen: Screen, IScreenInterface {
             val text = webViewState.let {
                 "${it.pageTitle ?: ""} ${it.loadingState} ${it.lastLoadedUrl ?: ""}"
             }
-            Text(text)
+            FluentSection(
+                title = stringResource(Res.string.screen_website),
+                icon = getIcon()
+            ) {
+                FluentText(text)
+            }
             WebView(
                 state = webViewState,
                 modifier = Modifier.fillMaxSize()

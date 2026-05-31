@@ -2,7 +2,9 @@ package ui.components
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -12,9 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.window.WindowDraggableArea
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,8 +42,10 @@ import honkaigamelauncher.desktop_ui.generated.resources.appTitle
 import honkaigamelauncher.desktop_ui.generated.resources.logo
 import io.github.composefluent.component.Button as FluentButton
 import io.github.composefluent.component.Icon as FluentIcon
+import io.github.composefluent.component.Text as FluentText
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
 import ui.fluent.theme.LegacyThemeAdapter
 
@@ -63,89 +64,102 @@ fun WindowScope.AppWindowTitleBar(
     } else {
         FluentTokens.ColorToken.cardLight.copy(alpha = 0.9f)
     }
-    val borderColor = MaterialTheme.colors.primary.copy(alpha = 0.16f)
+    val borderColor = FluentTokens.ColorToken.accent.copy(alpha = 0.16f)
 
     val content: @Composable () -> Unit = {
         val navigator = LocalNavigator.current
 
         LegacyThemeAdapter(darkTheme = isDarkTheme) {
-            Surface(
-                color = surfaceColor,
-                border = BorderStroke(1.dp, borderColor),
-                elevation = if (isFloating) 2.dp else 0.dp,
-                modifier = Modifier.fillMaxWidth()
+            FluentCard(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(if (isFloating) 1.dp else 0.dp)
             ) {
-                Row(
+                Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(46.dp)
-                        .padding(horizontal = 6.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        .background(surfaceColor)
+                        .padding(1.dp)
                 ) {
-                    AppTitleActionButton(
-                        imageVector = FeatherIcons.CornerUpLeft,
-                        contentDescription = "回退",
-                        enabled = navigator?.canPop == true,
-                        onClick = { navigator?.pop() }
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .background(borderColor.copy(alpha = 0.15f))
+                            .padding(1.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(46.dp)
+                                .background(surfaceColor)
+                                .padding(horizontal = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            AppTitleActionButton(
+                                imageVector = FeatherIcons.CornerUpLeft,
+                                contentDescription = "回退",
+                                enabled = navigator?.canPop == true,
+                                onClick = { navigator?.pop() }
+                            )
 
-                    androidx.compose.material.Icon(
-                        painter = painterResource(Res.drawable.logo),
-                        contentDescription = "App Icon",
-                        modifier = Modifier.size(22.dp),
-                        tint = Color.Unspecified
-                    )
+                            Image(
+                                painter = painterResource(Res.drawable.logo),
+                                contentDescription = "App Icon",
+                                modifier = Modifier.size(22.dp)
+                            )
 
-                    Text(
-                        text = stringResource(Res.string.appTitle),
-                        color = MaterialTheme.colors.primary,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis,
-                        modifier = Modifier.padding(start = 4.dp)
-                    )
+                            FluentText(
+                                text = stringResource(Res.string.appTitle),
+                                color = FluentTokens.ColorToken.accent,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(start = 4.dp)
+                            )
 
-                    Spacer(modifier = Modifier.weight(1f))
+                            Spacer(modifier = Modifier.weight(1f))
 
-                    AppTitleActionButton(
-                        imageVector = remember(isDarkTheme) {
-                            if (isDarkTheme) FeatherIcons.Sun else FeatherIcons.Moon
-                        },
-                        contentDescription = if (isDarkTheme) "切换至亮色主题" else "切换至暗色主题",
-                        onClick = onThemeChanged
-                    )
-                    AppTitleActionButton(
-                        imageVector = LineAwesomeIcons.LanguageSolid,
-                        contentDescription = "切换语言",
-                        onClick = onLanguageChanged
-                    )
-                    AppTitleActionButton(
-                        imageVector = FeatherIcons.Minus,
-                        contentDescription = "最小化",
-                        onClick = { state.isMinimized = !state.isMinimized }
-                    )
-                    AppTitleActionButton(
-                        imageVector = remember(state.placement) {
-                            if (state.placement == WindowPlacement.Maximized) {
-                                FeatherIcons.Minimize
-                            } else {
-                                FeatherIcons.Maximize
-                            }
-                        },
-                        contentDescription = if (state.placement == WindowPlacement.Maximized) "恢复窗口" else "最大化",
-                        onClick = {
-                            state.placement = if (state.placement == WindowPlacement.Maximized) {
-                                WindowPlacement.Floating
-                            } else {
-                                WindowPlacement.Maximized
-                            }
+                            AppTitleActionButton(
+                                imageVector = remember(isDarkTheme) {
+                                    if (isDarkTheme) FeatherIcons.Sun else FeatherIcons.Moon
+                                },
+                                contentDescription = if (isDarkTheme) "切换至亮色主题" else "切换至暗色主题",
+                                onClick = onThemeChanged
+                            )
+                            AppTitleActionButton(
+                                imageVector = LineAwesomeIcons.LanguageSolid,
+                                contentDescription = "切换语言",
+                                onClick = onLanguageChanged
+                            )
+                            AppTitleActionButton(
+                                imageVector = FeatherIcons.Minus,
+                                contentDescription = "最小化",
+                                onClick = { state.isMinimized = !state.isMinimized }
+                            )
+                            AppTitleActionButton(
+                                imageVector = remember(state.placement) {
+                                    if (state.placement == WindowPlacement.Maximized) {
+                                        FeatherIcons.Minimize
+                                    } else {
+                                        FeatherIcons.Maximize
+                                    }
+                                },
+                                contentDescription = if (state.placement == WindowPlacement.Maximized) "恢复窗口" else "最大化",
+                                onClick = {
+                                    state.placement = if (state.placement == WindowPlacement.Maximized) {
+                                        WindowPlacement.Floating
+                                    } else {
+                                        WindowPlacement.Maximized
+                                    }
+                                }
+                            )
+                            AppTitleActionButton(
+                                imageVector = FeatherIcons.X,
+                                contentDescription = "退出",
+                                onClick = onCloseRequest
+                            )
                         }
-                    )
-                    AppTitleActionButton(
-                        imageVector = FeatherIcons.X,
-                        contentDescription = "退出",
-                        onClick = onCloseRequest
-                    )
+                    }
                 }
             }
         }

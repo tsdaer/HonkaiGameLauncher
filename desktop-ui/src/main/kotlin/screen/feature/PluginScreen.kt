@@ -1,7 +1,9 @@
 package screen.feature
 
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
@@ -10,6 +12,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.screen_plugin
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.PlugSolid
 import org.jetbrains.compose.resources.stringResource
+import ui.fluent.components.FluentSection
+import io.github.composefluent.component.Text as FluentText
 import screen.IScreenInterface
 
 class PluginScreen: Screen, IScreenInterface {
@@ -31,6 +35,13 @@ class PluginScreen: Screen, IScreenInterface {
 
     @Composable
     override fun Content() {
-        Text("插件界面")
+        Column(modifier = Modifier.fillMaxSize()) {
+            FluentSection(
+                title = stringResource(Res.string.screen_plugin),
+                icon = getIcon()
+            ) {
+                FluentText("插件界面")
+            }
+        }
     }
 }

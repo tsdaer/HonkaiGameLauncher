@@ -1,18 +1,14 @@
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.application
@@ -33,69 +29,54 @@ import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
-import ui.fluent.FluentSandbox
-import ui.theme.DarkColorScheme
-import ui.theme.HarmonyTypography
-import ui.theme.LightColorScheme
+import ui.fluent.components.FluentText
+import ui.fluent.theme.AppFluentTheme
+import ui.fluent.theme.FluentTokens
 import kotlin.system.exitProcess
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun MainView() {
+fun MainView(
+    darkTheme: Boolean
+) {
     val navigator = LocalNavigator.current
     val data = navigator?.let { it.lastItem as? IScreenInterface }
-    Box(modifier = Modifier.fillMaxSize()) {
-        Column {
-            Row {
-                NavigationBar()
-                Box(modifier = Modifier.fillMaxSize()) {
-                    Surface(
-                        color = MaterialTheme.colors.background,
-                        border = BorderStroke(1.dp, MaterialTheme.colors.primary.copy(0.1f)),
-                        modifier = Modifier.fillMaxSize()
-                            .shadow(
-                                elevation = 8.dp,
-                                shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp),
-                                ambientColor = MaterialTheme.colors.primary,
-                                spotColor = MaterialTheme.colors.primary
-                            ),
-                        shape = RoundedCornerShape(8.dp, 0.dp, 0.dp, 0.dp)
-                    ) {
-                        Column(modifier = Modifier.fillMaxSize().padding(60.dp)) {
+    Row(modifier = Modifier.fillMaxSize()) {
+        NavigationBar(darkTheme = darkTheme)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    start = FluentTokens.Spacing.large,
+                    end = FluentTokens.Spacing.xLarge,
+                    top = FluentTokens.Spacing.xLarge,
+                    bottom = FluentTokens.Spacing.xLarge
+                )
+        ) {
+            data?.let {
+                FluentText(
+                    text = it.getTitle(),
+                    fontSize = 22.sp,
+                    modifier = Modifier.padding(bottom = 10.dp)
+                )
+            }
 
-                            data?.let {
-                                Text(
-                                    text = it.getTitle(),
-                                    style = MaterialTheme.typography.h5,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(bottom = 10.dp)
-                                )
-                            }
-
-                            navigator?.let {
-                                val slowAnimation = tween<IntOffset>(durationMillis = 300)
-                                val slowAnimation2 = tween<Float>(durationMillis = 300)
-                                AnimatedContent(
-                                    targetState = navigator.lastItem.key,
-                                    transitionSpec = {
-                                        (slideInVertically(animationSpec = slowAnimation) { fullHeight -> (0.1*fullHeight).toInt() } + fadeIn(animationSpec = slowAnimation2)).
-                                        togetherWith(slideOutVertically(animationSpec = slowAnimation) { fullHeight -> (-0.1*fullHeight).toInt() } + fadeOut(slowAnimation2)) },
-                                    contentKey = { navigator.lastItem.key }) {
-                                    CurrentScreen()
-                                }
-                            }
-                        }
-                    }
+            navigator?.let {
+                val slowAnimation = tween<IntOffset>(durationMillis = 300)
+                val slowAnimation2 = tween<Float>(durationMillis = 300)
+                AnimatedContent(
+                    targetState = navigator.lastItem.key,
+                    transitionSpec = {
+                        (slideInVertically(animationSpec = slowAnimation) { fullHeight -> (0.1 * fullHeight).toInt() } + fadeIn(animationSpec = slowAnimation2))
+                            .togetherWith(slideOutVertically(animationSpec = slowAnimation) { fullHeight -> (-0.1 * fullHeight).toInt() } + fadeOut(slowAnimation2))
+                    },
+                    contentKey = { navigator.lastItem.key }
+                ) {
+                    CurrentScreen()
                 }
             }
         }
     }
-}
-
-private fun isFluentSandboxEnabled(): Boolean {
-    val property = System.getProperty("hgl.fluent.sandbox")
-    val env = System.getenv("HGL_FLUENT_SANDBOX")
-    return property.equals("true", ignoreCase = true) || env.equals("true", ignoreCase = true)
 }
 
 @OptIn(ExperimentalVoyagerApi::class)
@@ -110,14 +91,12 @@ fun main() = application {
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
     var isDarkTheme by remember { mutableStateOf(false) }
-    val colorScheme = if (isDarkTheme) DarkColorScheme else LightColorScheme
 
     val localLocalization = staticCompositionLocalOf { "zh" }
     var languageCode by remember { mutableStateOf("zh") }
 
     var openWindowStr = ""
     var exitApplicationStr = ""
-    val useFluentSandbox = isFluentSandboxEnabled()
 
     val state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
 
@@ -125,7 +104,7 @@ fun main() = application {
 
     Tray(
         iconContent = {
-            Icon(
+            androidx.compose.material.Icon(
                 appIcon,
                 contentDescription = "",
                 tint = Color.Unspecified,
@@ -163,57 +142,38 @@ fun main() = application {
         ) {
             System.setProperty("awt.useSystemAAFontSettings", "on")
             System.setProperty("swing.aatext", "true")
-            MaterialTheme(colors = colorScheme, typography = HarmonyTypography()) {
+            AppFluentTheme(darkTheme = isDarkTheme) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(Color.Transparent)
+                        .background(
+                            if (isDarkTheme) FluentTokens.ColorToken.windowBackgroundDark
+                            else FluentTokens.ColorToken.windowBackgroundLight
+                        )
                 ) {
-                    val isFloating = state.placement == WindowPlacement.Floating
-
-                    Surface(
-                        modifier = Modifier.padding(if (isFloating) 5.dp else 0.dp)
-                            .shadow(
-                                elevation = if (isFloating) 3.dp else 0.dp, // 全屏时关闭阴影
-                                shape = RoundedCornerShape(if (isFloating) 10.dp else 0.dp)
-                            ),
-                        border = if (isFloating) BorderStroke(1.dp, MaterialTheme.colors.background) else null,
-                        color = MaterialTheme.colors.background,
-                        shape = RoundedCornerShape(if (isFloating) 10.dp else 0.dp)
-                    ) {
-                        Box {
-                            Navigator(rememberScreen(SharedScreen.Home)) { navigator ->
-                                Scaffold(
-                                    topBar = {
-                                        AppWindowTitleBar(
-                                            state = state,
-                                            onCloseRequest = { isVisible = false },
-                                            onThemeChanged = { isDarkTheme = !isDarkTheme },
-                                            onLanguageChanged = {
-                                                if (languageCode == "en") {
-                                                    languageCode = "zh"
-                                                    changeLanguage("zh")
-                                                } else {
-                                                    languageCode = "en"
-                                                    changeLanguage("en")
-                                                }
-                                            },
-                                            isDarkTheme = !isDarkTheme
-                                        )
-                                    },
-                                    content = {
-                                        if (useFluentSandbox) {
-                                            FluentSandbox(isDarkTheme = isDarkTheme)
-                                        } else {
-                                            MainView()
-                                        }
+                    Navigator(rememberScreen(SharedScreen.Home)) { navigator ->
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            AppWindowTitleBar(
+                                state = state,
+                                onCloseRequest = { isVisible = false },
+                                onThemeChanged = { isDarkTheme = !isDarkTheme },
+                                onLanguageChanged = {
+                                    if (languageCode == "en") {
+                                        languageCode = "zh"
+                                        changeLanguage("zh")
+                                    } else {
+                                        languageCode = "en"
+                                        changeLanguage("en")
                                     }
-                                )
+                                },
+                                isDarkTheme = isDarkTheme
+                            )
+                            Box(modifier = Modifier.fillMaxSize()) {
+                                MainView(darkTheme = isDarkTheme)
                             }
                         }
                     }
                 }
-
             }
         }
     }

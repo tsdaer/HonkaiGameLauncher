@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -131,7 +130,9 @@ private fun NavigationFeatureItem(
 }
 
 @Composable
-fun NavigationBar() {
+fun NavigationBar(
+    darkTheme: Boolean
+) {
     val state = rememberScrollState(0)
     var isExpanded by remember { mutableStateOf(false) }
     var showDetail by remember { mutableStateOf(false) }
@@ -149,7 +150,7 @@ fun NavigationBar() {
         targetValue = if (showDetail) 1f else 0f
     )
 
-    LegacyThemeAdapter(darkTheme = !MaterialTheme.colors.isLight) {
+    LegacyThemeAdapter(darkTheme = darkTheme) {
         Box(
             modifier = Modifier
                 .fillMaxHeight()

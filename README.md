@@ -49,17 +49,6 @@ Windows:
 .\gradlew.bat :desktop-app:run
 ```
 
-### 运行 Fluent Sandbox（M1 验证）
-
-默认仍是旧 UI。开发期可通过开关进入 Fluent Demo 页面：
-
-Windows PowerShell（环境变量方式）：
-
-```powershell
-$env:HGL_FLUENT_SANDBOX = "true"
-.\gradlew.bat :desktop-app:run
-```
-
 ### 全量构建
 
 ```bash

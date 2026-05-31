@@ -239,6 +239,30 @@
 - Fluent 基础组件集
 - 组件映射文档
 
+### M5 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 新增 `desktop-ui/src/main/kotlin/ui/fluent/components/`：
+    - `FluentButton.kt`
+    - `FluentCard.kt`
+    - `FluentDropdown.kt`
+    - `FluentSection.kt`
+  - `SettingScreen` 已接入 `FluentSection + FluentButton`，按钮交互态统一走 Fluent 默认状态
+  - 已删除不再使用的旧通用组件：
+    - `desktop-ui/src/main/kotlin/ui/components/CustomButton.kt`
+    - `desktop-ui/src/main/kotlin/ui/components/SettingsCard.kt`
+  - 新组件已在多个页面复用：
+    - `SettingScreen` 使用 `FluentSection + FluentButton`
+    - `PluginScreen` 使用 `FluentSection`
+    - `DocsScreen` 使用 `FluentSection`
+  - 本地编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
+- 组件替换对照表（旧组件 -> 新组件）：
+  - `ui/components/CustomButton.kt` -> `ui/fluent/components/FluentButton.kt`
+  - `ui/components/SettingsCard.kt` -> `ui/fluent/components/FluentSection.kt` + `ui/fluent/components/FluentCard.kt`
+  - 页面内直接 `Button`（Material） -> `ui/fluent/components/FluentButton.kt`
+  - 页面内直接 `DropdownMenu`（Material） -> `ui/fluent/components/FluentDropdown.kt`（后续在日志页替换）
+
 ---
 
 ## M6：页面分批迁移
@@ -279,6 +303,43 @@
 - 分批迁移 PR
 - 页面级回归报告
 
+### M6 进度记录（2026-05-31）
+
+- 状态：review
+- 已完成：
+  - `SettingScreen`：接入 `FluentSection + FluentButton`，移除 Material `SettingsCard/Button` 依赖
+  - `PluginScreen`：接入 `FluentSection`（页面占位内容迁移到 Fluent 文本渲染）
+  - `DocsScreen`：接入 `FluentSection`（页面占位内容迁移到 Fluent 文本渲染）
+  - `WebScreen`：顶部状态信息区接入 `FluentSection` 与 Fluent 文本
+  - `LogScreen`：筛选与操作区迁移为 Fluent 默认控件
+    - 类型筛选：`FluentDropdown`
+    - 分类筛选：`FluentDropdown`
+    - 自动滚动：`ToggleButton`（默认状态）
+    - 清空：`FluentButton`
+    - 日志列表区：使用 `FluentCard` 作为容器与日志项卡片语义，移除硬编码深色背景块
+  - 本地编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
+- 待完成：
+  - 页面级手工回归执行结果（以下清单）
+
+### M6 页面级手工回归清单（2026-05-31）
+
+- 基础导航：
+  - `Home/Plugin/Docs/Web/Log/Setting` 页面可点击进入，路由与返回栈行为不变
+  - 侧边导航展开/收起动画流畅，无不可点击项
+- 主题与语言：
+  - 亮/暗主题切换后，`TitleBar/NavigationBar/SettingScreen/LogScreen` 控件状态正常
+  - 中英文切换后，页面标题与菜单文案显示正常
+- 页面功能：
+  - `SettingScreen`：路径按钮可触发路径选择逻辑
+  - `WebScreen`：顶部状态信息正常刷新，WebView 可继续加载页面
+  - `LogScreen`：
+    - 类型筛选与分类筛选可用
+    - 自动滚动开关生效
+    - 清空按钮生效
+    - 高频日志更新时列表持续可滚动，自动滚动开启时可跟随末尾
+- Fluent 默认控件状态：
+  - 按钮/切换/下拉均使用 Fluent 默认 hover/pressed/checked/disabled 视觉反馈
+
 ---
 
 ## M7：稳定性与可用性验收
@@ -318,6 +379,20 @@
 - 回归与验收报告
 - 已知问题清单（若有）
 
+### M7 进度记录（2026-05-31）
+
+- 状态：review
+- 已完成：
+  - 自动化校验通过：`.\gradlew.bat :desktop-app:check`（`BUILD SUCCESSFUL`）
+  - 当前平台打包校验通过：`.\gradlew.bat :desktop-app:packageDistributionForCurrentOS`（`BUILD SUCCESSFUL`）
+  - Windows 安装包产物生成：
+    - `desktop-app/build/compose/binaries/main/exe/HonkaiGameLauncher-1.0.0.exe`
+  - 已输出验收报告：
+    - `docs/m7-validation-report-2026-05-31.md`
+- 待完成：
+  - 执行并确认 M6 手工回归清单结果（主题/导航/日志高频滚动）
+  - 评估并补齐自动化测试用例（当前 `:desktop-app:test` 为 `NO-SOURCE`）
+
 ---
 
 ## M8：清理与收尾
@@ -341,6 +416,24 @@
 
 - 清理后的主分支
 - 文档更新完成
+
+### M8 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 移除迁移期入口开关与 Sandbox 分支逻辑：
+    - 删除 `Main.kt` 中 `hgl.fluent.sandbox` / `HGL_FLUENT_SANDBOX` 判定
+    - 主界面入口统一为迁移后的正式 UI（`MainView`）
+  - 删除迁移后无引用的旧/临时 UI 文件：
+    - `desktop-ui/src/main/kotlin/ui/components/CustomButton.kt`
+    - `desktop-ui/src/main/kotlin/ui/components/SettingsCard.kt`
+    - `desktop-ui/src/main/kotlin/ui/fluent/FluentSandbox.kt`
+  - README 运行说明已同步收敛为正式入口（移除 Sandbox 运行章节）
+  - 编译与打包链路保持可用（见 M7 验收记录）
+  - 主题壳收口：
+    - `desktop-app/Main.kt` 已移除 `MaterialTheme` 外层包裹，仅保留 `AppFluentTheme`
+    - 页面层不再读取 `MaterialTheme.colors.isLight`，统一在 Fluent 主题上下文下渲染
+    - `desktop-ui/src/main/kotlin/ui/theme/Theme.kt` 已退役并删除
 
 ---
 

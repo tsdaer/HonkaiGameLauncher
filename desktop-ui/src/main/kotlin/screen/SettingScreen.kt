@@ -4,8 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.Button
-import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -20,7 +18,9 @@ import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.Folder
 import compose.icons.feathericons.Settings
 import org.jetbrains.compose.resources.stringResource
-import ui.components.SettingsCard
+import io.github.composefluent.component.Text as FluentText
+import ui.fluent.components.FluentButton
+import ui.fluent.components.FluentSection
 import viewModel.SettingScreenModel
 
 class SettingScreen: Screen, IScreenInterface {
@@ -45,9 +45,12 @@ class SettingScreen: Screen, IScreenInterface {
         val screenModel = rememberScreenModel{ SettingScreenModel() }
         val state = rememberScrollState(0)
         Column(modifier = Modifier.fillMaxSize().verticalScroll(state)) {
-            SettingsCard(stringResource(Res.string.setGamePath), EvaIcons.Fill.Folder) {
-                Button(onClick = { screenModel.setGamePath() }) {
-                    Text(screenModel.gamePath)
+            FluentSection(
+                title = stringResource(Res.string.setGamePath),
+                icon = EvaIcons.Fill.Folder
+            ) {
+                FluentButton(onClick = { screenModel.setGamePath() }) {
+                    FluentText(screenModel.gamePath)
                 }
             }
         }
