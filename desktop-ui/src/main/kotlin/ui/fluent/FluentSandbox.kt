@@ -13,28 +13,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.AccentButton
 import io.github.composefluent.component.Button
 import io.github.composefluent.component.Switcher
 import io.github.composefluent.component.Text
 import io.github.composefluent.component.TextField
-import io.github.composefluent.darkColors
-import io.github.composefluent.lightColors
+import io.github.composefluent.FluentTheme
+import ui.fluent.theme.AppFluentTheme
+import ui.fluent.theme.FluentTokens
 
 @Composable
 fun FluentSandbox(isDarkTheme: Boolean) {
     var inputText by remember { mutableStateOf("Honkai RTS Launcher") }
     var switchChecked by remember { mutableStateOf(false) }
-    val colors = if (isDarkTheme) darkColors() else lightColors()
 
-    FluentTheme(colors = colors) {
+    AppFluentTheme(darkTheme = isDarkTheme) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 48.dp, vertical = 40.dp),
-            verticalArrangement = Arrangement.spacedBy(14.dp)
+                .padding(
+                    horizontal = FluentTokens.Spacing.pageHorizontal,
+                    vertical = FluentTokens.Spacing.pageVertical
+                ),
+            verticalArrangement = Arrangement.spacedBy(FluentTokens.Spacing.medium)
         ) {
             Text(
                 text = "Fluent UI Sandbox",
@@ -45,7 +46,7 @@ fun FluentSandbox(isDarkTheme: Boolean) {
                 style = FluentTheme.typography.body
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(FluentTokens.Spacing.small))
 
             TextField(
                 value = inputText,

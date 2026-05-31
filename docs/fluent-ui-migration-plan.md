@@ -101,6 +101,17 @@
 - Fluent 主题基础设施
 - Token 使用规范（简版）
 
+### M2 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 新增 `desktop-ui/src/main/kotlin/ui/fluent/theme/FluentTokens.kt`
+  - 新增 `desktop-ui/src/main/kotlin/ui/fluent/theme/FluentTypography.kt`
+  - 新增 `desktop-ui/src/main/kotlin/ui/fluent/theme/FluentTheme.kt`
+  - 新增 `desktop-ui/src/main/kotlin/ui/fluent/theme/LegacyThemeAdapter.kt` 作为迁移兼容入口
+  - `FluentSandbox` 已接入 `AppFluentTheme` 与 `FluentTokens`，不再散落硬编码间距
+  - 本地编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
+
 ---
 
 ## M3：窗口框架迁移
@@ -133,6 +144,23 @@
 - 迁移后的标题栏实现
 - 窗口行为测试记录
 
+### M3 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 改造 `desktop-ui/src/main/kotlin/ui/components/AppWindowTitleBar.kt` 为 Fluent 风格标题栏
+  - 保留并验证以下行为不变：
+    - 回退（`navigator.pop`）
+    - 主题切换
+    - 语言切换
+    - 最小化
+    - 最大化/还原
+    - 双击标题栏切换最大化/还原
+    - 浮动窗口拖拽（`WindowDraggableArea`）
+  - 标题栏控制按钮统一切换为 Fluent 默认按钮状态（不再自定义 hover/pressed/危险色）
+  - 浮动/最大化窗口保持不同阴影层级
+  - 本地编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
+
 ---
 
 ## M4：导航系统迁移
@@ -164,6 +192,19 @@
 
 - Fluent 导航组件
 - 导航行为一致性校验清单
+
+### M4 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 改造 `desktop-ui/src/main/kotlin/ui/components/NavigationBar.kt`，导航主控件切换到 Fluent 组件：
+    - 菜单按钮：`Button`
+    - 导航项：`ToggleButton`
+    - 图标与文字：`Icon` / `Text`
+  - 保留原有路由语义（`SharedScreen` + `Voyager` 入栈逻辑）
+  - 保留收起/展开宽度动画与文本显隐动画
+  - 选中态由 Fluent 默认状态驱动，不再叠加自定义按钮交互态
+  - 本地编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
 
 ---
 

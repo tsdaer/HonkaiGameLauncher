@@ -4,131 +4,126 @@ package ui.components
 
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.PointerEventType
-import androidx.compose.ui.input.pointer.onPointerEvent
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.Menu
+import io.github.composefluent.component.Button as FluentButton
+import io.github.composefluent.component.Icon as FluentIcon
+import io.github.composefluent.component.Text as FluentText
+import io.github.composefluent.component.ToggleButton as FluentToggleButton
 import navigation.SharedScreen
 import navigation.featureScreens
 import screen.IScreenInterface
+import ui.fluent.theme.LegacyThemeAdapter
 
-
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
-private fun NavigationItem(icon: ImageVector, showDetail: Boolean, title: String, onClick:() ->Unit )
-{
-    Button(
+private fun NavigationMenuToggleButton(
+    showDetail: Boolean,
+    textAlpha: Float,
+    onClick: () -> Unit
+) {
+    FluentButton(
         onClick = onClick,
-        modifier = Modifier.height(50.dp).fillMaxWidth().padding(4.dp),
-        contentPadding = PaddingValues(9.dp),
-        shape = RoundedCornerShape(5.dp),
-        colors = ButtonDefaults.buttonColors(
-            backgroundColor = MaterialTheme.colors.background,
-            contentColor = MaterialTheme.colors.primary,
-            disabledBackgroundColor = MaterialTheme.colors.error,
-        ),
-        elevation = ButtonDefaults.elevation(
-            defaultElevation = 0.dp,
-            pressedElevation = 4.dp,
-            disabledElevation = 0.dp,
-            hoveredElevation = 4.dp,
-            focusedElevation = 0.dp
-        )
+        modifier = Modifier
+            .height(40.dp)
+            .fillMaxWidth()
+            .padding(horizontal = 8.dp, vertical = 2.dp)
     ) {
-        Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
-            Icon(
-                imageVector = icon,
-                contentDescription = title,
-                modifier = Modifier.fillMaxHeight(),
-                tint = MaterialTheme.colors.primary,
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            FluentIcon(
+                imageVector = EvaIcons.Fill.Menu,
+                contentDescription = "menu"
             )
-            if(showDetail) Text(title, modifier = Modifier.padding(start = 8.dp))
+            if (showDetail) {
+                FluentText(
+                    text = "Menu",
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .alpha(textAlpha)
+                )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-private fun NavigationFeatureItem(featureScreen: Screen, showDetail: Boolean, textAlpha:Float)
-{
+private fun NavigationFeatureItem(
+    featureScreen: Screen,
+    showDetail: Boolean,
+    textAlpha: Float
+) {
     val navigator = LocalNavigator.current
     val data = featureScreen as? IScreenInterface
 
-    // 使用 derivedStateOf 自动计算选中状态
-    val isSelected by remember {
+    val isSelected by remember(navigator, data) {
         derivedStateOf {
             val lastData = navigator?.lastItem as? IScreenInterface
             data?.getUrl() == lastData?.getUrl()
         }
     }
 
-    // 悬浮状态
-    var isHovered by remember { mutableStateOf(false) }
-
-    // 组合动画值：优先显示选中状态，其次显示悬浮状态
-    val elevation by animateDpAsState(
-        targetValue = when {
-            isSelected -> 8.dp
-            isHovered -> 2.dp  // 悬浮时稍低的elevation
-            else -> 0.dp
+    FluentToggleButton(
+        checked = isSelected,
+        onCheckedChanged = { checked ->
+            if (!checked || data == null) return@FluentToggleButton
+            val lastData = navigator?.lastItem as? IScreenInterface
+            if (lastData == null || data.getUrl() != lastData.getUrl()) {
+                navigator?.push(featureScreen)
+            }
         },
-        label = "elevationAnimation"
-    )
-
-    Surface(
-        elevation = elevation,  // 使用动画值
-        shape = RoundedCornerShape(5.dp),
         modifier = Modifier
-            .height(50.dp)
+            .height(40.dp)
             .fillMaxWidth()
-            .padding(4.dp)
-            .onPointerEvent(PointerEventType.Enter){ isHovered = true }
-            .onPointerEvent(PointerEventType.Exit){ isHovered = false },
+            .padding(horizontal = 8.dp, vertical = 2.dp)
     ) {
-        Button(
-            onClick = {
-                data?.takeIf {
-                    val lastData = navigator?.lastItem as? IScreenInterface
-                    lastData == null || it.getUrl() != lastData.getUrl()
-                }?.let {
-                    navigator?.push(featureScreen)
-                }
-            },
-            modifier = Modifier.height(50.dp).fillMaxWidth(),
-            contentPadding = PaddingValues(9.dp),
-            colors = ButtonDefaults.buttonColors(
-                backgroundColor = MaterialTheme.colors.background,
-                contentColor = MaterialTheme.colors.primary,
-            ),
-            elevation = ButtonDefaults.elevation(0.dp,0.dp,0.dp,0.dp,0.dp)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth(),verticalAlignment = Alignment.CenterVertically, horizontalArrangement =  Arrangement.Start) {
-                if (data != null) {
-                    Icon(
-                        imageVector = data.getIcon(),
-                        contentDescription = data.getTitle(),
-                        modifier = Modifier.fillMaxHeight(),
-                        tint = MaterialTheme.colors.primary,
+        if (data != null) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start
+            ) {
+                FluentIcon(
+                    imageVector = data.getIcon(),
+                    contentDescription = data.getTitle()
+                )
+                if (showDetail) {
+                    FluentText(
+                        text = data.getTitle(),
+                        modifier = Modifier
+                            .padding(start = 8.dp)
+                            .alpha(textAlpha)
                     )
-                    Text(data.getTitle(), modifier = Modifier.padding(start = 8.dp).alpha(textAlpha), fontSize = 18.sp)
                 }
             }
         }
@@ -138,49 +133,69 @@ private fun NavigationFeatureItem(featureScreen: Screen, showDetail: Boolean, te
 @Composable
 fun NavigationBar() {
     val state = rememberScrollState(0)
-
     var isExpanded by remember { mutableStateOf(false) }
-
     var showDetail by remember { mutableStateOf(false) }
 
     val size by animateDpAsState(
         targetValue = if (isExpanded) 300.dp else 50.dp,
-        finishedListener = { if (isExpanded) showDetail = true }
+        finishedListener = {
+            if (isExpanded) {
+                showDetail = true
+            }
+        }
     )
 
-    // 可选：添加透明度动画让文本渐变出现
     val textAlpha by animateFloatAsState(
         targetValue = if (showDetail) 1f else 0f
     )
 
-    Box(modifier = Modifier.fillMaxHeight().width(size))
-    {
-        Column(modifier = Modifier.fillMaxHeight().padding(bottom = 8.dp)) {
-
-            NavigationItem(
-                icon = EvaIcons.Fill.Menu,
-                showDetail = showDetail,
-                title = "",
-                onClick = {
-                    isExpanded = !isExpanded
-                    showDetail = false
-                })
-
-
-            NavigationFeatureItem(rememberScreen(SharedScreen.Home), showDetail,textAlpha)
-
-            Column(modifier = Modifier.weight(1f).verticalScroll(state)) {
-                featureScreens.forEach { screen ->
-                    NavigationFeatureItem(rememberScreen(screen), showDetail,textAlpha)
-                }
-            }
+    LegacyThemeAdapter(darkTheme = !MaterialTheme.colors.isLight) {
+        Box(
+            modifier = Modifier
+                .fillMaxHeight()
+                .width(size)
+        ) {
             Column(
                 modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight(),
-                verticalArrangement = Arrangement.Bottom
-            ){
-                NavigationFeatureItem(rememberScreen(SharedScreen.Setting), showDetail,textAlpha)
+                    .fillMaxHeight()
+                    .padding(bottom = 8.dp)
+            ) {
+                NavigationMenuToggleButton(
+                    showDetail = showDetail,
+                    textAlpha = textAlpha,
+                    onClick = {
+                        isExpanded = !isExpanded
+                        showDetail = false
+                    }
+                )
+
+                NavigationFeatureItem(
+                    featureScreen = rememberScreen(SharedScreen.Home),
+                    showDetail = showDetail,
+                    textAlpha = textAlpha
+                )
+
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .verticalScroll(state)
+                ) {
+                    featureScreens.forEach { screen ->
+                        NavigationFeatureItem(
+                            featureScreen = rememberScreen(screen),
+                            showDetail = showDetail,
+                            textAlpha = textAlpha
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                NavigationFeatureItem(
+                    featureScreen = rememberScreen(SharedScreen.Setting),
+                    showDetail = showDetail,
+                    textAlpha = textAlpha
+                )
             }
         }
     }

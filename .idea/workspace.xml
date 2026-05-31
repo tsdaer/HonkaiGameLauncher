@@ -8,12 +8,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。">
-      <change beforePath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 添加 Fluent Sandbox 切换功能&#10;&#10;实现通过系统属性 `-Dhgl.fluent.sandbox=true` 或环境变量 `HGL_FLUENT_SANDBOX=true` 切换 Fluent UI 演示页面的功能。在桌面应用主界面中根据开关状态显示 FluentSandbox 或原有的 MainView，作为 Fluent UI 迁移 M1 里程碑验证入口。&#10;&#10;- 在 `desktop-ui` 模块中添加 `compose-fluent-ui` 依赖（`io.github.compose-fluent:fluent:v0.1.0`）&#10;- 更新迁移计划文档与 README 说明">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/AppWindowTitleBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/AppWindowTitleBar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/NavigationBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/NavigationBar.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/fluent/FluentSandbox.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/fluent/FluentSandbox.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/docs/fluent-ui-migration-plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/fluent-ui-migration-plan.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -425,7 +424,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780191945739</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="feat(ui): ✨ 添加 Fluent Sandbox 切换功能&#10;&#10;实现通过系统属性 `-Dhgl.fluent.sandbox=true` 或环境变量 `HGL_FLUENT_SANDBOX=true` 切换 Fluent UI 演示页面的功能。在桌面应用主界面中根据开关状态显示 FluentSandbox 或原有的 MainView，作为 Fluent UI 迁移 M1 里程碑验证入口。&#10;&#10;- 在 `desktop-ui` 模块中添加 `compose-fluent-ui` 依赖（`io.github.compose-fluent:fluent:v0.1.0`）&#10;- 更新迁移计划文档与 README 说明">
+      <option name="closed" value="true" />
+      <created>1780192736067</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1780192736067</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -451,7 +458,8 @@
     <MESSAGE value="feat(log): :sparkles: 新增游戏日志查看功能&#10;&#10;- 添加日志屏幕(LogScreen)用于实时查看游戏日志&#10;- 实现日志数据模型(LogScreenModel)管理日志状态和筛选&#10;- 新增日志条目数据结构(LauncherLogEntry)支持序列化&#10;- 重构GameService支持JSON日志接收和事件监听&#10;- 添加日志类型和分类筛选功能&#10;- 支持自动滚动和手动清空日志&#10;- 优化UI组件结构，将ViewModel类移动到统一包中&#10;- 更新多语言资源添加日志页面标题&#10;&#10;日志功能允许用户实时监控游戏运行状态，提供类型筛选、分类筛选和自动滚动等便捷功能。" />
     <MESSAGE value="feat(ui): :sparkles: 优化窗口全屏/浮动模式切换及标题栏交互&#10;&#10;- 根据窗口放置状态（全屏/浮动）动态调整界面样式：浮动模式下显示阴影、圆角和边框，全屏模式下移除这些装饰&#10;- 窗口标题栏现在支持双击切换最大化/恢复，并仅在浮动模式下可拖动&#10;- 修复了最大化/恢复按钮的图标和逻辑，使用 `WindowPlacement.Maximized` 替代 `Fullscreen`&#10;- 调整了构建配置，禁用了发布版本的混淆并统一了跨平台的 JVM 参数设置&#10;&#10;- 提升了窗口在不同模式下的视觉一致性和用户体验" />
     <MESSAGE value="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。" />
-    <option name="LAST_COMMIT_MESSAGE" value="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。" />
+    <MESSAGE value="feat(ui): ✨ 添加 Fluent Sandbox 切换功能&#10;&#10;实现通过系统属性 `-Dhgl.fluent.sandbox=true` 或环境变量 `HGL_FLUENT_SANDBOX=true` 切换 Fluent UI 演示页面的功能。在桌面应用主界面中根据开关状态显示 FluentSandbox 或原有的 MainView，作为 Fluent UI 迁移 M1 里程碑验证入口。&#10;&#10;- 在 `desktop-ui` 模块中添加 `compose-fluent-ui` 依赖（`io.github.compose-fluent:fluent:v0.1.0`）&#10;- 更新迁移计划文档与 README 说明" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 添加 Fluent Sandbox 切换功能&#10;&#10;实现通过系统属性 `-Dhgl.fluent.sandbox=true` 或环境变量 `HGL_FLUENT_SANDBOX=true` 切换 Fluent UI 演示页面的功能。在桌面应用主界面中根据开关状态显示 FluentSandbox 或原有的 MainView，作为 Fluent UI 迁移 M1 里程碑验证入口。&#10;&#10;- 在 `desktop-ui` 模块中添加 `compose-fluent-ui` 依赖（`io.github.compose-fluent:fluent:v0.1.0`）&#10;- 更新迁移计划文档与 README 说明" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />
