@@ -57,6 +57,18 @@
 - Fluent Demo 文件
 - 运行说明更新
 
+### M1 进度记录（2026-05-31）
+
+- 状态：done
+- 已完成：
+  - 确认 `compose-fluent-ui` 稳定依赖坐标：`io.github.compose-fluent:fluent:v0.1.0`
+  - 在 `desktop-ui` 新增 `ui/fluent/FluentSandbox.kt` 作为最小验证页（按钮、文本、开关、输入框）
+  - 在 `desktop-app` 通过 dev flag 切换旧 UI / Fluent Demo（默认旧 UI）
+  - 本地编译验证通过：`.\gradlew.bat :desktop-app:compileKotlin`
+- 开发期入口开关：
+  - JVM 参数：`-Dhgl.fluent.sandbox=true`
+  - 环境变量：`HGL_FLUENT_SANDBOX=true`
+
 ---
 
 ## M2：设计令牌与主题桥接
@@ -319,4 +331,3 @@
 - 仅允许改动 UI 层目录：`ui/`, `screen/`（必要时少量改 `Main.kt`）。
 - 禁止更改业务协议：`core/GameService.kt` 与 `core/LauncherLogEntry.kt` 字段语义。
 - 如必须新增依赖，先更新本文件的 M1 记录，再改 `build.gradle.kts`。
-

@@ -8,51 +8,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/gradle.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/gradle.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/kotlinc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/kotlinc.xml" afterDir="false" />
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。">
+      <change beforePath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.jar" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradlew.bat" beforeDir="false" afterPath="$PROJECT_DIR$/gradlew.bat" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle.kts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/drawable/icon.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/drawable/logo.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Black.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Bold.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Light.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Medium.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Regular.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/HarmonyOS_Sans_SC_Thin.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/font/NotoSansSC-VariableFont_wght.ttf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-en/strings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/composeResources/values-zh/strings.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/Main.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/compose-desktop.pro" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/GameService.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/core/LauncherLogEntry.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/localization/localization.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/navigation/NavigationService.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/navigation/SharedScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/HomeScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/IScreenInterface.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/DocsScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/LogScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/screen/feature/WebScreen.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/AppWindowTitleBar.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/CustomButton.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/NavigationBar.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/components/SettingsCard.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/theme/Theme.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/ui/theme/light/Color.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/viewModel/HomeScreenModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/viewModel/LogScreenModel.kt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/kotlin/viewModel/SettingScreenModel.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docs/fluent-ui-migration-plan.md" beforeDir="false" afterPath="$PROJECT_DIR$/docs/fluent-ui-migration-plan.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,48 +95,48 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;Gradle.HonkaiGameLauncher [createDistributable].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.HonkaiGameLauncher [createReleaseDistributable].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.HonkaiGameLauncher [javadoc].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.HonkaiGameLauncher [packageExe].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.HonkaiGameLauncher [packageReleaseExe].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.HonkaiGameLauncher [package].executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.desktop.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.下载源代码.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.升级 Gradle 包装器.executor&quot;: &quot;Run&quot;,
-    &quot;Gradle.构建 HonkaiGameLauncher.executor&quot;: &quot;Run&quot;,
-    &quot;Kotlin.MainKt.executor&quot;: &quot;Debug&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.readMode.enableVisualFormatting&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;cidr.known.project.marker&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;J:/Projects/HonkaiGameLauncher&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;项目&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settingsdialog.project.gradle&quot;,
-    &quot;show.migrate.to.gradle.popup&quot;: &quot;false&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "Gradle.HonkaiGameLauncher [createDistributable].executor": "Run",
+    "Gradle.HonkaiGameLauncher [createReleaseDistributable].executor": "Run",
+    "Gradle.HonkaiGameLauncher [javadoc].executor": "Run",
+    "Gradle.HonkaiGameLauncher [packageExe].executor": "Run",
+    "Gradle.HonkaiGameLauncher [packageReleaseExe].executor": "Run",
+    "Gradle.HonkaiGameLauncher [package].executor": "Run",
+    "Gradle.desktop.executor": "Run",
+    "Gradle.下载源代码.executor": "Run",
+    "Gradle.升级 Gradle 包装器.executor": "Run",
+    "Gradle.构建 HonkaiGameLauncher.executor": "Run",
+    "Kotlin.MainKt.executor": "Debug",
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.cidr.known.project.marker": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "RunOnceActivity.typescript.service.memoryLimit.init": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "cidr.known.project.marker": "true",
+    "codeWithMe.voiceChat.enabledByDefault": "false",
+    "dart.analysis.tool.window.visible": "false",
+    "git-widget-placeholder": "master",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "J:/Projects/HonkaiGameLauncher",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "项目",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "settings.codegpt.prompts",
+    "show.migrate.to.gradle.popup": "false",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="J:\Projects\HonkaiGameLauncher\src\main\composeResources" />
@@ -455,7 +417,15 @@
       <option name="project" value="LOCAL" />
       <updated>1776576317218</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。">
+      <option name="closed" value="true" />
+      <created>1780191945739</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1780191945739</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -480,7 +450,8 @@
     <MESSAGE value="build(deps): ⬆️ 升级Kotlin版本至2.2.0并添加游戏服务功能&#10;&#10;- 将Kotlin版本从2.1.20升级到2.2.0&#10;- 添加Kotlin序列化插件支持&#10;- 新增GameService类实现HTTP服务功能&#10;- 集成Ktor框架用于游戏状态通信&#10;- 在应用启动时启动游戏服务，退出时停止服务&#10;- 自动查找可用端口并写入临时文件供游戏进程访问&#10;&#10;新增依赖：&#10;- kotlinx-serialization-json: 1.9.0&#10;- ktor-server-core: 3.3.1&#10;- ktor-server-netty: 3.3.1&#10;- ktor-server-content-negotiation: 3.3.1&#10;- ktor-serialization-kotlinx-json: 3.3.1" />
     <MESSAGE value="feat(log): :sparkles: 新增游戏日志查看功能&#10;&#10;- 添加日志屏幕(LogScreen)用于实时查看游戏日志&#10;- 实现日志数据模型(LogScreenModel)管理日志状态和筛选&#10;- 新增日志条目数据结构(LauncherLogEntry)支持序列化&#10;- 重构GameService支持JSON日志接收和事件监听&#10;- 添加日志类型和分类筛选功能&#10;- 支持自动滚动和手动清空日志&#10;- 优化UI组件结构，将ViewModel类移动到统一包中&#10;- 更新多语言资源添加日志页面标题&#10;&#10;日志功能允许用户实时监控游戏运行状态，提供类型筛选、分类筛选和自动滚动等便捷功能。" />
     <MESSAGE value="feat(ui): :sparkles: 优化窗口全屏/浮动模式切换及标题栏交互&#10;&#10;- 根据窗口放置状态（全屏/浮动）动态调整界面样式：浮动模式下显示阴影、圆角和边框，全屏模式下移除这些装饰&#10;- 窗口标题栏现在支持双击切换最大化/恢复，并仅在浮动模式下可拖动&#10;- 修复了最大化/恢复按钮的图标和逻辑，使用 `WindowPlacement.Maximized` 替代 `Fullscreen`&#10;- 调整了构建配置，禁用了发布版本的混淆并统一了跨平台的 JVM 参数设置&#10;&#10;- 提升了窗口在不同模式下的视觉一致性和用户体验" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): :sparkles: 优化窗口全屏/浮动模式切换及标题栏交互&#10;&#10;- 根据窗口放置状态（全屏/浮动）动态调整界面样式：浮动模式下显示阴影、圆角和边框，全屏模式下移除这些装饰&#10;- 窗口标题栏现在支持双击切换最大化/恢复，并仅在浮动模式下可拖动&#10;- 修复了最大化/恢复按钮的图标和逻辑，使用 `WindowPlacement.Maximized` 替代 `Fullscreen`&#10;- 调整了构建配置，禁用了发布版本的混淆并统一了跨平台的 JVM 参数设置&#10;&#10;- 提升了窗口在不同模式下的视觉一致性和用户体验" />
+    <MESSAGE value="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。" />
+    <option name="LAST_COMMIT_MESSAGE" value="refactor(project): ♻️ 重构项目为多模块结构&#10;&#10;将单模块项目拆分为 desktop-app、desktop-ui、desktop-core 三个子模块。移除旧版 UI 组件、主题、页面、ViewModel、核心服务、导航逻辑及本地化资源文件。根构建文件改为仅声明插件，各模块独立管理依赖。升级 Gradle 包装器至 8.14.4 并更新启动脚本。" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

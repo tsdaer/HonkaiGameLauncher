@@ -13,6 +13,7 @@ dependencies {
 
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
+    implementation("io.github.compose-fluent:fluent:v0.1.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
 
     implementation("br.com.devsrsouza.compose.icons:eva-icons:1.1.1")

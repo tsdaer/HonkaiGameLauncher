@@ -33,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
+import ui.fluent.FluentSandbox
 import ui.theme.DarkColorScheme
 import ui.theme.HarmonyTypography
 import ui.theme.LightColorScheme
@@ -91,6 +92,12 @@ fun MainView() {
     }
 }
 
+private fun isFluentSandboxEnabled(): Boolean {
+    val property = System.getProperty("hgl.fluent.sandbox")
+    val env = System.getenv("HGL_FLUENT_SANDBOX")
+    return property.equals("true", ignoreCase = true) || env.equals("true", ignoreCase = true)
+}
+
 @OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
 
@@ -110,6 +117,7 @@ fun main() = application {
 
     var openWindowStr = ""
     var exitApplicationStr = ""
+    val useFluentSandbox = isFluentSandboxEnabled()
 
     val state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
 
@@ -193,7 +201,13 @@ fun main() = application {
                                             isDarkTheme = !isDarkTheme
                                         )
                                     },
-                                    content = { MainView() }
+                                    content = {
+                                        if (useFluentSandbox) {
+                                            FluentSandbox(isDarkTheme = isDarkTheme)
+                                        } else {
+                                            MainView()
+                                        }
+                                    }
                                 )
                             }
                         }
