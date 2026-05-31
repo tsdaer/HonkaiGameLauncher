@@ -19,4 +19,11 @@
     <string name="themeLight">light</string>
     <string name="languageZh">中文</string>
     <string name="languageEn">english</string>
+    <string name="settingsGroupAppearance">appearance &amp; behavior</string>
+    <string name="settingsGroupLauncher">launcher</string>
+    <string name="themeSettingDesc">select the app theme</string>
+    <string name="languageSettingDesc">select the display language</string>
+    <string name="settingsDescGamePath">set Honkai RTS game file location</string>
+    <string name="settingsActionBrowse">browse</string>
+    <string name="settingsNotSet">not set</string>
 </resources>

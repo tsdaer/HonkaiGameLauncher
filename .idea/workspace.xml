@@ -8,17 +8,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ♻️ 完成 Fluent UI 全面迁移并清理旧组件&#10;&#10;移除 Material 主题与旧自定义组件（CustomButton、SettingsCard），&#10;删除 FluentSandbox 切换入口和 Theme.kt 主题定义。所有功能页面&#10;（设置、日志、文档、网页、插件）统一接入 FluentSection、&#10;FluentCard、FluentDropdown 等新组件。同步更新 README 运行说明&#10;与迁移计划文档，记录 M5–M8 里程碑完成情况。">
+    <list default="true" id="af659c38-0895-421b-a713-616a323001ee" name="更改" comment="feat(ui): ✨ 将主题和语言设置移至设置页面并重构导航栏&#10;&#10;将标题栏中的主题切换和语言切换按钮迁移至设置页面，使用 FluentDropdown&#10;实现下拉选择。引入 AppUiSettings（由 CompositionLocal 提供）统一管理主题、&#10;语言状态及变更回调。&#10;&#10;重构导航栏：使用 Fluent NavigationView（LeftCompact 模式）替代自定义的&#10;按钮式导航栏，将原本在 MainView 中的页面内容（标题 + 页面切换动画）移至&#10;NavigationBar 的 pane 插槽。标题栏简化，改用 NavigationDefaults 组件和&#10;Fluid 系统图标。新增 fluent-icons-extended 依赖，并为设置页面添加主题/&#10;语言相关的多语言字符串资源。">
       <change beforePath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/claudeCodeTabState.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-app/src/main/kotlin/Main.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/build.gradle.kts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/composeResources/values-en/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/composeResources/values-en/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/composeResources/values-zh/strings.xml" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/composeResources/values-zh/strings.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/screen/SettingScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/screen/SettingScreen.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/screen/feature/PluginScreen.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/screen/feature/PluginScreen.kt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/AppWindowTitleBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/AppWindowTitleBar.kt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/NavigationBar.kt" beforeDir="false" afterPath="$PROJECT_DIR$/desktop-ui/src/main/kotlin/ui/components/NavigationBar.kt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -453,7 +449,15 @@
       <option name="project" value="LOCAL" />
       <updated>1780197867454</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="feat(ui): ✨ 将主题和语言设置移至设置页面并重构导航栏&#10;&#10;将标题栏中的主题切换和语言切换按钮迁移至设置页面，使用 FluentDropdown&#10;实现下拉选择。引入 AppUiSettings（由 CompositionLocal 提供）统一管理主题、&#10;语言状态及变更回调。&#10;&#10;重构导航栏：使用 Fluent NavigationView（LeftCompact 模式）替代自定义的&#10;按钮式导航栏，将原本在 MainView 中的页面内容（标题 + 页面切换动画）移至&#10;NavigationBar 的 pane 插槽。标题栏简化，改用 NavigationDefaults 组件和&#10;Fluid 系统图标。新增 fluent-icons-extended 依赖，并为设置页面添加主题/&#10;语言相关的多语言字符串资源。">
+      <option name="closed" value="true" />
+      <created>1780202752856</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1780202752856</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -482,7 +486,8 @@
     <MESSAGE value="feat(ui): ✨ 添加 Fluent Sandbox 切换功能&#10;&#10;实现通过系统属性 `-Dhgl.fluent.sandbox=true` 或环境变量 `HGL_FLUENT_SANDBOX=true` 切换 Fluent UI 演示页面的功能。在桌面应用主界面中根据开关状态显示 FluentSandbox 或原有的 MainView，作为 Fluent UI 迁移 M1 里程碑验证入口。&#10;&#10;- 在 `desktop-ui` 模块中添加 `compose-fluent-ui` 依赖（`io.github.compose-fluent:fluent:v0.1.0`）&#10;- 更新迁移计划文档与 README 说明" />
     <MESSAGE value="feat(ui): ✨ 迁移标题栏和导航栏至 Fluent 组件&#10;&#10;将 AppWindowTitleBar 和 NavigationBar 中的自定义 Material 组件替换为 Fluent&#10;UI 的 Button、Icon、Text、ToggleButton 等组件。FluentSandbox 改用&#10;AppFluentTheme 和 FluentTokens 管理间距。更新迁移计划文档，记录 M2、M3、M4&#10;里程碑完成情况。" />
     <MESSAGE value="feat(ui): ♻️ 完成 Fluent UI 全面迁移并清理旧组件&#10;&#10;移除 Material 主题与旧自定义组件（CustomButton、SettingsCard），&#10;删除 FluentSandbox 切换入口和 Theme.kt 主题定义。所有功能页面&#10;（设置、日志、文档、网页、插件）统一接入 FluentSection、&#10;FluentCard、FluentDropdown 等新组件。同步更新 README 运行说明&#10;与迁移计划文档，记录 M5–M8 里程碑完成情况。" />
-    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ♻️ 完成 Fluent UI 全面迁移并清理旧组件&#10;&#10;移除 Material 主题与旧自定义组件（CustomButton、SettingsCard），&#10;删除 FluentSandbox 切换入口和 Theme.kt 主题定义。所有功能页面&#10;（设置、日志、文档、网页、插件）统一接入 FluentSection、&#10;FluentCard、FluentDropdown 等新组件。同步更新 README 运行说明&#10;与迁移计划文档，记录 M5–M8 里程碑完成情况。" />
+    <MESSAGE value="feat(ui): ✨ 将主题和语言设置移至设置页面并重构导航栏&#10;&#10;将标题栏中的主题切换和语言切换按钮迁移至设置页面，使用 FluentDropdown&#10;实现下拉选择。引入 AppUiSettings（由 CompositionLocal 提供）统一管理主题、&#10;语言状态及变更回调。&#10;&#10;重构导航栏：使用 Fluent NavigationView（LeftCompact 模式）替代自定义的&#10;按钮式导航栏，将原本在 MainView 中的页面内容（标题 + 页面切换动画）移至&#10;NavigationBar 的 pane 插槽。标题栏简化，改用 NavigationDefaults 组件和&#10;Fluid 系统图标。新增 fluent-icons-extended 依赖，并为设置页面添加主题/&#10;语言相关的多语言字符串资源。" />
+    <option name="LAST_COMMIT_MESSAGE" value="feat(ui): ✨ 将主题和语言设置移至设置页面并重构导航栏&#10;&#10;将标题栏中的主题切换和语言切换按钮迁移至设置页面，使用 FluentDropdown&#10;实现下拉选择。引入 AppUiSettings（由 CompositionLocal 提供）统一管理主题、&#10;语言状态及变更回调。&#10;&#10;重构导航栏：使用 Fluent NavigationView（LeftCompact 模式）替代自定义的&#10;按钮式导航栏，将原本在 MainView 中的页面内容（标题 + 页面切换动画）移至&#10;NavigationBar 的 pane 插槽。标题栏简化，改用 NavigationDefaults 组件和&#10;Fluid 系统图标。新增 fluent-icons-extended 依赖，并为设置页面添加主题/&#10;语言相关的多语言字符串资源。" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

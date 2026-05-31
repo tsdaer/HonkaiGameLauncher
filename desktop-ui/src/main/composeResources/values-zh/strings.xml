@@ -19,4 +19,11 @@
     <string name="themeLight">浅色</string>
     <string name="languageZh">中文</string>
     <string name="languageEn">English</string>
+    <string name="settingsGroupAppearance">外观和行为</string>
+    <string name="settingsGroupLauncher">启动器</string>
+    <string name="themeSettingDesc">选择应用主题样式</string>
+    <string name="languageSettingDesc">选择界面显示语言</string>
+    <string name="settingsDescGamePath">设置崩坏RTS游戏文件位置</string>
+    <string name="settingsActionBrowse">浏览</string>
+    <string name="settingsNotSet">未设置</string>
 </resources>

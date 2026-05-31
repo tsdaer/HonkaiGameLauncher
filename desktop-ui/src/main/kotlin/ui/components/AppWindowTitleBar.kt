@@ -91,12 +91,13 @@ fun WindowScope.AppWindowTitleBar(
             Image(
                 painter = painterResource(Res.drawable.logo),
                 contentDescription = "App Icon",
-                modifier = Modifier.size(22.dp)
+                modifier = Modifier.size(32.dp)
             )
 
             FluentText(
                 text = stringResource(Res.string.appTitle),
                 color = FluentTheme.colors.text.text.primary,
+                style = FluentTheme.typography.bodyStrong,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.padding(start = 4.dp)
