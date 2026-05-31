@@ -13,4 +13,10 @@
     <string name="screen_log">log</string>
 
     <string name="setGamePath">set game path</string>
+    <string name="themeSetting">theme</string>
+    <string name="languageSetting">language</string>
+    <string name="themeDark">dark</string>
+    <string name="themeLight">light</string>
+    <string name="languageZh">中文</string>
+    <string name="languageEn">english</string>
 </resources>

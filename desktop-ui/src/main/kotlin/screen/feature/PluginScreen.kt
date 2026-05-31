@@ -11,6 +11,7 @@ import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.screen_plugin
 import compose.icons.LineAwesomeIcons
 import compose.icons.lineawesomeicons.PlugSolid
+import compose.icons.lineawesomeicons.PuzzlePieceSolid
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentSection
 import io.github.composefluent.component.Text as FluentText
@@ -25,7 +26,7 @@ class PluginScreen: Screen, IScreenInterface {
     }
 
     override fun getIcon(): ImageVector {
-        return LineAwesomeIcons.PlugSolid
+        return LineAwesomeIcons.PuzzlePieceSolid
     }
 
     @Composable
