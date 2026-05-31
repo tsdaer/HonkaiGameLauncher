@@ -26,9 +26,9 @@ import androidx.compose.ui.window.WindowPlacement
 import androidx.compose.ui.window.WindowScope
 import androidx.compose.ui.window.WindowState
 import cafe.adriel.voyager.navigator.LocalNavigator
-import com.honkai_rts.honkaigamelauncher.generated.resources.Res
-import com.honkai_rts.honkaigamelauncher.generated.resources.appTitle
-import com.honkai_rts.honkaigamelauncher.generated.resources.logo
+import honkaigamelauncher.desktop_ui.generated.resources.Res
+import honkaigamelauncher.desktop_ui.generated.resources.appTitle
+import honkaigamelauncher.desktop_ui.generated.resources.logo
 import compose.icons.feathericons.CornerUpLeft
 import compose.icons.feathericons.Maximize
 import compose.icons.feathericons.Minimize

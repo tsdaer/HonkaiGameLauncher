@@ -6,7 +6,7 @@ import androidx.compose.material.lightColors
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import com.honkai_rts.honkaigamelauncher.generated.resources.*
+import honkaigamelauncher.desktop_ui.generated.resources.*
 import org.jetbrains.compose.resources.Font
 import ui.theme.light.*
 

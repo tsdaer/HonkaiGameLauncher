@@ -24,8 +24,8 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
-import com.honkai_rts.honkaigamelauncher.generated.resources.Res
-import com.honkai_rts.honkaigamelauncher.generated.resources.screen_log
+import honkaigamelauncher.desktop_ui.generated.resources.Res
+import honkaigamelauncher.desktop_ui.generated.resources.screen_log
 import compose.icons.feathericons.Activity
 import compose.icons.feathericons.ChevronsDown
 import compose.icons.lineawesomeicons.ArrowDownSolid

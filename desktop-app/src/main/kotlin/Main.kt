@@ -22,9 +22,9 @@ import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.CurrentScreen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.Navigator
-import com.honkai_rts.honkaigamelauncher.generated.resources.*
+import honkaigamelauncher.desktop_ui.generated.resources.*
 import com.kdroid.composetray.tray.api.Tray
-import core.GameService
+import core.RuntimeServices
 import localization.changeLanguage
 import navigation.SharedScreen
 import navigation.registerNavigation
@@ -91,8 +91,6 @@ fun MainView() {
     }
 }
 
-val gameService = GameService()
-
 @OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
 
@@ -100,7 +98,7 @@ fun main() = application {
     System.setOut(java.io.PrintStream(System.out, true, "UTF-8"))
     System.setErr(java.io.PrintStream(System.err, true, "UTF-8"))
 
-    gameService.start()
+    RuntimeServices.gameService.start()
 
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
@@ -134,7 +132,7 @@ fun main() = application {
         })
         Divider()
         Item(label = exitApplicationStr, onClick = {
-            gameService.stop()
+            RuntimeServices.gameService.stop()
             dispose()
             exitProcess(0)
         })

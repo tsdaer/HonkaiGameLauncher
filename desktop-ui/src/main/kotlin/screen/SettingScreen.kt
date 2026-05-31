@@ -12,9 +12,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
-import com.honkai_rts.honkaigamelauncher.generated.resources.Res
-import com.honkai_rts.honkaigamelauncher.generated.resources.setGamePath
-import com.honkai_rts.honkaigamelauncher.generated.resources.setting
+import honkaigamelauncher.desktop_ui.generated.resources.Res
+import honkaigamelauncher.desktop_ui.generated.resources.setGamePath
+import honkaigamelauncher.desktop_ui.generated.resources.setting
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.Folder

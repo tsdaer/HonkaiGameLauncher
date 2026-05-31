@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import com.russhwolf.settings.Settings
 import core.LauncherLogEntry
-import gameService
+import core.RuntimeServices
 
 class LogScreenModel (
     val settings: Settings = Settings(),
@@ -25,7 +25,7 @@ class LogScreenModel (
     var autoScroll by mutableStateOf(true)
 
     init {
-        gameService.addLogListener { newLogs ->
+        RuntimeServices.gameService.addLogListener { newLogs ->
             logs.addAll(newLogs)
             if (logs.size > 500) logs.removeRange(0, logs.size - 500)
         }
