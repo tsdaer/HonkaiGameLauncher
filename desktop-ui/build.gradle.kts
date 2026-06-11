@@ -34,4 +34,5 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
     api("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
+    implementation("dev.datlag:kcef:2024.04.20.3")
 }

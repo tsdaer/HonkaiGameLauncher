@@ -15,6 +15,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,11 +40,22 @@ import compose.icons.feathericons.ArrowLeft
 import compose.icons.feathericons.ArrowRight
 import compose.icons.feathericons.ExternalLink
 import compose.icons.feathericons.RefreshCw
+import dev.datlag.kcef.KCEF
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.screen_website
 import honkaigamelauncher.desktop_ui.generated.resources.websiteActionGo
 import honkaigamelauncher.desktop_ui.generated.resources.websiteActionOpenExternal
 import honkaigamelauncher.desktop_ui.generated.resources.websiteAddressPlaceholder
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineChecking
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineDownloading
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineDownloadFinishing
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineErrorTitle
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineExtracting
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineInitializing
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineInstalling
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineReady
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineRestartRequired
+import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineRetry
 import honkaigamelauncher.desktop_ui.generated.resources.websiteErrorTitle
 import honkaigamelauncher.desktop_ui.generated.resources.websiteLinkGithub
 import honkaigamelauncher.desktop_ui.generated.resources.websiteLinkOfficial
@@ -59,6 +71,10 @@ import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
+import java.io.File
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import io.github.composefluent.component.Text as FluentText
 
 
@@ -82,6 +98,105 @@ class WebScreen: Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val homeUrl = "https://www.honkai-rts.com"
+        var webEngineReady by remember { mutableStateOf(false) }
+        var webEnginePhase by remember { mutableStateOf(WebEnginePhase.Initializing) }
+        var webEngineProgress by remember { mutableStateOf<Float?>(null) }
+        var webEngineError by remember { mutableStateOf<String?>(null) }
+        var webEngineRestartRequired by remember { mutableStateOf(false) }
+        var initAttempt by remember { mutableStateOf(0) }
+        val initScope = rememberCoroutineScope()
+
+        LaunchedEffect(initAttempt) {
+            webEngineReady = false
+            webEngineError = null
+            webEngineRestartRequired = false
+            webEnginePhase = WebEnginePhase.Initializing
+            webEngineProgress = null
+
+            var initError: String? = null
+            var restartRequired = false
+
+            try {
+                withContext(Dispatchers.IO) {
+                    KCEF.init(
+                        builder = {
+                            installDir(kcefDataDir("bundle"))
+                            settings {
+                                cachePath = kcefDataDir("cache").absolutePath
+                            }
+                            progress {
+                                onLocating {
+                                    initScope.launch {
+                                        webEnginePhase = WebEnginePhase.Checking
+                                        webEngineProgress = null
+                                    }
+                                }
+                                onDownloading { progress ->
+                                    initScope.launch {
+                                        val normalizedProgress = progress.coerceIn(0f, 1f)
+                                        webEnginePhase = if (normalizedProgress >= 0.999f) {
+                                            WebEnginePhase.DownloadFinishing
+                                        } else {
+                                            WebEnginePhase.Downloading
+                                        }
+                                        webEngineProgress = normalizedProgress
+                                    }
+                                }
+                                onExtracting {
+                                    initScope.launch {
+                                        webEnginePhase = WebEnginePhase.Extracting
+                                        webEngineProgress = null
+                                    }
+                                }
+                                onInstall {
+                                    initScope.launch {
+                                        webEnginePhase = WebEnginePhase.Installing
+                                        webEngineProgress = null
+                                    }
+                                }
+                                onInitializing {
+                                    initScope.launch {
+                                        webEnginePhase = WebEnginePhase.Initializing
+                                        webEngineProgress = null
+                                    }
+                                }
+                                onInitialized {
+                                    initScope.launch {
+                                        webEnginePhase = WebEnginePhase.Ready
+                                        webEngineProgress = 1f
+                                    }
+                                }
+                            }
+                        },
+                        onError = { throwable ->
+                            initError = throwable?.message
+                                ?: throwable?.javaClass?.simpleName
+                                ?: "Unknown error"
+                        },
+                        onRestartRequired = {
+                            restartRequired = true
+                        }
+                    )
+                }
+                webEngineRestartRequired = restartRequired
+                webEngineError = initError
+                webEngineReady = !restartRequired && initError == null
+            } catch (throwable: Throwable) {
+                webEngineError = throwable.message ?: throwable.javaClass.simpleName
+            }
+        }
+
+        if (!webEngineReady) {
+            WebEngineInitContent(
+                phase = webEnginePhase,
+                progress = webEngineProgress,
+                errorMessage = webEngineError,
+                restartRequired = webEngineRestartRequired,
+                onRetry = { initAttempt++ }
+            )
+            return
+        }
+
         val webViewState = rememberWebViewState(homeUrl)
         val navigator = rememberWebViewNavigator()
         val uriHandler = LocalUriHandler.current
@@ -233,6 +348,102 @@ class WebScreen: Screen, IScreenInterface {
             }
         }
     }
+}
+
+private enum class WebEnginePhase {
+    Checking,
+    Downloading,
+    DownloadFinishing,
+    Extracting,
+    Installing,
+    Initializing,
+    Ready
+}
+
+@Composable
+private fun WebEngineInitContent(
+    phase: WebEnginePhase,
+    progress: Float?,
+    errorMessage: String?,
+    restartRequired: Boolean,
+    onRetry: () -> Unit
+) {
+    val message = when (phase) {
+        WebEnginePhase.Checking -> stringResource(Res.string.websiteEngineChecking)
+        WebEnginePhase.Downloading -> stringResource(Res.string.websiteEngineDownloading)
+        WebEnginePhase.DownloadFinishing -> stringResource(Res.string.websiteEngineDownloadFinishing)
+        WebEnginePhase.Extracting -> stringResource(Res.string.websiteEngineExtracting)
+        WebEnginePhase.Installing -> stringResource(Res.string.websiteEngineInstalling)
+        WebEnginePhase.Initializing -> stringResource(Res.string.websiteEngineInitializing)
+        WebEnginePhase.Ready -> stringResource(Res.string.websiteEngineReady)
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        FluentCard(
+            modifier = Modifier
+                .fillMaxWidth()
+                .widthIn(max = 520.dp)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(18.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                FluentText(
+                    text = message,
+                    style = FluentTheme.typography.subtitle
+                )
+                if (errorMessage == null && !restartRequired) {
+                    if (progress == null) {
+                        ProgressBar(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                        )
+                    } else {
+                        ProgressBar(
+                            progress = progress,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(3.dp)
+                        )
+                    }
+                } else {
+                    InfoBar(
+                        title = { FluentText(stringResource(Res.string.websiteEngineErrorTitle)) },
+                        message = {
+                            FluentText(
+                                if (restartRequired) {
+                                    stringResource(Res.string.websiteEngineRestartRequired)
+                                } else {
+                                    errorMessage.orEmpty()
+                                }
+                            )
+                        },
+                        severity = InfoBarSeverity.Warning,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    FluentButton(onClick = onRetry) {
+                        FluentText(stringResource(Res.string.websiteEngineRetry))
+                    }
+                }
+            }
+        }
+    }
+}
+
+private fun kcefDataDir(name: String): File {
+    val baseDir = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }?.let { localAppData ->
+        File(localAppData, "HonkaiGameLauncher")
+    } ?: File(System.getProperty("user.home"), ".HonkaiGameLauncher")
+
+    return File(baseDir, "kcef-$name")
 }
 
 @Composable

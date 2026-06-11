@@ -19,6 +19,16 @@
     <string name="websiteLinkOfficial">official</string>
     <string name="websiteLoading">loading</string>
     <string name="websiteReady">ready</string>
+    <string name="websiteEngineChecking">checking web engine</string>
+    <string name="websiteEngineDownloading">downloading web engine</string>
+    <string name="websiteEngineDownloadFinishing">finishing download and preparing extraction</string>
+    <string name="websiteEngineExtracting">extracting web engine</string>
+    <string name="websiteEngineInstalling">installing web engine</string>
+    <string name="websiteEngineInitializing">initializing web engine</string>
+    <string name="websiteEngineReady">web engine is ready</string>
+    <string name="websiteEngineErrorTitle">web engine failed to start</string>
+    <string name="websiteEngineRestartRequired">web engine installation is complete. Restart the app to continue.</string>
+    <string name="websiteEngineRetry">retry</string>
 
     <string name="setGamePath">set game path</string>
     <string name="themeSetting">theme</string>

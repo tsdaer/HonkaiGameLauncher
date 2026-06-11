@@ -19,6 +19,16 @@
     <string name="websiteLinkOfficial">官网</string>
     <string name="websiteLoading">加载中</string>
     <string name="websiteReady">已就绪</string>
+    <string name="websiteEngineChecking">正在检查网页引擎</string>
+    <string name="websiteEngineDownloading">正在下载网页引擎</string>
+    <string name="websiteEngineDownloadFinishing">正在完成下载，准备解压</string>
+    <string name="websiteEngineExtracting">正在解压网页引擎</string>
+    <string name="websiteEngineInstalling">正在安装网页引擎</string>
+    <string name="websiteEngineInitializing">正在初始化网页引擎</string>
+    <string name="websiteEngineReady">网页引擎已就绪</string>
+    <string name="websiteEngineErrorTitle">网页引擎启动失败</string>
+    <string name="websiteEngineRestartRequired">网页引擎安装完成，需要重启应用后继续。</string>
+    <string name="websiteEngineRetry">重试</string>
 
     <string name="setGamePath">设置游戏路径</string>
     <string name="themeSetting">主题</string>
