@@ -43,6 +43,7 @@ import io.github.composefluent.icons.regular.FullScreenMaximize
 import io.github.composefluent.icons.regular.FullScreenMinimize
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ui.fluent.theme.FluentTokens
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -59,12 +60,12 @@ fun WindowScope.AppWindowTitleBar(
                 borderBrush = SolidColor(Color.Transparent)
             ),
             hovered = ButtonColor(
-                fillColor = Color(0xFFE81123),
+                fillColor = FluentTokens.ColorToken.WindowControl.closeHover,
                 contentColor = FluentTheme.colors.text.onAccent.primary,
                 borderBrush = SolidColor(Color.Transparent)
             ),
             pressed = ButtonColor(
-                fillColor = Color(0xFFC50F1F),
+                fillColor = FluentTokens.ColorToken.WindowControl.closePressed,
                 contentColor = FluentTheme.colors.text.onAccent.secondary,
                 borderBrush = SolidColor(Color.Transparent)
             ),

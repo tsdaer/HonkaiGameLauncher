@@ -25,7 +25,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,6 +44,7 @@ import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.components.FluentDropdown
+import ui.fluent.theme.FluentTokens
 import viewModel.LogScreenModel
 
 class LogScreen: Screen, IScreenInterface {
@@ -204,16 +204,6 @@ class LogScreen: Screen, IScreenInterface {
         }
     }
 
-    val logColors = mapOf(
-        1 to Color(0xFFFF0000),
-        2 to Color(0xFFFF6347),
-        3 to Color(0xFFFFFF00),
-        4 to Color(0xFF00FFFF),
-        5 to Color(0xFFCCCCCC),
-        6 to Color(0xFF8888FF),
-        7 to Color(0xFF7777AA)
-    )
-
     fun logTypeLabel(type: Int?): String = when (type) {
         null -> "全部类型"
         1 -> "Fatal"
@@ -226,9 +216,20 @@ class LogScreen: Screen, IScreenInterface {
         else -> "Unknown"
     }
 
+    fun logTypeColor(type: Int?) = when (type) {
+        1 -> FluentTokens.ColorToken.LogLevel.fatal
+        2 -> FluentTokens.ColorToken.LogLevel.error
+        3 -> FluentTokens.ColorToken.LogLevel.warning
+        4 -> FluentTokens.ColorToken.LogLevel.display
+        5 -> FluentTokens.ColorToken.LogLevel.log
+        6 -> FluentTokens.ColorToken.LogLevel.verbose
+        7 -> FluentTokens.ColorToken.LogLevel.veryVerbose
+        else -> FluentTokens.ColorToken.LogLevel.unknown
+    }
+
     @Composable
     fun LogItem(log: LauncherLogEntry) {
-        val color = logColors[log.type] ?: Color.White
+        val color = logTypeColor(log.type)
         val typeLabel = logTypeLabel(log.type)
         FluentCard(
             modifier = Modifier

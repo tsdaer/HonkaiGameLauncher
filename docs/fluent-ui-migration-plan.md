@@ -435,6 +435,19 @@
     - 页面层不再读取 `MaterialTheme.colors.isLight`，统一在 Fluent 主题上下文下渲染
     - `desktop-ui/src/main/kotlin/ui/theme/Theme.kt` 已退役并删除
 
+### M8 补充收尾记录（2026-06-11）
+
+- 状态：done
+- 已完成：
+  - 旧色板彻底退役：
+    - `desktop-ui/src/main/kotlin/ui/fluent/theme/FluentTokens.kt` 不再依赖 `ui.theme.light.*`
+    - 删除 `desktop-ui/src/main/kotlin/ui/theme/light/Color.kt`
+  - Fluent 颜色语义收口：
+    - 窗口关闭按钮 hover/pressed 颜色迁移到 `FluentTokens.ColorToken.WindowControl`
+    - 日志等级颜色迁移到 `FluentTokens.ColorToken.LogLevel`
+    - `AppWindowTitleBar` 与 `LogScreen` 不再直接持有对应硬编码色值
+  - 编译验证通过：`.\gradlew.bat :desktop-ui:compileKotlin :desktop-app:compileKotlin`
+
 ---
 
 ## 执行节奏建议
