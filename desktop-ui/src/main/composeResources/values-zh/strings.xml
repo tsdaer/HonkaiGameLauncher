@@ -11,6 +11,14 @@
     <string name="screen_env">运行环境</string>
     <string name="screen_doc">文档</string>
     <string name="screen_log">日志</string>
+    <string name="websiteActionGo">前往</string>
+    <string name="websiteActionOpenExternal">在浏览器中打开</string>
+    <string name="websiteAddressPlaceholder">输入网址，例如 www.miyoushe.com</string>
+    <string name="websiteErrorTitle">网页加载失败</string>
+    <string name="websiteLinkGithub">GitHub</string>
+    <string name="websiteLinkOfficial">官网</string>
+    <string name="websiteLoading">加载中</string>
+    <string name="websiteReady">已就绪</string>
 
     <string name="setGamePath">设置游戏路径</string>
     <string name="themeSetting">主题</string>

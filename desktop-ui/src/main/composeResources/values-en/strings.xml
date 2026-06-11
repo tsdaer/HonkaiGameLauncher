@@ -11,6 +11,14 @@
     <string name="screen_env">runtime environment</string>
     <string name="screen_doc">docs</string>
     <string name="screen_log">log</string>
+    <string name="websiteActionGo">go</string>
+    <string name="websiteActionOpenExternal">open in browser</string>
+    <string name="websiteAddressPlaceholder">enter a URL, for example www.miyoushe.com</string>
+    <string name="websiteErrorTitle">web page failed to load</string>
+    <string name="websiteLinkGithub">GitHub</string>
+    <string name="websiteLinkOfficial">official</string>
+    <string name="websiteLoading">loading</string>
+    <string name="websiteReady">ready</string>
 
     <string name="setGamePath">set game path</string>
     <string name="themeSetting">theme</string>
