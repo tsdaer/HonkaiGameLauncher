@@ -30,6 +30,32 @@
     <string name="websiteEngineRestartRequired">网页引擎安装完成，需要重启应用后继续。</string>
     <string name="websiteEngineRetry">重试</string>
 
+    <string name="pluginRefresh">刷新插件</string>
+    <string name="pluginGameLabel">游戏</string>
+    <string name="pluginConfigLabel">配置</string>
+    <string name="pluginGamePathNotSet">未设置</string>
+    <string name="pluginConfigPathPending">等待读取 GamePluginConfigs.toml</string>
+    <string name="pluginStatusLoaded">已从 GamePluginConfigs.toml 读取 %1$d 个插件</string>
+    <string name="pluginStatusMissingGamePath">请先在设置中选择游戏 exe 文件</string>
+    <string name="pluginStatusMissingConfig">未找到插件配置文件</string>
+    <string name="pluginStatusError">插件配置读取失败</string>
+    <string name="pluginEmptyReady">暂无插件</string>
+    <string name="pluginEmptyMissingGamePath">未设置游戏路径。请到设置页面选择游戏 exe 文件。</string>
+    <string name="pluginEmptyMissingConfig">未找到 GamePluginConfigs.toml。请确认 exe 同级目录下存在 honkai_rts\\GamePlugins。</string>
+    <string name="pluginEmptyError">读取插件配置时发生未知错误。</string>
+    <string name="pluginDescriptionDefault">无描述</string>
+    <string name="pluginTypeBuiltIn">内建</string>
+    <string name="pluginTypePak">Pak</string>
+    <string name="pluginCategoryDefault">未分类</string>
+    <string name="pluginDefaultEnabled">默认启用</string>
+    <string name="pluginDefaultDisabled">默认关闭</string>
+    <string name="pluginMountOrder">挂载 %1$s</string>
+    <string name="pluginNotBound">未绑定</string>
+    <string name="pluginMetaName">Name</string>
+    <string name="pluginMetaGameFeature">GameFeature</string>
+    <string name="pluginMetaPakPath">PakPath</string>
+    <string name="pluginMetaResolved">Resolved</string>
+
     <string name="setGamePath">设置游戏路径</string>
     <string name="themeSetting">主题</string>
     <string name="languageSetting">语言</string>

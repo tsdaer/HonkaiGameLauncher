@@ -30,6 +30,32 @@
     <string name="websiteEngineRestartRequired">web engine installation is complete. Restart the app to continue.</string>
     <string name="websiteEngineRetry">retry</string>
 
+    <string name="pluginRefresh">refresh plugins</string>
+    <string name="pluginGameLabel">game</string>
+    <string name="pluginConfigLabel">config</string>
+    <string name="pluginGamePathNotSet">not set</string>
+    <string name="pluginConfigPathPending">waiting to read GamePluginConfigs.toml</string>
+    <string name="pluginStatusLoaded">loaded %1$d plugins from GamePluginConfigs.toml</string>
+    <string name="pluginStatusMissingGamePath">choose the game exe file in Settings first</string>
+    <string name="pluginStatusMissingConfig">plugin config file not found</string>
+    <string name="pluginStatusError">failed to read plugin config</string>
+    <string name="pluginEmptyReady">no plugins yet</string>
+    <string name="pluginEmptyMissingGamePath">game path is not set. Choose the game exe file in Settings.</string>
+    <string name="pluginEmptyMissingConfig">GamePluginConfigs.toml was not found. Make sure honkai_rts\\GamePlugins exists next to the exe.</string>
+    <string name="pluginEmptyError">an unknown error occurred while reading plugin config.</string>
+    <string name="pluginDescriptionDefault">no description</string>
+    <string name="pluginTypeBuiltIn">built in</string>
+    <string name="pluginTypePak">Pak</string>
+    <string name="pluginCategoryDefault">uncategorized</string>
+    <string name="pluginDefaultEnabled">enabled by default</string>
+    <string name="pluginDefaultDisabled">disabled by default</string>
+    <string name="pluginMountOrder">mount %1$s</string>
+    <string name="pluginNotBound">not bound</string>
+    <string name="pluginMetaName">Name</string>
+    <string name="pluginMetaGameFeature">GameFeature</string>
+    <string name="pluginMetaPakPath">PakPath</string>
+    <string name="pluginMetaResolved">Resolved</string>
+
     <string name="setGamePath">set game path</string>
     <string name="themeSetting">theme</string>
     <string name="languageSetting">language</string>
