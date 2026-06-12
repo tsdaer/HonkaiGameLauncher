@@ -11,8 +11,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -21,24 +23,27 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalUriHandler
-import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
-import com.mikepenz.markdown.compose.Markdown
-import com.mikepenz.markdown.model.DefaultMarkdownColors
-import com.mikepenz.markdown.model.DefaultMarkdownTypography
-import com.mikepenz.markdown.model.markdownAnnotator
-import com.mikepenz.markdown.model.markdownAnnotatorConfig
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.File
@@ -61,6 +66,14 @@ import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import org.jetbrains.compose.resources.stringResource
+import org.intellij.markdown.IElementType
+import org.intellij.markdown.MarkdownElementTypes
+import org.intellij.markdown.MarkdownTokenTypes
+import org.intellij.markdown.ast.ASTNode
+import org.intellij.markdown.flavours.gfm.GFMElementTypes
+import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
+import org.intellij.markdown.flavours.gfm.GFMTokenTypes
+import org.intellij.markdown.parser.MarkdownParser
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
@@ -69,6 +82,8 @@ import viewModel.DocEntry
 import viewModel.DocSection
 import viewModel.DocsLoadStatus
 import viewModel.DocsScreenModel
+import java.io.File
+import java.net.URI
 import io.github.composefluent.component.Text as FluentText
 
 class DocsScreen : Screen, IScreenInterface {
@@ -92,7 +107,6 @@ class DocsScreen : Screen, IScreenInterface {
     override fun Content() {
         val screenModel = rememberScreenModel { DocsScreenModel() }
         val listState = rememberLazyListState()
-        val systemUriHandler = LocalUriHandler.current
 
         Column(
             modifier = Modifier
@@ -204,39 +218,12 @@ class DocsScreen : Screen, IScreenInterface {
                                 ) {
                                     val scrollState = rememberScrollState()
 
-                                    Markdown(
-                                        content = screenModel.markdownContent,
-                                        colors = DefaultMarkdownColors(
-                                            text = FluentTheme.colors.text.text.primary,
-                                            codeBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.06f),
-                                            inlineCodeBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.06f),
-                                            dividerColor = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.12f),
-                                            tableBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.03f),
-                                        ),
-                                        typography = DefaultMarkdownTypography(
-                                            h1 = TextStyle(fontSize = 24.sp),
-                                            h2 = TextStyle(fontSize = 20.sp),
-                                            h3 = TextStyle(fontSize = 17.sp),
-                                            h4 = TextStyle(fontSize = 15.sp),
-                                            h5 = TextStyle(fontSize = 14.sp),
-                                            h6 = TextStyle(fontSize = 13.sp),
-                                            text = TextStyle(fontSize = 14.sp),
-                                            code = TextStyle(fontSize = 13.sp),
-                                            inlineCode = TextStyle(fontSize = 13.sp),
-                                            quote = TextStyle(fontSize = 14.sp),
-                                            paragraph = TextStyle(fontSize = 14.sp),
-                                            ordered = TextStyle(fontSize = 14.sp),
-                                            bullet = TextStyle(fontSize = 14.sp),
-                                            list = TextStyle(fontSize = 14.sp),
-                                            textLink = TextLinkStyles(),
-                                            table = TextStyle(fontSize = 13.sp),
-                                        ),
-                                        annotator = markdownAnnotator(
-                                            config = markdownAnnotatorConfig(eolAsNewLine = true)
-                                        ),
+                                    MarkdownPreview(
+                                        screenModel = screenModel,
                                         modifier = Modifier
                                             .fillMaxSize()
                                             .verticalScroll(scrollState)
+                                            .padding(end = 12.dp)
                                     )
 
                                     VerticalScrollbar(
@@ -255,6 +242,712 @@ class DocsScreen : Screen, IScreenInterface {
         }
     }
 }
+
+@Composable
+private fun MarkdownPreview(
+    screenModel: DocsScreenModel,
+    modifier: Modifier = Modifier,
+) {
+    val currentDocumentPath = screenModel.selectedDocument?.absolutePath
+    val markdownContent = remember(screenModel.markdownContent, currentDocumentPath) {
+        rewriteMarkdownResourceLinks(
+            markdown = screenModel.markdownContent,
+            currentDocumentPath = currentDocumentPath,
+        )
+    }
+    val flavour = remember { GFMFlavourDescriptor() }
+    val parser = remember(flavour) { MarkdownParser(flavour) }
+    val astRoot = remember(markdownContent, parser) {
+        parser.buildMarkdownTreeFromString(markdownContent)
+    }
+
+    FluentMarkdownDocument(
+        root = astRoot,
+        source = markdownContent,
+        style = rememberDocsMarkdownStyle(),
+        modifier = modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+    )
+}
+
+@Composable
+private fun FluentMarkdownDocument(
+    root: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        root.children.forEach { node ->
+            MarkdownBlock(node = node, source = source, style = style)
+        }
+    }
+}
+
+@Composable
+private fun MarkdownBlock(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    when (node.type) {
+        MarkdownElementTypes.ATX_1,
+        MarkdownElementTypes.ATX_2,
+        MarkdownElementTypes.ATX_3,
+        MarkdownElementTypes.ATX_4,
+        MarkdownElementTypes.ATX_5,
+        MarkdownElementTypes.ATX_6,
+        MarkdownElementTypes.SETEXT_1,
+        MarkdownElementTypes.SETEXT_2 -> MarkdownHeading(node, source, style)
+
+        MarkdownElementTypes.PARAGRAPH -> {
+            val table = parseMarkdownTable(extractMarkdownText(node, source))
+            if (table != null) {
+                MarkdownTable(table, style)
+            } else {
+                MarkdownTextBlock(
+                    text = buildInlineMarkdown(node, source, style),
+                    style = style.bodyTextStyle,
+                )
+            }
+        }
+
+        MarkdownElementTypes.CODE_FENCE,
+        MarkdownElementTypes.CODE_BLOCK -> MarkdownCodeBlock(node, source, style)
+
+        MarkdownElementTypes.BLOCK_QUOTE -> MarkdownQuoteBlock(node, source, style)
+
+        MarkdownElementTypes.UNORDERED_LIST -> MarkdownList(node, source, style, ordered = false)
+
+        MarkdownElementTypes.ORDERED_LIST -> MarkdownList(node, source, style, ordered = true)
+
+        GFMElementTypes.TABLE -> MarkdownTable(node, source, style)
+
+        MarkdownTokenTypes.HORIZONTAL_RULE -> MarkdownDivider(style)
+    }
+}
+
+@Composable
+private fun MarkdownHeading(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    val level = headingLevel(node.type)
+    val text = headingText(node, source)
+    val headingStyle = style.headingTextStyle(level)
+
+    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        FluentText(text = text, style = headingStyle)
+        if (level == 2) {
+            MarkdownDivider(style.copy(dividerColor = style.dividerColor.copy(alpha = 0.55f)))
+        }
+    }
+}
+
+@Composable
+private fun MarkdownTextBlock(
+    text: AnnotatedString,
+    style: TextStyle,
+    modifier: Modifier = Modifier,
+) {
+    FluentText(
+        text = text,
+        style = style,
+        modifier = modifier.fillMaxWidth()
+    )
+}
+
+@Composable
+private fun MarkdownCodeBlock(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    val code = when (node.type) {
+        MarkdownElementTypes.CODE_FENCE -> {
+            val content = node.children
+                .filter { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }
+                .joinToString("") { extractMarkdownText(it, source) }
+                .trimEnd()
+
+            content.ifBlank {
+                extractFencedCodeText(extractMarkdownText(node, source))
+            }
+        }
+
+        else -> extractMarkdownText(node, source).trimEnd()
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(style.codeBackground, RoundedCornerShape(6.dp))
+            .border(1.dp, style.borderColor, RoundedCornerShape(6.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp)
+    ) {
+        FluentText(
+            text = code,
+            style = style.codeBlockTextStyle,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun MarkdownQuoteBlock(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(style.subtleBackground, RoundedCornerShape(6.dp))
+            .border(1.dp, style.borderColor, RoundedCornerShape(6.dp))
+            .padding(vertical = 9.dp, horizontal = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .fillMaxHeight()
+                .background(style.accentColor.copy(alpha = 0.58f), RoundedCornerShape(2.dp))
+        )
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            node.children
+                .filterNot { it.type == MarkdownTokenTypes.BLOCK_QUOTE || it.isWhitespaceToken() }
+                .forEach { child -> MarkdownBlock(child, source, style.copy(textColor = style.mutedColor)) }
+        }
+    }
+}
+
+@Composable
+private fun MarkdownList(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+    ordered: Boolean,
+) {
+    val items = node.children.filter { it.type == MarkdownElementTypes.LIST_ITEM }
+
+    Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
+        items.forEachIndexed { index, item ->
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                FluentText(
+                    text = if (ordered) "${index + 1}." else "•",
+                    style = style.bodyTextStyle.copy(
+                        color = style.mutedColor,
+                        textAlign = TextAlign.End
+                    ),
+                    modifier = Modifier.size(width = 22.dp, height = 22.dp)
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(5.dp)
+                ) {
+                    item.children
+                        .filterNot {
+                            it.type == MarkdownTokenTypes.LIST_BULLET ||
+                                it.type == MarkdownTokenTypes.LIST_NUMBER ||
+                                it.type == MarkdownTokenTypes.EOL ||
+                                it.isWhitespaceToken()
+                        }
+                        .forEach { child -> MarkdownBlock(child, source, style) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MarkdownTable(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    val rows = node.children.filter { it.type == GFMElementTypes.HEADER || it.type == GFMElementTypes.ROW }
+    if (rows.isEmpty()) return
+
+    val header = rows.firstOrNull()
+        ?.children
+        ?.filter { it.type == GFMTokenTypes.CELL }
+        ?.map { buildInlineMarkdown(it, source, style) }
+        .orEmpty()
+    val body = rows.drop(1).map { row ->
+        row.children
+            .filter { it.type == GFMTokenTypes.CELL }
+            .map { buildInlineMarkdown(it, source, style) }
+    }
+
+    MarkdownTable(
+        table = MarkdownTableData(
+            header = header,
+            rows = body,
+            alignments = List(header.size) { TextAlign.Start }
+        ),
+        style = style,
+    )
+}
+
+@Composable
+private fun MarkdownTable(
+    table: MarkdownTableData,
+    style: DocsMarkdownStyle,
+) {
+    if (table.header.isEmpty()) return
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .border(1.dp, style.borderColor, RoundedCornerShape(6.dp))
+            .background(style.subtleBackground.copy(alpha = 0.42f), RoundedCornerShape(6.dp))
+    ) {
+        MarkdownTableRow(
+            cells = table.header,
+            alignments = table.alignments,
+            style = style,
+            header = true,
+        )
+        table.rows.forEach { row ->
+            MarkdownTableRow(
+                cells = row,
+                alignments = table.alignments,
+                style = style,
+                header = false,
+            )
+        }
+    }
+}
+
+@Composable
+private fun MarkdownTableRow(
+    cells: List<AnnotatedString>,
+    alignments: List<TextAlign>,
+    style: DocsMarkdownStyle,
+    header: Boolean,
+) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        val columnCount = maxOf(cells.size, alignments.size, 1)
+        repeat(columnCount) { index ->
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .border(0.5.dp, style.borderColor)
+                    .background(if (header) style.subtleBackground else Color.Transparent)
+                    .padding(horizontal = 9.dp, vertical = 7.dp)
+            ) {
+                MarkdownTextBlock(
+                    text = cells.getOrNull(index) ?: AnnotatedString(""),
+                    style = style.bodyTextStyle.copy(
+                        fontWeight = if (header) FontWeight.SemiBold else FontWeight.Normal,
+                        textAlign = alignments.getOrElse(index) { TextAlign.Start }
+                    )
+                )
+            }
+        }
+    }
+}
+
+private data class MarkdownTableData(
+    val header: List<AnnotatedString>,
+    val rows: List<List<AnnotatedString>>,
+    val alignments: List<TextAlign>,
+)
+
+private fun parseMarkdownTable(raw: String): MarkdownTableData? {
+    val lines = raw
+        .lines()
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+
+    if (lines.size < 2 || !lines[0].contains("|") || !lines[1].contains("|")) {
+        return null
+    }
+
+    val separator = splitMarkdownTableRow(lines[1])
+    if (separator.isEmpty() || separator.any { !it.isMarkdownTableSeparatorCell() }) {
+        return null
+    }
+
+    val header = splitMarkdownTableRow(lines[0])
+    if (header.isEmpty()) {
+        return null
+    }
+
+    val alignments = separator.map { cell ->
+        val trimmed = cell.trim()
+        when {
+            trimmed.startsWith(":") && trimmed.endsWith(":") -> TextAlign.Center
+            trimmed.endsWith(":") -> TextAlign.End
+            else -> TextAlign.Start
+        }
+    }
+    val rows = lines.drop(2)
+        .filter { it.contains("|") }
+        .map { splitMarkdownTableRow(it).map(::AnnotatedString) }
+
+    return MarkdownTableData(
+        header = header.map(::AnnotatedString),
+        rows = rows,
+        alignments = alignments
+    )
+}
+
+private fun extractFencedCodeText(raw: String): String {
+    val lines = raw.lines()
+    if (lines.size <= 2) {
+        return raw.trim('`', '~').trim()
+    }
+
+    return lines
+        .drop(1)
+        .dropLastWhile { it.trim().startsWith("```") || it.trim().startsWith("~~~") || it.isBlank() }
+        .joinToString("\n")
+        .trimEnd()
+}
+
+private fun splitMarkdownTableRow(line: String): List<String> {
+    return line
+        .trim()
+        .removePrefix("|")
+        .removeSuffix("|")
+        .split("|")
+        .map { it.trim() }
+}
+
+private fun String.isMarkdownTableSeparatorCell(): Boolean {
+    val trimmed = trim()
+    if (trimmed.length < 3) {
+        return false
+    }
+
+    val body = trimmed
+        .removePrefix(":")
+        .removeSuffix(":")
+        .trim()
+
+    return body.length >= 3 && body.all { it == '-' }
+}
+
+@Composable
+private fun MarkdownDivider(style: DocsMarkdownStyle) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(1.dp)
+            .background(style.dividerColor)
+    )
+}
+
+@Composable
+private fun rememberDocsMarkdownStyle(): DocsMarkdownStyle {
+    val textColor = FluentTheme.colors.text.text.primary
+    val mutedColor = FluentTokens.ColorToken.LogLevel.veryVerbose
+    val accentColor = FluentTokens.ColorToken.accent
+    val unknownColor = FluentTokens.ColorToken.LogLevel.unknown
+
+    return remember(textColor, mutedColor, accentColor, unknownColor) {
+        DocsMarkdownStyle(
+            textColor = textColor,
+            mutedColor = mutedColor,
+            accentColor = accentColor,
+            codeBackground = unknownColor.copy(alpha = 0.045f),
+            inlineCodeBackground = unknownColor.copy(alpha = 0.065f),
+            borderColor = unknownColor.copy(alpha = 0.12f),
+            dividerColor = unknownColor.copy(alpha = 0.16f),
+            subtleBackground = unknownColor.copy(alpha = 0.035f),
+        )
+    }
+}
+
+private data class DocsMarkdownStyle(
+    val textColor: Color,
+    val mutedColor: Color,
+    val accentColor: Color,
+    val codeBackground: Color,
+    val inlineCodeBackground: Color,
+    val borderColor: Color,
+    val dividerColor: Color,
+    val subtleBackground: Color,
+) {
+    val bodyTextStyle: TextStyle
+        get() = TextStyle(
+            color = textColor,
+            fontSize = 14.sp,
+            lineHeight = 21.sp,
+        )
+
+    val codeBlockTextStyle: TextStyle
+        get() = TextStyle(
+            color = textColor,
+            fontSize = 13.sp,
+            lineHeight = 19.sp,
+            fontFamily = FontFamily.Monospace,
+        )
+
+    fun headingTextStyle(level: Int): TextStyle {
+        val size = when (level) {
+            1 -> 22.sp
+            2 -> 18.sp
+            3 -> 16.sp
+            4 -> 14.sp
+            else -> 14.sp
+        }
+        return TextStyle(
+            color = if (level >= 5) mutedColor else textColor,
+            fontSize = size,
+            lineHeight = (size.value * 1.32f).sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+private fun buildInlineMarkdown(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+): AnnotatedString {
+    return buildAnnotatedString {
+        appendInlineNode(node, source, style)
+    }
+}
+
+private fun AnnotatedString.Builder.appendInlineNode(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    when (node.type) {
+        MarkdownElementTypes.STRONG -> withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
+            node.children.forEach { appendInlineNode(it, source, style) }
+        }
+
+        MarkdownElementTypes.EMPH -> withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
+            node.children.forEach { appendInlineNode(it, source, style) }
+        }
+
+        GFMElementTypes.STRIKETHROUGH -> withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
+            node.children.forEach { appendInlineNode(it, source, style) }
+        }
+
+        MarkdownElementTypes.CODE_SPAN -> {
+            val code = extractMarkdownText(node, source)
+                .trim()
+                .trim('`')
+            withStyle(
+                SpanStyle(
+                    color = style.textColor,
+                    background = style.inlineCodeBackground,
+                    fontFamily = FontFamily.Monospace,
+                    fontSize = 13.sp,
+                )
+            ) {
+                append(code)
+            }
+        }
+
+        MarkdownElementTypes.INLINE_LINK,
+        MarkdownElementTypes.FULL_REFERENCE_LINK,
+        MarkdownElementTypes.SHORT_REFERENCE_LINK,
+        MarkdownElementTypes.AUTOLINK -> appendLinkNode(node, source, style)
+
+        MarkdownElementTypes.IMAGE -> {
+            val label = node.children
+                .firstOrNull { it.type == MarkdownElementTypes.LINK_TEXT }
+                ?.let { extractMarkdownText(it, source).trim('[', ']') }
+                ?.ifBlank { null }
+                ?: "image"
+            withStyle(SpanStyle(color = style.mutedColor)) {
+                append("[$label]")
+            }
+        }
+
+        MarkdownTokenTypes.HARD_LINE_BREAK -> append("\n")
+
+        MarkdownTokenTypes.EOL -> append(" ")
+
+        MarkdownTokenTypes.TEXT,
+        MarkdownTokenTypes.ATX_CONTENT,
+        MarkdownTokenTypes.SETEXT_CONTENT,
+        MarkdownTokenTypes.CODE_LINE,
+        GFMTokenTypes.CELL -> append(extractMarkdownText(node, source).trimCellPipes())
+
+        else -> {
+            if (node.children.isEmpty()) {
+                if (!node.isMarkdownSyntaxToken() && !node.isWhitespaceToken()) {
+                    append(extractMarkdownText(node, source))
+                }
+            } else {
+                node.children.forEach { appendInlineNode(it, source, style) }
+            }
+        }
+    }
+}
+
+private fun AnnotatedString.Builder.appendLinkNode(
+    node: ASTNode,
+    source: String,
+    style: DocsMarkdownStyle,
+) {
+    val label = node.children
+        .firstOrNull { it.type == MarkdownElementTypes.LINK_TEXT }
+        ?.let { extractMarkdownText(it, source).trim('[', ']') }
+        ?.ifBlank { null }
+        ?: extractMarkdownText(node, source)
+
+    withStyle(
+        SpanStyle(
+            color = style.accentColor,
+            textDecoration = TextDecoration.None,
+            fontWeight = FontWeight.Medium,
+        )
+    ) {
+        append(label)
+    }
+}
+
+private fun headingLevel(type: IElementType): Int {
+    return when (type) {
+        MarkdownElementTypes.ATX_1,
+        MarkdownElementTypes.SETEXT_1 -> 1
+        MarkdownElementTypes.ATX_2,
+        MarkdownElementTypes.SETEXT_2 -> 2
+        MarkdownElementTypes.ATX_3 -> 3
+        MarkdownElementTypes.ATX_4 -> 4
+        MarkdownElementTypes.ATX_5 -> 5
+        MarkdownElementTypes.ATX_6 -> 6
+        else -> 6
+    }
+}
+
+private fun headingText(node: ASTNode, source: String): String {
+    return node.children
+        .firstOrNull {
+            it.type == MarkdownTokenTypes.ATX_CONTENT ||
+                it.type == MarkdownTokenTypes.SETEXT_CONTENT
+        }
+        ?.let { extractMarkdownText(it, source).trim() }
+        ?: extractMarkdownText(node, source)
+            .trim()
+            .trimStart('#')
+            .trim()
+            .trimEnd('#')
+            .trim()
+}
+
+private fun extractMarkdownText(node: ASTNode, source: String): String {
+    return source.substring(node.startOffset, node.endOffset)
+}
+
+private fun ASTNode.isWhitespaceToken(): Boolean {
+    return type == MarkdownTokenTypes.WHITE_SPACE || type == MarkdownTokenTypes.EOL
+}
+
+private fun ASTNode.isMarkdownSyntaxToken(): Boolean {
+    return type == MarkdownTokenTypes.EMPH ||
+        type == MarkdownTokenTypes.BACKTICK ||
+        type == MarkdownTokenTypes.ESCAPED_BACKTICKS ||
+        type == MarkdownTokenTypes.LBRACKET ||
+        type == MarkdownTokenTypes.RBRACKET ||
+        type == MarkdownTokenTypes.LPAREN ||
+        type == MarkdownTokenTypes.RPAREN ||
+        type == MarkdownTokenTypes.EXCLAMATION_MARK ||
+        type == MarkdownTokenTypes.COLON ||
+        type == MarkdownTokenTypes.LT ||
+        type == MarkdownTokenTypes.GT ||
+        type == MarkdownTokenTypes.ATX_HEADER ||
+        type == MarkdownTokenTypes.SETEXT_1 ||
+        type == MarkdownTokenTypes.SETEXT_2 ||
+        type == MarkdownTokenTypes.LIST_BULLET ||
+        type == MarkdownTokenTypes.LIST_NUMBER ||
+        type == MarkdownTokenTypes.LINK_ID ||
+        type == MarkdownTokenTypes.LINK_TITLE ||
+        type == MarkdownTokenTypes.CODE_FENCE_START ||
+        type == MarkdownTokenTypes.CODE_FENCE_END ||
+        type == MarkdownTokenTypes.FENCE_LANG ||
+        type == GFMTokenTypes.TILDE ||
+        type == GFMTokenTypes.TABLE_SEPARATOR
+}
+
+private fun String.trimCellPipes(): String {
+    return trim().trim('|').trim()
+}
+
+private fun rewriteMarkdownResourceLinks(
+    markdown: String,
+    currentDocumentPath: String?,
+): String {
+    return MarkdownResourceLinkRegex.replace(markdown) { match ->
+        val prefix = match.groupValues[1]
+        val label = match.groupValues[2]
+        val rawValue = match.groupValues[3]
+        val suffix = match.groupValues[4]
+        val rewritten = rewriteMarkdownResourceLink(rawValue, currentDocumentPath)
+
+        "$prefix$label]($rewritten$suffix)"
+    }
+}
+
+private fun rewriteMarkdownResourceLink(
+    rawValue: String,
+    currentDocumentPath: String?,
+): String {
+    val value = rawValue.trim()
+    if (value.isBlank() || value.startsWith("#") || value.hasKnownScheme()) {
+        return rawValue
+    }
+
+    if (value.isMarkdownDocumentLink()) {
+        return rawValue
+    }
+
+    return resolveMarkdownResource(currentDocumentPath, value)
+        ?.toURI()
+        ?.toASCIIString()
+        ?: rawValue
+}
+
+private fun resolveMarkdownResource(currentDocumentPath: String?, rawLink: String): File? {
+    val currentFile = currentDocumentPath?.let(::File) ?: return null
+    val cleaned = rawLink.substringBefore('#').trim()
+    if (cleaned.isBlank()) {
+        return null
+    }
+
+    val normalized = runCatching { URI(cleaned).path }.getOrDefault(cleaned)
+    return if (normalized.startsWith("/")) {
+        File(currentFile.parentFile, normalized.removePrefix("/")).normalize()
+    } else {
+        File(currentFile.parentFile, normalized).normalize()
+    }.takeIf { it.exists() && it.isFile }
+}
+
+private fun String.isMarkdownDocumentLink(): Boolean {
+    val path = runCatching { URI(this).path }
+        .getOrDefault(substringBefore('#').substringBefore('?'))
+
+    return path.endsWith(".md", ignoreCase = true)
+}
+
+private fun String.hasKnownScheme(): Boolean {
+    val lowerValue = lowercase()
+    return lowerValue.startsWith("http://") ||
+        lowerValue.startsWith("https://") ||
+        lowerValue.startsWith("file:") ||
+        lowerValue.startsWith("data:") ||
+        lowerValue.startsWith("mailto:")
+}
+
+private val MarkdownResourceLinkRegex = Regex("""(!?\[)([^\]]*)]\(([^)\s]+)([^)]*)\)""")
 
 @Composable
 private fun DocsOverview(

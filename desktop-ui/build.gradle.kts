@@ -25,7 +25,6 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta03")
     implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
     implementation("org.jetbrains:markdown:0.7.5")
-    implementation("com.mikepenz:multiplatform-markdown-renderer-jvm:0.37.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
