@@ -94,6 +94,17 @@
     <string name="pluginMetaPakPath">PakPath</string>
     <string name="pluginMetaResolved">Resolved</string>
 
+    <string name="docsRefresh">refresh docs</string>
+    <string name="docsDirectoryLabel">docs directory</string>
+    <string name="docsGeneralSection">general docs</string>
+    <string name="docsGamePluginsSection">plugin docs</string>
+    <string name="docsOverviewTitle">overview</string>
+    <string name="docsMissingGamePath">game path is not set. Choose the game exe file in Settings first.</string>
+    <string name="docsMissingDirectory">honkai_rts\\docs directory was not found.</string>
+    <string name="docsEmptyDirectory">the docs directory is empty or contains no markdown files.</string>
+    <string name="docsErrorRead">failed to read doc: %1$s</string>
+    <string name="docsErrorUnresolvedLink">link target was not found: %1$s</string>
+
     <string name="setGamePath">set game path</string>
     <string name="themeSetting">theme</string>
     <string name="languageSetting">language</string>
