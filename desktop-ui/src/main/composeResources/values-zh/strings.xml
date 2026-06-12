@@ -25,6 +25,13 @@
     <string name="homeActionOpenFolder">打开游戏目录</string>
     <string name="homeSectionStatus">启动状态</string>
     <string name="homeSectionQuickAccess">快捷入口</string>
+    <string name="homeConnectionLabel">游戏连接</string>
+    <string name="homeConnectionStopped">服务未启动</string>
+    <string name="homeConnectionWaiting">等待回传</string>
+    <string name="homeConnectionConnected">已连接</string>
+    <string name="homeConnectionStoppedHint">监听服务离线</string>
+    <string name="homeConnectionWaitingHint">等待游戏回传状态</string>
+    <string name="homeConnectionConnectedHint">正在接收游戏状态</string>
     <string name="homePluginCount">插件数量</string>
     <string name="homeLastLaunch">上次启动</string>
     <string name="homeNeverLaunched">尚未启动</string>

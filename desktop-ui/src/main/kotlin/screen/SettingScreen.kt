@@ -1,14 +1,6 @@
 package screen
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
@@ -21,38 +13,23 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
-import honkaigamelauncher.desktop_ui.generated.resources.Res
-import honkaigamelauncher.desktop_ui.generated.resources.languageSettingDesc
-import honkaigamelauncher.desktop_ui.generated.resources.languageEn
-import honkaigamelauncher.desktop_ui.generated.resources.languageSetting
-import honkaigamelauncher.desktop_ui.generated.resources.languageZh
-import honkaigamelauncher.desktop_ui.generated.resources.settingsActionBrowse
-import honkaigamelauncher.desktop_ui.generated.resources.settingsDescGamePath
-import honkaigamelauncher.desktop_ui.generated.resources.settingsGroupAppearance
-import honkaigamelauncher.desktop_ui.generated.resources.settingsGroupLauncher
-import honkaigamelauncher.desktop_ui.generated.resources.settingsNotSet
-import honkaigamelauncher.desktop_ui.generated.resources.setGamePath
-import honkaigamelauncher.desktop_ui.generated.resources.setting
-import honkaigamelauncher.desktop_ui.generated.resources.themeSettingDesc
-import honkaigamelauncher.desktop_ui.generated.resources.themeDark
-import honkaigamelauncher.desktop_ui.generated.resources.themeLight
-import honkaigamelauncher.desktop_ui.generated.resources.themeSetting
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.Folder
 import compose.icons.evaicons.fill.Globe2
 import compose.icons.evaicons.fill.Moon
 import compose.icons.feathericons.Settings
+import honkaigamelauncher.desktop_ui.generated.resources.*
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import io.github.composefluent.component.Switcher
 import org.jetbrains.compose.resources.stringResource
-import io.github.composefluent.component.Text as FluentText
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.components.FluentDropdown
 import ui.settings.LocalAppUiSettings
 import viewModel.SettingScreenModel
+import io.github.composefluent.component.Text as FluentText
 
 class SettingScreen: Screen, IScreenInterface {
 

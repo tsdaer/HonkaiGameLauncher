@@ -3,22 +3,14 @@ package ui.components
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.window.WindowDraggableArea
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.WindowPlacement
@@ -28,22 +20,15 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.appTitle
 import honkaigamelauncher.desktop_ui.generated.resources.logo
-import io.github.composefluent.icons.Icons
-import io.github.composefluent.icons.regular.Maximize
-import io.github.composefluent.icons.regular.Open
-import io.github.composefluent.component.FontIcon
-import io.github.composefluent.component.FontIconPrimitive
-import io.github.composefluent.component.ButtonDefaults
-import io.github.composefluent.component.Icon
-import io.github.composefluent.component.NavigationDefaults
-import io.github.composefluent.component.ButtonColor
-import io.github.composefluent.component.Text as FluentText
 import io.github.composefluent.FluentTheme
+import io.github.composefluent.component.*
+import io.github.composefluent.icons.Icons
 import io.github.composefluent.icons.regular.FullScreenMaximize
 import io.github.composefluent.icons.regular.FullScreenMinimize
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.theme.FluentTokens
+import io.github.composefluent.component.Text as FluentText
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable

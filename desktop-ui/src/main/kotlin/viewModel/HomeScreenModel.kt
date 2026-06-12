@@ -6,16 +6,21 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import com.russhwolf.settings.Settings
+import core.GameConnectionStatus
+import core.RuntimeServices
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.awt.Desktop
 import java.io.File
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import kotlin.time.Duration.Companion.milliseconds
 
 enum class HomeLaunchStatus {
     MissingGamePath,
@@ -54,6 +59,19 @@ class HomeScreenModel(
     var statusMessage by mutableStateOf("")
         private set
 
+    var gameConnectionStatus by mutableStateOf(RuntimeServices.gameService.connectionStatus)
+        private set
+
+    private val connectionListener: (GameConnectionStatus) -> Unit = { status ->
+        gameConnectionStatus = status
+        if (status == GameConnectionStatus.Connected) {
+            awaitConnectionJob?.cancel()
+        }
+        refresh()
+    }
+
+    private var awaitConnectionJob: Job? = null
+
     val hasGamePath: Boolean
         get() = gamePath != "null" && gamePath.isNotBlank()
 
@@ -61,6 +79,7 @@ class HomeScreenModel(
         get() = pluginConfigPath.isNotBlank()
 
     init {
+        RuntimeServices.gameService.addConnectionListener(connectionListener)
         refresh()
     }
 
@@ -72,9 +91,10 @@ class HomeScreenModel(
         pluginConfigPath = snapshot.pluginConfigPath
         pluginCount = snapshot.pluginCount
         launchStatus = when {
+            gameConnectionStatus == GameConnectionStatus.Connected -> HomeLaunchStatus.Running
             !hasGamePath -> HomeLaunchStatus.MissingGamePath
             !snapshot.executableExists -> HomeLaunchStatus.MissingExecutable
-            launchStatus == HomeLaunchStatus.Running -> HomeLaunchStatus.Running
+            launchStatus == HomeLaunchStatus.Launching -> HomeLaunchStatus.Launching
             else -> HomeLaunchStatus.Ready
         }
         statusMessage = snapshot.message
@@ -109,14 +129,31 @@ class HomeScreenModel(
             result.fold(
                 onSuccess = {
                     lastLaunchTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-                    launchStatus = HomeLaunchStatus.Running
+                    launchStatus = if (gameConnectionStatus == GameConnectionStatus.Connected) {
+                        HomeLaunchStatus.Running
+                    } else {
+                        HomeLaunchStatus.Launching
+                    }
                     statusMessage = ""
+                    waitForGameConnection()
                 },
                 onFailure = { error ->
                     launchStatus = HomeLaunchStatus.Error
                     statusMessage = error.message ?: error::class.simpleName.orEmpty()
                 }
             )
+        }
+    }
+
+    private fun waitForGameConnection() {
+        awaitConnectionJob?.cancel()
+        awaitConnectionJob = screenModelScope.launch {
+            delay(GAME_CONNECTION_WAIT_TIMEOUT_MS.milliseconds)
+            if (launchStatus == HomeLaunchStatus.Launching &&
+                gameConnectionStatus != GameConnectionStatus.Connected
+            ) {
+                launchStatus = HomeLaunchStatus.Ready
+            }
         }
     }
 
@@ -172,7 +209,13 @@ class HomeScreenModel(
     }
 
     override fun onDispose() {
+        awaitConnectionJob?.cancel()
+        RuntimeServices.gameService.removeConnectionListener(connectionListener)
         super.onDispose()
+    }
+
+    private companion object {
+        const val GAME_CONNECTION_WAIT_TIMEOUT_MS = 20_000L
     }
 }
 

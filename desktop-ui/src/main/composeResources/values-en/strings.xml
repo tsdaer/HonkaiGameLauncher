@@ -25,6 +25,13 @@
     <string name="homeActionOpenFolder">open game folder</string>
     <string name="homeSectionStatus">launch status</string>
     <string name="homeSectionQuickAccess">quick access</string>
+    <string name="homeConnectionLabel">game connection</string>
+    <string name="homeConnectionStopped">service stopped</string>
+    <string name="homeConnectionWaiting">waiting for signal</string>
+    <string name="homeConnectionConnected">connected</string>
+    <string name="homeConnectionStoppedHint">listener is offline</string>
+    <string name="homeConnectionWaitingHint">waiting for game status</string>
+    <string name="homeConnectionConnectedHint">receiving game status</string>
     <string name="homePluginCount">plugins</string>
     <string name="homeLastLaunch">last launch</string>
     <string name="homeNeverLaunched">never</string>
