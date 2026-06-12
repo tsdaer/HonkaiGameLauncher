@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
@@ -32,6 +33,7 @@ import navigation.featureScreens
 import screen.IScreenInterface
 import ui.settings.AppNavigationStyle
 import ui.settings.LocalAppUiSettings
+import ui.settings.LocalNavExpanded
 import ui.fluent.theme.FluentTokens
 import ui.fluent.theme.LegacyThemeAdapter
 
@@ -123,36 +125,39 @@ fun NavigationBar(
             },
             pane = {
                 val currentScreen = navigator?.lastItem as? IScreenInterface
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(
-                            start = FluentTokens.Spacing.large,
-                            end = FluentTokens.Spacing.xLarge,
-                            top = contentTopPadding,
-                            bottom = FluentTokens.Spacing.xLarge
-                        )
-                ) {
-                    currentScreen?.let {
-                        Text(
-                            text = it.getTitle(),
-                            modifier = Modifier.padding(bottom = 10.dp)
-                        )
-                    }
+                val navOverlapping = navigationStyle == AppNavigationStyle.LeftCollapsed && navigationState.expanded
+                CompositionLocalProvider(LocalNavExpanded provides navOverlapping) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(
+                                start = FluentTokens.Spacing.large,
+                                end = FluentTokens.Spacing.xLarge,
+                                top = contentTopPadding,
+                                bottom = FluentTokens.Spacing.xLarge
+                            )
+                    ) {
+                        currentScreen?.let {
+                            Text(
+                                text = it.getTitle(),
+                                modifier = Modifier.padding(bottom = 10.dp)
+                            )
+                        }
 
-                    navigator?.let {
-                        val slowAnimation = tween<IntOffset>(durationMillis = 300)
-                        val slowAnimation2 = tween<Float>(durationMillis = 300)
-                        AnimatedContent(
-                            targetState = navigator.lastItem.key,
-                            transitionSpec = {
-                                (slideInVertically(animationSpec = slowAnimation) { fullHeight -> (0.1 * fullHeight).toInt() } + fadeIn(animationSpec = slowAnimation2)).togetherWith(
-                                    slideOutVertically(animationSpec = slowAnimation) { fullHeight -> (-0.1 * fullHeight).toInt() } + fadeOut(slowAnimation2)
-                                )
-                            },
-                            contentKey = { navigator.lastItem.key }
-                        ) {
-                            CurrentScreen()
+                        navigator?.let {
+                            val slowAnimation = tween<IntOffset>(durationMillis = 300)
+                            val slowAnimation2 = tween<Float>(durationMillis = 300)
+                            AnimatedContent(
+                                targetState = navigator.lastItem.key,
+                                transitionSpec = {
+                                    (slideInVertically(animationSpec = slowAnimation) { fullHeight -> (0.1 * fullHeight).toInt() } + fadeIn(animationSpec = slowAnimation2)).togetherWith(
+                                        slideOutVertically(animationSpec = slowAnimation) { fullHeight -> (-0.1 * fullHeight).toInt() } + fadeOut(slowAnimation2)
+                                    )
+                                },
+                                contentKey = { navigator.lastItem.key }
+                            ) {
+                                CurrentScreen()
+                            }
                         }
                     }
                 }

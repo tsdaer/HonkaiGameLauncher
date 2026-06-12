@@ -15,7 +15,7 @@ dependencies {
     implementation(compose.components.resources)
     implementation("io.github.compose-fluent:fluent:v0.1.0")
     implementation("io.github.compose-fluent:fluent-icons-extended:v0.1.0")
-    implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.2.20")
 
     implementation("br.com.devsrsouza.compose.icons:eva-icons:1.1.1")
     implementation("br.com.devsrsouza.compose.icons:feather:1.1.1")
@@ -25,6 +25,7 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta03")
     implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
     implementation("org.jetbrains:markdown:0.7.5")
+    implementation("com.mikepenz:multiplatform-markdown-renderer-jvm:0.37.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")

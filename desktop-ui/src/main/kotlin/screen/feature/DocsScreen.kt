@@ -21,23 +21,28 @@ import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.awt.SwingPanel
 import androidx.compose.ui.platform.LocalUriHandler
+import androidx.compose.ui.text.TextLinkStyles
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
+import com.mikepenz.markdown.compose.Markdown
+import com.mikepenz.markdown.model.DefaultMarkdownColors
+import com.mikepenz.markdown.model.DefaultMarkdownTypography
+import com.mikepenz.markdown.model.markdownAnnotator
+import com.mikepenz.markdown.model.markdownAnnotatorConfig
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.File
 import compose.icons.feathericons.AlertCircle
-import compose.icons.feathericons.BookOpen
 import compose.icons.feathericons.File
 import compose.icons.feathericons.Folder
 import compose.icons.feathericons.RefreshCw
@@ -56,9 +61,6 @@ import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import org.jetbrains.compose.resources.stringResource
-import org.intellij.markdown.flavours.gfm.GFMFlavourDescriptor
-import org.intellij.markdown.html.HtmlGenerator
-import org.intellij.markdown.parser.MarkdownParser
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
@@ -67,10 +69,6 @@ import viewModel.DocEntry
 import viewModel.DocSection
 import viewModel.DocsLoadStatus
 import viewModel.DocsScreenModel
-import java.awt.Color as AwtColor
-import javax.swing.JEditorPane
-import javax.swing.JScrollPane
-import javax.swing.event.HyperlinkEvent
 import io.github.composefluent.component.Text as FluentText
 
 class DocsScreen : Screen, IScreenInterface {
@@ -203,26 +201,50 @@ class DocsScreen : Screen, IScreenInterface {
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .weight(1f)
-                                        .border(
-                                            1.dp,
-                                            FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.12f),
-                                            RoundedCornerShape(12.dp)
-                                        )
-                                        .background(
-                                            FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.03f),
-                                            RoundedCornerShape(12.dp)
-                                        )
-                                        .padding(horizontal = 16.dp, vertical = 14.dp)
                                 ) {
-                                    MarkdownPreview(
-                                        markdown = screenModel.markdownContent,
-                                        onOpenLink = { uri ->
-                                            val handledInternally = screenModel.openLinkedDocument(uri)
-                                            if (!handledInternally) {
-                                                systemUriHandler.openUri(uri)
-                                            }
-                                        },
-                                        modifier = Modifier.fillMaxSize()
+                                    val scrollState = rememberScrollState()
+
+                                    Markdown(
+                                        content = screenModel.markdownContent,
+                                        colors = DefaultMarkdownColors(
+                                            text = FluentTheme.colors.text.text.primary,
+                                            codeBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.06f),
+                                            inlineCodeBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.06f),
+                                            dividerColor = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.12f),
+                                            tableBackground = FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.03f),
+                                        ),
+                                        typography = DefaultMarkdownTypography(
+                                            h1 = TextStyle(fontSize = 24.sp),
+                                            h2 = TextStyle(fontSize = 20.sp),
+                                            h3 = TextStyle(fontSize = 17.sp),
+                                            h4 = TextStyle(fontSize = 15.sp),
+                                            h5 = TextStyle(fontSize = 14.sp),
+                                            h6 = TextStyle(fontSize = 13.sp),
+                                            text = TextStyle(fontSize = 14.sp),
+                                            code = TextStyle(fontSize = 13.sp),
+                                            inlineCode = TextStyle(fontSize = 13.sp),
+                                            quote = TextStyle(fontSize = 14.sp),
+                                            paragraph = TextStyle(fontSize = 14.sp),
+                                            ordered = TextStyle(fontSize = 14.sp),
+                                            bullet = TextStyle(fontSize = 14.sp),
+                                            list = TextStyle(fontSize = 14.sp),
+                                            textLink = TextLinkStyles(),
+                                            table = TextStyle(fontSize = 13.sp),
+                                        ),
+                                        annotator = markdownAnnotator(
+                                            config = markdownAnnotatorConfig(eolAsNewLine = true)
+                                        ),
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .verticalScroll(scrollState)
+                                    )
+
+                                    VerticalScrollbar(
+                                        modifier = Modifier
+                                            .align(Alignment.CenterEnd)
+                                            .fillMaxHeight()
+                                            .padding(vertical = 4.dp),
+                                        adapter = rememberScrollbarAdapter(scrollState)
                                     )
                                 }
                             }
@@ -232,105 +254,6 @@ class DocsScreen : Screen, IScreenInterface {
             }
         }
     }
-}
-
-@Composable
-private fun MarkdownPreview(
-    markdown: String,
-    onOpenLink: (String) -> Unit,
-    modifier: Modifier = Modifier,
-) {
-    val html = remember(markdown) { markdownToHtml(markdown) }
-
-    SwingPanel(
-        modifier = modifier,
-        factory = {
-            val editor = JEditorPane().apply {
-                contentType = "text/html"
-                isEditable = false
-                background = AwtColor(0, 0, 0, 0)
-                putClientProperty(JEditorPane.HONOR_DISPLAY_PROPERTIES, true)
-                addHyperlinkListener { event ->
-                    if (event.eventType == HyperlinkEvent.EventType.ACTIVATED) {
-                        onOpenLink(event.description)
-                    }
-                }
-            }
-
-            JScrollPane(editor).apply {
-                border = null
-                viewport.border = null
-                viewport.background = AwtColor(0, 0, 0, 0)
-                background = AwtColor(0, 0, 0, 0)
-            }
-        },
-        update = { scrollPane: JScrollPane ->
-            val editor = scrollPane.viewport.view as JEditorPane
-            if (editor.text != html) {
-                editor.text = html
-                editor.caretPosition = 0
-            }
-        }
-    )
-}
-
-private fun markdownToHtml(markdown: String): String {
-    val flavour = GFMFlavourDescriptor()
-    val parsedTree = MarkdownParser(flavour).buildMarkdownTreeFromString(markdown)
-    val body = HtmlGenerator(markdown, parsedTree, flavour).generateHtml()
-
-    return """
-        <html>
-        <head>
-            <style>
-                body {
-                    font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
-                    font-size: 14px;
-                    line-height: 1.55;
-                    margin: 0;
-                    padding: 0;
-                }
-                h1, h2, h3, h4, h5, h6 {
-                    margin: 1.15em 0 0.45em 0;
-                }
-                h1 { font-size: 24px; }
-                h2 { font-size: 20px; }
-                h3 { font-size: 17px; }
-                p { margin: 0.55em 0; }
-                pre {
-                    background: #f3f3f3;
-                    border: 1px solid #dddddd;
-                    padding: 10px;
-                    margin: 0.75em 0;
-                }
-                code {
-                    font-family: "JetBrains Mono", Consolas, monospace;
-                    background: #f3f3f3;
-                    padding: 1px 3px;
-                }
-                blockquote {
-                    border-left: 4px solid #888888;
-                    margin: 0.75em 0;
-                    padding: 2px 0 2px 12px;
-                    color: #555555;
-                }
-                table {
-                    border-collapse: collapse;
-                    margin: 0.75em 0;
-                }
-                th, td {
-                    border: 1px solid #d6d6d6;
-                    padding: 6px 8px;
-                }
-                a {
-                    color: #0067c0;
-                    text-decoration: none;
-                }
-            </style>
-        </head>
-        <body>$body</body>
-        </html>
-    """.trimIndent()
 }
 
 @Composable

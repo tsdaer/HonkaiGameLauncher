@@ -1,5 +1,6 @@
 package screen.feature
 
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -41,16 +42,6 @@ import honkaigamelauncher.desktop_ui.generated.resources.screen_website
 import honkaigamelauncher.desktop_ui.generated.resources.websiteActionGo
 import honkaigamelauncher.desktop_ui.generated.resources.websiteActionOpenExternal
 import honkaigamelauncher.desktop_ui.generated.resources.websiteAddressPlaceholder
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineChecking
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineDownloading
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineDownloadFinishing
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineErrorTitle
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineExtracting
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineInitializing
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineInstalling
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineReady
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineRestartRequired
-import honkaigamelauncher.desktop_ui.generated.resources.websiteEngineRetry
 import honkaigamelauncher.desktop_ui.generated.resources.websiteErrorTitle
 import honkaigamelauncher.desktop_ui.generated.resources.websiteLinkGithub
 import honkaigamelauncher.desktop_ui.generated.resources.websiteLinkOfficial
@@ -64,9 +55,10 @@ import io.github.composefluent.component.ProgressBar
 import io.github.composefluent.component.TextField
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
+import ui.components.WebEngineInitContent
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
-import viewModel.WebEnginePhase
+import ui.settings.LocalNavExpanded
 import viewModel.WebScreenModel
 import io.github.composefluent.component.Text as FluentText
 
@@ -238,93 +230,19 @@ class WebScreen: Screen, IScreenInterface {
                 )
             }
 
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .widthIn(max = 1200.dp)
-            ) {
-                WebView(
-                    state = webViewState,
-                    navigator = navigator,
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun WebEngineInitContent(
-    phase: WebEnginePhase,
-    progress: Float?,
-    errorMessage: String?,
-    restartRequired: Boolean,
-    onRetry: () -> Unit
-) {
-    val message = when (phase) {
-        WebEnginePhase.Checking -> stringResource(Res.string.websiteEngineChecking)
-        WebEnginePhase.Downloading -> stringResource(Res.string.websiteEngineDownloading)
-        WebEnginePhase.DownloadFinishing -> stringResource(Res.string.websiteEngineDownloadFinishing)
-        WebEnginePhase.Extracting -> stringResource(Res.string.websiteEngineExtracting)
-        WebEnginePhase.Installing -> stringResource(Res.string.websiteEngineInstalling)
-        WebEnginePhase.Initializing -> stringResource(Res.string.websiteEngineInitializing)
-        WebEnginePhase.Ready -> stringResource(Res.string.websiteEngineReady)
-    }
-
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        FluentCard(
-            modifier = Modifier
-                .fillMaxWidth()
-                .widthIn(max = 520.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(18.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                FluentText(
-                    text = message,
-                    style = FluentTheme.typography.subtitle
-                )
-                if (errorMessage == null && !restartRequired) {
-                    if (progress == null) {
-                        ProgressBar(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(3.dp)
-                        )
-                    } else {
-                        ProgressBar(
-                            progress = progress,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(3.dp)
-                        )
-                    }
-                } else {
-                    InfoBar(
-                        title = { FluentText(stringResource(Res.string.websiteEngineErrorTitle)) },
-                        message = {
-                            FluentText(
-                                if (restartRequired) {
-                                    stringResource(Res.string.websiteEngineRestartRequired)
-                                } else {
-                                    errorMessage.orEmpty()
-                                }
-                            )
-                        },
-                        severity = InfoBarSeverity.Warning,
-                        modifier = Modifier.fillMaxWidth()
+            val navExpanded = LocalNavExpanded.current
+            if (!navExpanded) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .widthIn(max = 1200.dp)
+                        .clipToBounds()
+                ) {
+                    WebView(
+                        state = webViewState,
+                        navigator = navigator,
+                        modifier = Modifier.fillMaxSize()
                     )
-                    FluentButton(onClick = onRetry) {
-                        FluentText(stringResource(Res.string.websiteEngineRetry))
-                    }
                 }
             }
         }

@@ -1,5 +1,6 @@
 package ui.settings
 
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.staticCompositionLocalOf
 
 data class AppUiSettings(
@@ -27,3 +28,5 @@ enum class AppNavigationStyle(val key: String) {
 val LocalAppUiSettings = staticCompositionLocalOf<AppUiSettings> {
     error("LocalAppUiSettings is not provided")
 }
+
+val LocalNavExpanded = compositionLocalOf { false }
