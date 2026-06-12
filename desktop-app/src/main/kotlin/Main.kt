@@ -14,6 +14,7 @@ import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.Navigator
 import honkaigamelauncher.desktop_ui.generated.resources.*
 import com.kdroid.composetray.tray.api.Tray
+import com.russhwolf.settings.Settings
 import core.RuntimeServices
 import localization.changeLanguage
 import navigation.SharedScreen
@@ -24,6 +25,7 @@ import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
 import ui.fluent.theme.AppFluentTheme
 import ui.fluent.theme.FluentTokens
+import ui.settings.AppNavigationStyle
 import ui.settings.AppUiSettings
 import ui.settings.LocalAppUiSettings
 import kotlin.system.exitProcess
@@ -43,12 +45,20 @@ fun main() = application {
     System.setErr(java.io.PrintStream(System.err, true, "UTF-8"))
 
     RuntimeServices.gameService.start()
+    val settings = remember { Settings() }
 
     var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
-    var isDarkTheme by remember { mutableStateOf(false) }
+    var isDarkTheme by remember { mutableStateOf(settings.getBoolean("isDarkTheme", false)) }
 
-    var languageCode by remember { mutableStateOf("zh") }
+    var languageCode by remember { mutableStateOf(settings.getString("languageCode", "zh")) }
+    var navigationStyle by remember {
+        mutableStateOf(AppNavigationStyle.fromKey(settings.getString("navigationStyle", AppNavigationStyle.LeftCompact.key)))
+    }
+
+    LaunchedEffect(languageCode) {
+        changeLanguage(languageCode)
+    }
 
     var openWindowStr = ""
     var exitApplicationStr = ""
@@ -83,11 +93,22 @@ fun main() = application {
         LocalAppUiSettings provides AppUiSettings(
             isDarkTheme = isDarkTheme,
             languageCode = languageCode,
-            onThemeChanged = { isDarkTheme = !isDarkTheme },
+            navigationStyle = navigationStyle,
+            onThemeChanged = {
+                isDarkTheme = !isDarkTheme
+                settings.putBoolean("isDarkTheme", isDarkTheme)
+            },
             onLanguageChanged = { language ->
                 if (languageCode != language) {
                     languageCode = language
+                    settings.putString("languageCode", language)
                     changeLanguage(language)
+                }
+            },
+            onNavigationStyleChanged = { style ->
+                if (navigationStyle != style) {
+                    navigationStyle = style
+                    settings.putString("navigationStyle", style.key)
                 }
             }
         )

@@ -103,8 +103,16 @@
     <string name="languageEn">english</string>
     <string name="settingsGroupAppearance">appearance &amp; behavior</string>
     <string name="settingsGroupLauncher">launcher</string>
+    <string name="settingsHeroTitle">personalize the launcher</string>
+    <string name="settingsHeroDesc">adjust appearance, language, navigation layout, and game path to match how you work.</string>
     <string name="themeSettingDesc">select the app theme</string>
     <string name="languageSettingDesc">select the display language</string>
+    <string name="navigationStyleSetting">Navigation Style</string>
+    <string name="navigationStyleSettingDesc">choose a side or top navigation layout</string>
+    <string name="navigationStyleTop">Top</string>
+    <string name="navigationStyleLeft">Left</string>
+    <string name="navigationStyleLeftCompact">Left Compact</string>
+    <string name="navigationStyleLeftCollapsed">Left Collapsed</string>
     <string name="settingsDescGamePath">set Honkai RTS game file location</string>
     <string name="settingsActionBrowse">browse</string>
     <string name="settingsNotSet">not set</string>

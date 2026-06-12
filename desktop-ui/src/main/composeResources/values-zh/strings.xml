@@ -103,8 +103,16 @@
     <string name="languageEn">English</string>
     <string name="settingsGroupAppearance">外观和行为</string>
     <string name="settingsGroupLauncher">启动器</string>
+    <string name="settingsHeroTitle">个性化启动器</string>
+    <string name="settingsHeroDesc">调整外观、语言、导航布局和游戏路径，让启动器更贴合你的使用方式。</string>
     <string name="themeSettingDesc">选择应用主题样式</string>
     <string name="languageSettingDesc">选择界面显示语言</string>
+    <string name="navigationStyleSetting">Navigation Style</string>
+    <string name="navigationStyleSettingDesc">选择侧边栏或顶部导航布局</string>
+    <string name="navigationStyleTop">Top</string>
+    <string name="navigationStyleLeft">Left</string>
+    <string name="navigationStyleLeftCompact">Left Compact</string>
+    <string name="navigationStyleLeftCollapsed">Left Collapsed</string>
     <string name="settingsDescGamePath">设置崩坏RTS游戏文件位置</string>
     <string name="settingsActionBrowse">浏览</string>
     <string name="settingsNotSet">未设置</string>

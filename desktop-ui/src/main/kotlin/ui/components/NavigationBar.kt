@@ -30,6 +30,8 @@ import io.github.composefluent.component.rememberNavigationState
 import navigation.SharedScreen
 import navigation.featureScreens
 import screen.IScreenInterface
+import ui.settings.AppNavigationStyle
+import ui.settings.LocalAppUiSettings
 import ui.fluent.theme.FluentTokens
 import ui.fluent.theme.LegacyThemeAdapter
 
@@ -44,6 +46,12 @@ fun NavigationBar(
 ) {
     val navigator = LocalNavigator.current
     val navigationState = rememberNavigationState(initialExpanded = false)
+    val navigationStyle = LocalAppUiSettings.current.navigationStyle
+    val contentTopPadding = if (navigationStyle == AppNavigationStyle.LeftCollapsed) {
+        56.dp
+    } else {
+        FluentTokens.Spacing.xLarge
+    }
 
     val menuEntries = remember {
         buildList {
@@ -59,7 +67,7 @@ fun NavigationBar(
 
     LegacyThemeAdapter(darkTheme = darkTheme) {
         NavigationView(
-            displayMode = NavigationDisplayMode.LeftCompact,
+            displayMode = navigationStyle.toNavigationDisplayMode(),
             state = navigationState,
             menuItems = {
                 items(menuEntries.size) { index ->
@@ -121,7 +129,7 @@ fun NavigationBar(
                         .padding(
                             start = FluentTokens.Spacing.large,
                             end = FluentTokens.Spacing.xLarge,
-                            top = FluentTokens.Spacing.xLarge,
+                            top = contentTopPadding,
                             bottom = FluentTokens.Spacing.xLarge
                         )
                 ) {
@@ -150,5 +158,14 @@ fun NavigationBar(
                 }
             }
         )
+    }
+}
+
+private fun AppNavigationStyle.toNavigationDisplayMode(): NavigationDisplayMode {
+    return when (this) {
+        AppNavigationStyle.Top -> NavigationDisplayMode.Top
+        AppNavigationStyle.Left -> NavigationDisplayMode.Left
+        AppNavigationStyle.LeftCompact -> NavigationDisplayMode.LeftCompact
+        AppNavigationStyle.LeftCollapsed -> NavigationDisplayMode.LeftCollapsed
     }
 }

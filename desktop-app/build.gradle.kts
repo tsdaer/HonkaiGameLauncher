@@ -15,6 +15,7 @@ dependencies {
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
 
     implementation("io.github.kdroidfilter:composenativetray:0.6.3")
+    implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
     implementation("cafe.adriel.voyager:voyager-navigator:1.1.0-beta03")
     implementation("cafe.adriel.voyager:voyager-screenmodel:1.1.0-beta03")
 }
