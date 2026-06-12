@@ -24,17 +24,6 @@
 
 依赖方向：`desktop-app -> desktop-ui -> desktop-core`
 
-## 环境前提（重要）
-
-- 本机 Gradle 主目录固定为 `J:/Gradle`。
-- 请确保 `GRADLE_USER_HOME` 指向 `J:/Gradle`（尤其在新的终端或 CI 环境中）。
-
-Windows PowerShell 示例：
-
-```powershell
-$env:GRADLE_USER_HOME = "J:/Gradle"
-```
-
 ## 运行与构建
 
 ### 运行桌面应用

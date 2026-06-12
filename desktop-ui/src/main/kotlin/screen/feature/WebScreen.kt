@@ -12,11 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -27,6 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import com.multiplatform.webview.web.LoadingState
@@ -40,7 +36,6 @@ import compose.icons.feathericons.ArrowLeft
 import compose.icons.feathericons.ArrowRight
 import compose.icons.feathericons.ExternalLink
 import compose.icons.feathericons.RefreshCw
-import dev.datlag.kcef.KCEF
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.screen_website
 import honkaigamelauncher.desktop_ui.generated.resources.websiteActionGo
@@ -71,10 +66,8 @@ import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
-import java.io.File
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import viewModel.WebEnginePhase
+import viewModel.WebScreenModel
 import io.github.composefluent.component.Text as FluentText
 
 
@@ -97,119 +90,29 @@ class WebScreen: Screen, IScreenInterface {
 
     @Composable
     override fun Content() {
-        val homeUrl = "https://www.honkai-rts.com"
-        var webEngineReady by remember { mutableStateOf(false) }
-        var webEnginePhase by remember { mutableStateOf(WebEnginePhase.Initializing) }
-        var webEngineProgress by remember { mutableStateOf<Float?>(null) }
-        var webEngineError by remember { mutableStateOf<String?>(null) }
-        var webEngineRestartRequired by remember { mutableStateOf(false) }
-        var initAttempt by remember { mutableStateOf(0) }
-        val initScope = rememberCoroutineScope()
+        val screenModel = rememberScreenModel { WebScreenModel() }
 
-        LaunchedEffect(initAttempt) {
-            webEngineReady = false
-            webEngineError = null
-            webEngineRestartRequired = false
-            webEnginePhase = WebEnginePhase.Initializing
-            webEngineProgress = null
-
-            var initError: String? = null
-            var restartRequired = false
-
-            try {
-                withContext(Dispatchers.IO) {
-                    KCEF.init(
-                        builder = {
-                            installDir(kcefDataDir("bundle"))
-                            settings {
-                                cachePath = kcefDataDir("cache").absolutePath
-                            }
-                            progress {
-                                onLocating {
-                                    initScope.launch {
-                                        webEnginePhase = WebEnginePhase.Checking
-                                        webEngineProgress = null
-                                    }
-                                }
-                                onDownloading { progress ->
-                                    initScope.launch {
-                                        val normalizedProgress = progress.coerceIn(0f, 1f)
-                                        webEnginePhase = if (normalizedProgress >= 0.999f) {
-                                            WebEnginePhase.DownloadFinishing
-                                        } else {
-                                            WebEnginePhase.Downloading
-                                        }
-                                        webEngineProgress = normalizedProgress
-                                    }
-                                }
-                                onExtracting {
-                                    initScope.launch {
-                                        webEnginePhase = WebEnginePhase.Extracting
-                                        webEngineProgress = null
-                                    }
-                                }
-                                onInstall {
-                                    initScope.launch {
-                                        webEnginePhase = WebEnginePhase.Installing
-                                        webEngineProgress = null
-                                    }
-                                }
-                                onInitializing {
-                                    initScope.launch {
-                                        webEnginePhase = WebEnginePhase.Initializing
-                                        webEngineProgress = null
-                                    }
-                                }
-                                onInitialized {
-                                    initScope.launch {
-                                        webEnginePhase = WebEnginePhase.Ready
-                                        webEngineProgress = 1f
-                                    }
-                                }
-                            }
-                        },
-                        onError = { throwable ->
-                            initError = throwable?.message
-                                ?: throwable?.javaClass?.simpleName
-                                ?: "Unknown error"
-                        },
-                        onRestartRequired = {
-                            restartRequired = true
-                        }
-                    )
-                }
-                webEngineRestartRequired = restartRequired
-                webEngineError = initError
-                webEngineReady = !restartRequired && initError == null
-            } catch (throwable: Throwable) {
-                webEngineError = throwable.message ?: throwable.javaClass.simpleName
-            }
-        }
-
-        if (!webEngineReady) {
+        if (!screenModel.webEngineReady) {
             WebEngineInitContent(
-                phase = webEnginePhase,
-                progress = webEngineProgress,
-                errorMessage = webEngineError,
-                restartRequired = webEngineRestartRequired,
-                onRetry = { initAttempt++ }
+                phase = screenModel.webEnginePhase,
+                progress = screenModel.webEngineProgress,
+                errorMessage = screenModel.webEngineError,
+                restartRequired = screenModel.webEngineRestartRequired,
+                onRetry = { screenModel.retryWebEngineInit() }
             )
             return
         }
 
-        val webViewState = rememberWebViewState(homeUrl)
+        val webViewState = rememberWebViewState(WebScreenModel.HOME_URL)
         val navigator = rememberWebViewNavigator()
         val uriHandler = LocalUriHandler.current
-        var address by remember { mutableStateOf(homeUrl) }
 
         fun loadUrl(rawUrl: String) {
-            val targetUrl = normalizeUrl(rawUrl)
-            address = targetUrl
-            navigator.loadUrl(targetUrl)
+            navigator.loadUrl(screenModel.prepareLoadUrl(rawUrl))
         }
 
         LaunchedEffect(webViewState.lastLoadedUrl) {
-            webViewState.lastLoadedUrl?.let { address = it }
+            screenModel.updateAddressFromLoadedUrl(webViewState.lastLoadedUrl)
         }
 
         Column(
@@ -276,8 +179,8 @@ class WebScreen: Screen, IScreenInterface {
                             Icon(compose.icons.FeatherIcons.RefreshCw, contentDescription = null)
                         }
                         TextField(
-                            value = address,
-                            onValueChange = { address = it },
+                            value = screenModel.address,
+                            onValueChange = { screenModel.updateAddress(it) },
                             modifier = Modifier.weight(1f),
                             singleLine = true,
                             placeholder = {
@@ -288,14 +191,14 @@ class WebScreen: Screen, IScreenInterface {
                                 keyboardType = KeyboardType.Uri
                             ),
                             keyboardActions = KeyboardActions(
-                                onGo = { loadUrl(address) }
+                                onGo = { loadUrl(screenModel.address) }
                             )
                         )
-                        FluentButton(onClick = { loadUrl(address) }) {
+                        FluentButton(onClick = { loadUrl(screenModel.address) }) {
                             FluentText(stringResource(Res.string.websiteActionGo))
                         }
                         FluentButton(
-                            onClick = { uriHandler.openUri(normalizeUrl(address)) },
+                            onClick = { uriHandler.openUri(screenModel.normalizeUrl(screenModel.address)) },
                             iconOnly = true
                         ) {
                             Icon(compose.icons.FeatherIcons.ExternalLink, contentDescription = null)
@@ -309,7 +212,7 @@ class WebScreen: Screen, IScreenInterface {
                     ) {
                         QuickLinkButton(
                             text = stringResource(Res.string.websiteLinkOfficial),
-                            url = homeUrl,
+                            url = WebScreenModel.HOME_URL,
                             onOpen = ::loadUrl
                         )
                         QuickLinkButton(
@@ -317,7 +220,7 @@ class WebScreen: Screen, IScreenInterface {
                             url = "https://github.com/tsdaer",
                             onOpen = ::loadUrl
                         )
-                        FluentButton(onClick = { uriHandler.openUri(normalizeUrl(address)) }) {
+                        FluentButton(onClick = { uriHandler.openUri(screenModel.normalizeUrl(screenModel.address)) }) {
                             FluentText(stringResource(Res.string.websiteActionOpenExternal))
                         }
                     }
@@ -348,16 +251,6 @@ class WebScreen: Screen, IScreenInterface {
             }
         }
     }
-}
-
-private enum class WebEnginePhase {
-    Checking,
-    Downloading,
-    DownloadFinishing,
-    Extracting,
-    Installing,
-    Initializing,
-    Ready
 }
 
 @Composable
@@ -438,14 +331,6 @@ private fun WebEngineInitContent(
     }
 }
 
-private fun kcefDataDir(name: String): File {
-    val baseDir = System.getenv("LOCALAPPDATA")?.takeIf { it.isNotBlank() }?.let { localAppData ->
-        File(localAppData, "HonkaiGameLauncher")
-    } ?: File(System.getProperty("user.home"), ".HonkaiGameLauncher")
-
-    return File(baseDir, "kcef-$name")
-}
-
 @Composable
 private fun WebStatusText(loadingState: LoadingState) {
     val status = when (loadingState) {
@@ -490,19 +375,5 @@ private fun QuickLinkButton(
     FluentButton(onClick = { onOpen(url) }) {
         Icon(EvaIcons.Fill.Globe, contentDescription = null)
         FluentText(text)
-    }
-}
-
-private fun normalizeUrl(rawUrl: String): String {
-    val trimmed = rawUrl.trim()
-    if (trimmed.isBlank()) {
-        return "https://www.honkai-rts.com"
-    }
-    return if (trimmed.startsWith("http://", ignoreCase = true) ||
-        trimmed.startsWith("https://", ignoreCase = true)
-    ) {
-        trimmed
-    } else {
-        "https://$trimmed"
     }
 }
