@@ -11,6 +11,11 @@
     <string name="screen_env">runtime environment</string>
     <string name="screen_doc">docs</string>
     <string name="screen_log">log</string>
+    <string name="logAllTypes">all types</string>
+    <string name="logAllCategories">all categories</string>
+    <string name="logActionAutoScroll">auto scroll</string>
+    <string name="logActionClear">clear</string>
+    <string name="logTypeUnknown">unknown</string>
     <string name="homeHeroTitle">Honkai RTS Launcher</string>
     <string name="homeHeroSubtitle">Check the game path, read plugin config, and start the game from here.</string>
     <string name="homeStatusMissingGamePath">choose the game exe file first</string>

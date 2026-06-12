@@ -18,8 +18,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import compose.icons.feathericons.Activity
 import compose.icons.feathericons.ChevronsDown
-import core.LauncherLogEntry
 import honkaigamelauncher.desktop_ui.generated.resources.Res
+import honkaigamelauncher.desktop_ui.generated.resources.logActionAutoScroll
+import honkaigamelauncher.desktop_ui.generated.resources.logActionClear
+import honkaigamelauncher.desktop_ui.generated.resources.logAllCategories
+import honkaigamelauncher.desktop_ui.generated.resources.logAllTypes
+import honkaigamelauncher.desktop_ui.generated.resources.logTypeUnknown
 import honkaigamelauncher.desktop_ui.generated.resources.screen_log
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
@@ -27,6 +31,7 @@ import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.components.FluentDropdown
 import ui.fluent.theme.FluentTokens
+import viewModel.LogScreenEntry
 import viewModel.LogScreenModel
 import io.github.composefluent.component.Icon as FluentIcon
 import io.github.composefluent.component.Text as FluentText
@@ -51,46 +56,39 @@ class LogScreen: Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { LogScreenModel() }
-        val allLogs = screenModel.logs
+        val filteredLogs = screenModel.filteredLogs
         val selectedType = screenModel.selectedType
         val selectedCategory = screenModel.selectedCategory
         val autoScroll = screenModel.autoScroll
 
-        val allTypes = screenModel.availableTypes()
-        val allCategories = screenModel.availableCategories()
+        val allTypes = screenModel.availableTypes
+        val allCategories = screenModel.availableCategories
+        val allTypesLabel = stringResource(Res.string.logAllTypes)
+        val allCategoriesLabel = stringResource(Res.string.logAllCategories)
+        val autoScrollLabel = stringResource(Res.string.logActionAutoScroll)
+        val clearLabel = stringResource(Res.string.logActionClear)
+        val unknownTypeLabel = stringResource(Res.string.logTypeUnknown)
 
-        val typeOptions = remember(allTypes) {
-            buildList {
-                add("全部类型")
-                addAll(allTypes.map { type -> logTypeLabel(type) })
-            }
+        val typeOptions = buildList {
+            add(allTypesLabel)
+            addAll(allTypes.map { type -> logTypeLabel(type, allTypesLabel, unknownTypeLabel) })
         }
-        val typeSelectedIndex = remember(selectedType, allTypes) {
-            if (selectedType == null) {
-                0
-            } else {
-                val index = allTypes.indexOf(selectedType)
-                if (index >= 0) index + 1 else 0
-            }
-        }
-
-        val categoryOptions = remember(allCategories) {
-            buildList {
-                add("全部分类")
-                addAll(allCategories)
-            }
-        }
-        val categorySelectedIndex = remember(selectedCategory, allCategories) {
-            if (selectedCategory == null) {
-                0
-            } else {
-                val index = allCategories.indexOf(selectedCategory)
-                if (index >= 0) index + 1 else 0
-            }
+        val typeSelectedIndex = if (selectedType == null) {
+            0
+        } else {
+            val index = allTypes.indexOf(selectedType)
+            if (index >= 0) index + 1 else 0
         }
 
-        val filteredLogs by remember(allLogs.size, selectedType, selectedCategory) {
-            derivedStateOf { screenModel.filteredLogs() }
+        val categoryOptions = buildList {
+            add(allCategoriesLabel)
+            addAll(allCategories)
+        }
+        val categorySelectedIndex = if (selectedCategory == null) {
+            0
+        } else {
+            val index = allCategories.indexOf(selectedCategory)
+            if (index >= 0) index + 1 else 0
         }
 
         Column(Modifier.fillMaxSize()) {
@@ -140,12 +138,12 @@ class LogScreen: Screen, IScreenInterface {
                 ) {
                     FluentIcon(
                         imageVector = compose.icons.FeatherIcons.ChevronsDown,
-                        contentDescription = "自动滚动"
+                        contentDescription = autoScrollLabel
                     )
                 }
 
                 FluentButton(onClick = { screenModel.clear() }) {
-                    FluentText("清空")
+                    FluentText(clearLabel)
                 }
             }
 
@@ -154,7 +152,7 @@ class LogScreen: Screen, IScreenInterface {
 
                 LaunchedEffect(filteredLogs.size, autoScroll) {
                     if (autoScroll && filteredLogs.isNotEmpty()) {
-                        state.animateScrollToItem(filteredLogs.size - 1)
+                        state.scrollToItem(filteredLogs.size - 1)
                     }
                 }
 
@@ -170,8 +168,11 @@ class LogScreen: Screen, IScreenInterface {
                                 .padding(horizontal = 8.dp, vertical = 6.dp),
                             state = state
                         ) {
-                            items(filteredLogs) { log ->
-                                LogItem(log)
+                            items(
+                                items = filteredLogs,
+                                key = { entry -> entry.id },
+                            ) { entry ->
+                                LogItem(entry)
                             }
                         }
                         VerticalScrollbar(
@@ -189,8 +190,12 @@ class LogScreen: Screen, IScreenInterface {
         }
     }
 
-    fun logTypeLabel(type: Int?): String = when (type) {
-        null -> "全部类型"
+    fun logTypeLabel(
+        type: Int?,
+        allTypesLabel: String,
+        unknownTypeLabel: String,
+    ): String = when (type) {
+        null -> allTypesLabel
         1 -> "Fatal"
         2 -> "Error"
         3 -> "Warning"
@@ -198,7 +203,7 @@ class LogScreen: Screen, IScreenInterface {
         5 -> "Log"
         6 -> "Verbose"
         7 -> "VeryVerbose"
-        else -> "Unknown"
+        else -> unknownTypeLabel
     }
 
     fun logTypeColor(type: Int?) = when (type) {
@@ -213,9 +218,14 @@ class LogScreen: Screen, IScreenInterface {
     }
 
     @Composable
-    fun LogItem(log: LauncherLogEntry) {
+    fun LogItem(entry: LogScreenEntry) {
+        val log = entry.log
         val color = logTypeColor(log.type)
-        val typeLabel = logTypeLabel(log.type)
+        val typeLabel = logTypeLabel(
+            type = log.type,
+            allTypesLabel = stringResource(Res.string.logAllTypes),
+            unknownTypeLabel = stringResource(Res.string.logTypeUnknown),
+        )
         FluentCard(
             modifier = Modifier
                 .padding(vertical = 2.dp)

@@ -11,6 +11,11 @@
     <string name="screen_env">运行环境</string>
     <string name="screen_doc">文档</string>
     <string name="screen_log">日志</string>
+    <string name="logAllTypes">全部类型</string>
+    <string name="logAllCategories">全部分类</string>
+    <string name="logActionAutoScroll">自动滚动</string>
+    <string name="logActionClear">清空</string>
+    <string name="logTypeUnknown">未知</string>
     <string name="homeHeroTitle">崩坏 RTS 启动器</string>
     <string name="homeHeroSubtitle">检查游戏路径、读取插件配置，并从这里启动游戏。</string>
     <string name="homeStatusMissingGamePath">请先选择游戏 exe 文件</string>
