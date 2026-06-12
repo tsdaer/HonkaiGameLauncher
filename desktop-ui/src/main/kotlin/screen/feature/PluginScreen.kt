@@ -2,11 +2,13 @@ package screen.feature
 
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,6 +39,7 @@ import compose.icons.feathericons.CheckCircle
 import compose.icons.feathericons.Database
 import compose.icons.feathericons.ExternalLink
 import compose.icons.feathericons.File
+import compose.icons.feathericons.Folder
 import compose.icons.feathericons.RefreshCw
 import compose.icons.feathericons.Settings
 import compose.icons.lineawesomeicons.PuzzlePieceSolid
@@ -104,64 +107,10 @@ class PluginScreen: Screen, IScreenInterface {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = 24.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(horizontal = 24.dp, vertical = 18.dp),
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            FluentCard(modifier = Modifier.fillMaxWidth()) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(14.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        Icon(
-                            imageVector = getIcon(),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp)
-                        )
-                        Column(modifier = Modifier.weight(1f)) {
-                            FluentText(
-                                text = stringResource(Res.string.screen_plugin),
-                                style = FluentTheme.typography.subtitle
-                            )
-                            FluentText(
-                                text = pluginStatusText(screenModel),
-                                style = FluentTheme.typography.caption,
-                                color = statusColor(screenModel.loadStatus),
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis
-                            )
-                        }
-                        FluentButton(
-                            onClick = { screenModel.refresh() },
-                            disabled = screenModel.isLoading,
-                            iconOnly = true
-                        ) {
-                            Icon(
-                                imageVector = FeatherIcons.RefreshCw,
-                                contentDescription = stringResource(Res.string.pluginRefresh)
-                            )
-                        }
-                    }
-
-                    PluginPathLine(
-                        icon = FeatherIcons.Settings,
-                        label = stringResource(Res.string.pluginGameLabel),
-                        value = screenModel.gamePath.takeUnless { it == "null" || it.isBlank() }
-                            ?: stringResource(Res.string.pluginGamePathNotSet)
-                    )
-                    PluginPathLine(
-                        icon = FeatherIcons.File,
-                        label = stringResource(Res.string.pluginConfigLabel),
-                        value = screenModel.configPath.ifBlank { stringResource(Res.string.pluginConfigPathPending) }
-                    )
-                }
-            }
+            PluginOverview(screenModel)
 
             Box(modifier = Modifier.fillMaxSize()) {
                 FluentCard(
@@ -175,9 +124,9 @@ class PluginScreen: Screen, IScreenInterface {
                         LazyColumn(
                             modifier = Modifier
                                 .fillMaxSize()
-                                .padding(horizontal = 8.dp, vertical = 6.dp),
+                                .padding(horizontal = 10.dp, vertical = 10.dp),
                             state = state,
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
                             items(screenModel.plugins) { plugin ->
                                 PluginItem(plugin)
@@ -192,6 +141,194 @@ class PluginScreen: Screen, IScreenInterface {
                         .fillMaxHeight()
                         .padding(vertical = 8.dp),
                     adapter = rememberScrollbarAdapter(scrollState = state)
+                )
+            }
+        }
+    }
+
+    @Composable
+    private fun PluginOverview(screenModel: PluginScreenModel) {
+        val totalPlugins = screenModel.plugins.size
+        val pakPlugins = screenModel.plugins.count { !it.isBuiltIn }
+        val builtInPlugins = screenModel.plugins.count { it.isBuiltIn }
+        val enabledPlugins = screenModel.plugins.count { it.defaultEnable }
+        val statusColor = statusColor(screenModel.loadStatus)
+
+        FluentCard(modifier = Modifier.fillMaxWidth()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(14.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(statusColor.copy(alpha = 0.12f))
+                            .border(1.dp, statusColor.copy(alpha = 0.24f), RoundedCornerShape(8.dp)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = getIcon(),
+                            contentDescription = null,
+                            tint = statusColor,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)
+                    ) {
+                        FluentText(
+                            text = stringResource(Res.string.screen_plugin),
+                            style = FluentTheme.typography.title
+                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(7.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(7.dp)
+                                    .clip(RoundedCornerShape(7.dp))
+                                    .background(statusColor)
+                            )
+                            FluentText(
+                                text = pluginStatusText(screenModel),
+                                style = FluentTheme.typography.caption,
+                                color = statusColor,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
+                    }
+
+                    FluentButton(
+                        onClick = { screenModel.refresh() },
+                        disabled = screenModel.isLoading,
+                        iconOnly = true
+                    ) {
+                        Icon(
+                            imageVector = FeatherIcons.RefreshCw,
+                            contentDescription = stringResource(Res.string.pluginRefresh)
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    PluginStatTile(
+                        value = totalPlugins.toString(),
+                        label = stringResource(Res.string.screen_plugin),
+                        icon = FeatherIcons.Database,
+                        color = FluentTokens.ColorToken.accent,
+                        modifier = Modifier.weight(1f)
+                    )
+                    PluginStatTile(
+                        value = enabledPlugins.toString(),
+                        label = stringResource(Res.string.pluginDefaultEnabled),
+                        icon = FeatherIcons.CheckCircle,
+                        color = FluentTokens.ColorToken.LogLevel.display,
+                        modifier = Modifier.weight(1f)
+                    )
+                    PluginStatTile(
+                        value = pakPlugins.toString(),
+                        label = stringResource(Res.string.pluginTypePak),
+                        icon = FeatherIcons.File,
+                        color = FluentTokens.ColorToken.LogLevel.verbose,
+                        modifier = Modifier.weight(1f)
+                    )
+                    PluginStatTile(
+                        value = builtInPlugins.toString(),
+                        label = stringResource(Res.string.pluginTypeBuiltIn),
+                        icon = FeatherIcons.Box,
+                        color = FluentTokens.ColorToken.LogLevel.veryVerbose,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(8.dp))
+                        .background(FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.06f))
+                        .border(
+                            1.dp,
+                            FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.12f),
+                            RoundedCornerShape(8.dp)
+                        )
+                        .padding(horizontal = 12.dp, vertical = 10.dp),
+                    verticalArrangement = Arrangement.spacedBy(7.dp)
+                ) {
+                    PluginPathLine(
+                        icon = FeatherIcons.Folder,
+                        label = stringResource(Res.string.pluginGameLabel),
+                        value = screenModel.gamePath.takeUnless { it == "null" || it.isBlank() }
+                            ?: stringResource(Res.string.pluginGamePathNotSet)
+                    )
+                    PluginPathLine(
+                        icon = FeatherIcons.File,
+                        label = stringResource(Res.string.pluginConfigLabel),
+                        value = screenModel.configPath.ifBlank { stringResource(Res.string.pluginConfigPathPending) }
+                    )
+                }
+            }
+        }
+    }
+
+    @Composable
+    private fun PluginStatTile(
+        value: String,
+        label: String,
+        icon: ImageVector,
+        color: Color,
+        modifier: Modifier = Modifier,
+    ) {
+        Row(
+            modifier = modifier
+                .clip(RoundedCornerShape(8.dp))
+                .background(color.copy(alpha = 0.08f))
+                .border(1.dp, color.copy(alpha = 0.16f), RoundedCornerShape(8.dp))
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(30.dp)
+                    .clip(RoundedCornerShape(7.dp))
+                    .background(color.copy(alpha = 0.14f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Column(modifier = Modifier.weight(1f)) {
+                FluentText(
+                    text = value,
+                    style = FluentTheme.typography.bodyStrong,
+                    color = color,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+                FluentText(
+                    text = label,
+                    style = FluentTheme.typography.caption,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -230,11 +367,13 @@ class PluginScreen: Screen, IScreenInterface {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
+                tint = FluentTokens.ColorToken.LogLevel.veryVerbose,
                 modifier = Modifier.size(15.dp)
             )
             FluentText(
                 text = "$label:",
                 style = FluentTheme.typography.caption,
+                color = FluentTokens.ColorToken.LogLevel.veryVerbose,
             )
             FluentText(
                 text = value,
@@ -262,95 +401,151 @@ class PluginScreen: Screen, IScreenInterface {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(
-                imageVector = if (status == PluginLoadStatus.Error) FeatherIcons.AlertCircle else FeatherIcons.Database,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp)
-            )
+            val color = statusColor(status)
+            Box(
+                modifier = Modifier
+                    .size(58.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(color.copy(alpha = 0.10f))
+                    .border(1.dp, color.copy(alpha = 0.18f), RoundedCornerShape(8.dp)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (status == PluginLoadStatus.Error) FeatherIcons.AlertCircle else FeatherIcons.Database,
+                    contentDescription = null,
+                    tint = color,
+                    modifier = Modifier.size(28.dp)
+                )
+            }
             FluentText(
                 text = message,
                 style = FluentTheme.typography.body,
-                modifier = Modifier.padding(top = 10.dp)
+                color = color,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 14.dp)
             )
         }
     }
 
     @Composable
     private fun PluginItem(plugin: GamePluginConfig) {
+        val accentColor = if (plugin.defaultEnable) {
+            FluentTokens.ColorToken.accent
+        } else {
+            FluentTokens.ColorToken.LogLevel.unknown
+        }
+
         FluentCard(modifier = Modifier.fillMaxWidth()) {
-            Column(
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                    .padding(0.dp)
             ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                Box(
+                    modifier = Modifier
+                        .width(5.dp)
+                        .fillMaxHeight()
+                        .background(accentColor)
+                )
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 14.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .width(3.dp)
-                            .height(28.dp)
-                            .clip(RoundedCornerShape(3.dp))
-                            .background(if (plugin.defaultEnable) FluentTokens.ColorToken.accent else FluentTokens.ColorToken.LogLevel.unknown)
-                    )
-                    Column(modifier = Modifier.weight(1f)) {
-                        FluentText(
-                            text = plugin.friendlyName.ifBlank { plugin.name.ifBlank { plugin.gameFeatureName } },
-                            style = FluentTheme.typography.bodyStrong,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                        FluentText(
-                            text = plugin.description.ifBlank { stringResource(Res.string.pluginDescriptionDefault) },
-                            style = FluentTheme.typography.caption,
-                            maxLines = 2,
-                            overflow = TextOverflow.Ellipsis
-                        )
-                    }
-                    PluginChip(
-                        text = if (plugin.isBuiltIn) stringResource(Res.string.pluginTypeBuiltIn) else stringResource(Res.string.pluginTypePak),
-                        icon = if (plugin.isBuiltIn) FeatherIcons.Box else FeatherIcons.File,
-                        color = if (plugin.isBuiltIn) FluentTokens.ColorToken.LogLevel.verbose else FluentTokens.ColorToken.accent
-                    )
-                }
-
-                FlowRow(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    PluginChip(
-                        text = plugin.category.ifBlank { stringResource(Res.string.pluginCategoryDefault) },
-                        icon = FeatherIcons.Database,
-                        color = FluentTokens.ColorToken.LogLevel.display
-                    )
-                    PluginChip(
-                        text = if (plugin.defaultEnable) stringResource(Res.string.pluginDefaultEnabled) else stringResource(Res.string.pluginDefaultDisabled),
-                        icon = FeatherIcons.CheckCircle,
-                        color = if (plugin.defaultEnable) FluentTokens.ColorToken.accent else FluentTokens.ColorToken.LogLevel.unknown
-                    )
-                    PluginChip(
-                        text = stringResource(Res.string.pluginMountOrder, plugin.mountOrder?.toString() ?: "-"),
-                        icon = FeatherIcons.Settings,
-                        color = FluentTokens.ColorToken.LogLevel.log
-                    )
-                    if (plugin.createdBy.isNotBlank()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(accentColor.copy(alpha = 0.12f)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = if (plugin.isBuiltIn) FeatherIcons.Box else FeatherIcons.File,
+                                contentDescription = null,
+                                tint = accentColor,
+                                modifier = Modifier.size(18.dp)
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(3.dp)
+                        ) {
+                            FluentText(
+                                text = plugin.friendlyName.ifBlank { plugin.name.ifBlank { plugin.gameFeatureName } },
+                                style = FluentTheme.typography.bodyStrong,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                            FluentText(
+                                text = plugin.description.ifBlank { stringResource(Res.string.pluginDescriptionDefault) },
+                                style = FluentTheme.typography.caption,
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis
+                            )
+                        }
                         PluginChip(
-                            text = plugin.createdBy,
-                            icon = if (plugin.createdByUrl.isBlank()) FeatherIcons.Settings else FeatherIcons.ExternalLink,
-                            color = FluentTokens.ColorToken.LogLevel.veryVerbose
+                            text = if (plugin.isBuiltIn) stringResource(Res.string.pluginTypeBuiltIn) else stringResource(Res.string.pluginTypePak),
+                            icon = if (plugin.isBuiltIn) FeatherIcons.Box else FeatherIcons.File,
+                            color = if (plugin.isBuiltIn) FluentTokens.ColorToken.LogLevel.verbose else FluentTokens.ColorToken.accent
                         )
                     }
-                }
 
-                PluginMetaLine(stringResource(Res.string.pluginMetaName), plugin.name)
-                PluginMetaLine(stringResource(Res.string.pluginMetaGameFeature), plugin.gameFeatureName)
-                PluginMetaLine(stringResource(Res.string.pluginMetaPakPath), plugin.pakPath.ifBlank { stringResource(Res.string.pluginNotBound) })
-                if (!plugin.isBuiltIn) {
-                    PluginMetaLine(stringResource(Res.string.pluginMetaResolved), plugin.resolvedPakPath.orEmpty())
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        verticalArrangement = Arrangement.spacedBy(7.dp)
+                    ) {
+                        PluginChip(
+                            text = plugin.category.ifBlank { stringResource(Res.string.pluginCategoryDefault) },
+                            icon = FeatherIcons.Database,
+                            color = FluentTokens.ColorToken.LogLevel.display
+                        )
+                        PluginChip(
+                            text = if (plugin.defaultEnable) stringResource(Res.string.pluginDefaultEnabled) else stringResource(Res.string.pluginDefaultDisabled),
+                            icon = FeatherIcons.CheckCircle,
+                            color = accentColor
+                        )
+                        PluginChip(
+                            text = stringResource(Res.string.pluginMountOrder, plugin.mountOrder?.toString() ?: "-"),
+                            icon = FeatherIcons.Settings,
+                            color = FluentTokens.ColorToken.LogLevel.log
+                        )
+                        if (plugin.createdBy.isNotBlank()) {
+                            PluginChip(
+                                text = plugin.createdBy,
+                                icon = if (plugin.createdByUrl.isBlank()) FeatherIcons.Settings else FeatherIcons.ExternalLink,
+                                color = FluentTokens.ColorToken.LogLevel.veryVerbose
+                            )
+                        }
+                    }
+
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.05f))
+                            .border(
+                                1.dp,
+                                FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.10f),
+                                RoundedCornerShape(8.dp)
+                            )
+                            .padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalArrangement = Arrangement.spacedBy(5.dp)
+                    ) {
+                        PluginMetaLine(stringResource(Res.string.pluginMetaName), plugin.name)
+                        PluginMetaLine(stringResource(Res.string.pluginMetaGameFeature), plugin.gameFeatureName)
+                        PluginMetaLine(stringResource(Res.string.pluginMetaPakPath), plugin.pakPath.ifBlank { stringResource(Res.string.pluginNotBound) })
+                        if (!plugin.isBuiltIn) {
+                            PluginMetaLine(stringResource(Res.string.pluginMetaResolved), plugin.resolvedPakPath.orEmpty())
+                        }
+                    }
                 }
             }
         }
@@ -368,6 +563,7 @@ class PluginScreen: Screen, IScreenInterface {
                 style = FluentTheme.typography.caption,
                 color = FluentTokens.ColorToken.LogLevel.veryVerbose
             )
+            Spacer(modifier = Modifier.width(2.dp))
             FluentText(
                 text = value.ifBlank { "-" },
                 style = FluentTheme.typography.caption,
@@ -386,9 +582,10 @@ class PluginScreen: Screen, IScreenInterface {
     ) {
         Row(
             modifier = Modifier
-                .clip(RoundedCornerShape(4.dp))
+                .clip(RoundedCornerShape(6.dp))
                 .background(color.copy(alpha = 0.12f))
-                .padding(horizontal = 7.dp, vertical = 3.dp),
+                .border(1.dp, color.copy(alpha = 0.18f), RoundedCornerShape(6.dp))
+                .padding(horizontal = 8.dp, vertical = 4.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {

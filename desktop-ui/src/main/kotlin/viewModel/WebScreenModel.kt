@@ -13,6 +13,7 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeoutOrNull
 import org.cef.CefApp
 import java.io.File
+import kotlin.time.Duration.Companion.milliseconds
 
 class WebScreenModel : ScreenModel {
 
@@ -175,9 +176,9 @@ class WebScreenModel : ScreenModel {
     }
 
     private suspend fun waitForCefInitialized(): Boolean {
-        return withTimeoutOrNull(15_000) {
+        return withTimeoutOrNull(15_000.milliseconds) {
             while (CefApp.getState() != CefApp.CefAppState.INITIALIZED) {
-                delay(50)
+                delay(50.milliseconds)
             }
             true
         } ?: false
