@@ -51,6 +51,7 @@ import honkaigamelauncher.desktop_ui.generated.resources.docsMissingDirectory
 import honkaigamelauncher.desktop_ui.generated.resources.docsMissingGamePath
 import honkaigamelauncher.desktop_ui.generated.resources.docsOverviewTitle
 import honkaigamelauncher.desktop_ui.generated.resources.docsRefresh
+import honkaigamelauncher.desktop_ui.generated.resources.docsTocTitle
 import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
@@ -299,7 +300,7 @@ internal fun DocsTableOfContents(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             FluentText(
-                text = "目录",
+                text = stringResource(Res.string.docsTocTitle),
                 style = FluentTheme.typography.bodyStrong,
                 color = FluentTokens.ColorToken.LogLevel.veryVerbose,
             )
