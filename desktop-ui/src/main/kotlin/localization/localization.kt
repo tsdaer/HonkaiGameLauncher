@@ -15,6 +15,6 @@ import java.util.Locale
  * @param language 语言代码（如 "zh"、"en"）
  */
 fun changeLanguage(language: String) {
-    val locale = Locale.of(language)
+    val locale = Locale.forLanguageTag(language)
     Locale.setDefault(locale)
 }
