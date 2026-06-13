@@ -42,4 +42,11 @@ dependencies {
 
     api("io.github.kevinnzou:compose-webview-multiplatform:1.9.40")
     implementation("dev.datlag:kcef:2024.04.20.3")
+
+    testImplementation(kotlin("test"))
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.10.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

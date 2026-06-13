@@ -5,7 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import core.platform.AppSettingsRepository
 import core.docs.DocEntry
 import core.docs.DocsIndexService
 import core.docs.DocsLinkResolution
@@ -13,6 +12,10 @@ import core.docs.DocsLinkResolver
 import core.docs.DocsLoadResult
 import core.docs.DocsLoadStatus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -30,18 +33,25 @@ data class DocsUiState(
 )
 
 class DocsScreenModel(
-    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
+    private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val docsIndexService: DocsIndexService = DocsIndexService(),
     private val docsLinkResolver: DocsLinkResolver = DocsLinkResolver(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
-        DocsUiState(gamePath = settingsRepository.getGamePath())
+        DocsUiState(gamePath = settingsStore.state.value.gamePath)
     )
         private set
 
+    private var refreshJob: Job? = null
+
     init {
-        refresh()
+        screenModelScope.launch {
+            settingsStore.state
+                .map { it.gamePath }
+                .distinctUntilChanged()
+                .collectLatest { refresh(it) }
+        }
     }
 
     fun consumePendingAnchor(): String? {
@@ -51,13 +61,17 @@ class DocsScreenModel(
     }
 
     fun refresh() {
-        val currentGamePath = settingsRepository.getGamePath()
+        refresh(settingsStore.state.value.gamePath)
+    }
+
+    private fun refresh(currentGamePath: String?) {
+        refreshJob?.cancel()
         val previousSelection = uiState.selectedDocument?.relativePath
         uiState = uiState.copy(
             gamePath = currentGamePath,
             isLoading = true,
         )
-        screenModelScope.launch {
+        refreshJob = screenModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 docsIndexService.load(currentGamePath, previousSelection)
             }

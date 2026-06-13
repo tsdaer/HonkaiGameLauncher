@@ -7,7 +7,6 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import core.GameConnectionStatus
 import core.RuntimeServices
-import core.platform.AppSettingsRepository
 import core.platform.FileSystemGateway
 import core.platform.ProcessLauncher
 import core.service.GamePathService
@@ -17,6 +16,9 @@ import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -45,7 +47,7 @@ data class HomeUiState(
 )
 
 class HomeScreenModel(
-    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
+    private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val gamePathService: GamePathService = GamePathService(),
     private val processLauncher: ProcessLauncher = ProcessLauncher(),
     private val fileSystemGateway: FileSystemGateway = FileSystemGateway(),
@@ -53,7 +55,7 @@ class HomeScreenModel(
 
     var uiState by mutableStateOf(
         HomeUiState(
-            gamePath = settingsRepository.getGamePath(),
+            gamePath = settingsStore.state.value.gamePath,
             gameConnectionStatus = RuntimeServices.gameService.connectionStatus.value,
         )
     )
@@ -65,7 +67,12 @@ class HomeScreenModel(
         screenModelScope.launch {
             RuntimeServices.gameService.connectionStatus.collect(::onConnectionStatusChanged)
         }
-        refresh()
+        screenModelScope.launch {
+            settingsStore.state
+                .map { it.gamePath }
+                .distinctUntilChanged()
+                .collectLatest { refresh(it) }
+        }
     }
 
     private fun onConnectionStatusChanged(status: GameConnectionStatus) {
@@ -77,7 +84,10 @@ class HomeScreenModel(
     }
 
     fun refresh() {
-        val currentGamePath = settingsRepository.getGamePath()
+        refresh(settingsStore.state.value.gamePath)
+    }
+
+    private fun refresh(currentGamePath: String?) {
         val snapshot = gamePathService.inspect(currentGamePath)
         val hasCurrentGamePath = !currentGamePath.isNullOrBlank()
         val nextLaunchStatus = when {
@@ -102,8 +112,7 @@ class HomeScreenModel(
         screenModelScope.launch {
             val file = FileKit.openFilePicker()
             if (file != null) {
-                settingsRepository.setGamePath(file.path)
-                refresh()
+                settingsStore.setGamePath(file.path)
             }
         }
     }

@@ -5,11 +5,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import core.platform.AppSettingsRepository
 import core.plugin.GamePluginConfig
 import core.plugin.PluginConfigService
 import core.plugin.PluginLoadStatus
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -24,26 +27,37 @@ data class PluginUiState(
 )
 
 class PluginScreenModel(
-    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
+    private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val pluginConfigService: PluginConfigService = PluginConfigService(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
-        PluginUiState(gamePath = settingsRepository.getGamePath())
+        PluginUiState(gamePath = settingsStore.state.value.gamePath)
     )
         private set
 
+    private var refreshJob: Job? = null
+
     init {
-        refresh()
+        screenModelScope.launch {
+            settingsStore.state
+                .map { it.gamePath }
+                .distinctUntilChanged()
+                .collectLatest { refresh(it) }
+        }
     }
 
     fun refresh() {
-        val currentGamePath = settingsRepository.getGamePath()
+        refresh(settingsStore.state.value.gamePath)
+    }
+
+    private fun refresh(currentGamePath: String?) {
+        refreshJob?.cancel()
         uiState = uiState.copy(
             gamePath = currentGamePath,
             isLoading = true,
         )
-        screenModelScope.launch {
+        refreshJob = screenModelScope.launch {
             val result = withContext(Dispatchers.IO) {
                 pluginConfigService.load(currentGamePath)
             }

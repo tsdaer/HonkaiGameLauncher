@@ -62,6 +62,7 @@ import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.settings.LocalNavExpanded
 import viewModel.WebScreenModel
+import viewModel.WebScreenModel.Companion.normalizeUrl
 import io.github.composefluent.component.Text as FluentText
 
 
@@ -192,7 +193,7 @@ class WebScreen: Screen, IScreenInterface {
                             FluentText(stringResource(Res.string.websiteActionGo))
                         }
                         FluentButton(
-                            onClick = { uriHandler.openUri(screenModel.normalizeUrl(screenModel.address)) },
+                            onClick = { uriHandler.openUri(normalizeUrl(screenModel.address)) },
                             iconOnly = true
                         ) {
                             Icon(compose.icons.FeatherIcons.ExternalLink, contentDescription = null)
@@ -214,7 +215,7 @@ class WebScreen: Screen, IScreenInterface {
                             url = "https://github.com/tsdaer",
                             onOpen = ::loadUrl
                         )
-                        FluentButton(onClick = { uriHandler.openUri(screenModel.normalizeUrl(screenModel.address)) }) {
+                        FluentButton(onClick = { uriHandler.openUri(normalizeUrl(screenModel.address)) }) {
                             FluentText(stringResource(Res.string.websiteActionOpenExternal))
                         }
                     }

@@ -1,7 +1,6 @@
 package core.service
 
 import core.withTempGameFixture
-import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile
 import kotlin.io.path.writeText
 import kotlin.test.Test

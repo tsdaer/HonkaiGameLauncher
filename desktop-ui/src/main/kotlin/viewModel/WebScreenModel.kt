@@ -34,20 +34,6 @@ class WebScreenModel : ScreenModel {
         }
     }
 
-    fun normalizeUrl(rawUrl: String): String {
-        val trimmed = rawUrl.trim()
-        if (trimmed.isBlank()) {
-            return HOME_URL
-        }
-        return if (trimmed.startsWith("http://", ignoreCase = true) ||
-            trimmed.startsWith("https://", ignoreCase = true)
-        ) {
-            trimmed
-        } else {
-            "https://$trimmed"
-        }
-    }
-
     fun prepareLoadUrl(rawUrl: String): String {
         val targetUrl = normalizeUrl(rawUrl)
         address = targetUrl
@@ -56,5 +42,19 @@ class WebScreenModel : ScreenModel {
 
     companion object {
         const val HOME_URL = "https://www.honkai-rts.com"
+
+        fun normalizeUrl(rawUrl: String): String {
+            val trimmed = rawUrl.trim()
+            if (trimmed.isBlank()) {
+                return HOME_URL
+            }
+            return if (trimmed.startsWith("http://", ignoreCase = true) ||
+                trimmed.startsWith("https://", ignoreCase = true)
+            ) {
+                trimmed
+            } else {
+                "https://$trimmed"
+            }
+        }
     }
 }

@@ -15,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class GameServiceTest {
     @Test
@@ -71,10 +72,10 @@ class GameServiceTest {
                     body = """{"type":1,"category":"Game","time":"10:00","message":"Ready"}""",
                 )
 
-                val flowLogs = withTimeout(5_000) { receivedLogs.await() }
-                val compatibilityLogs = withTimeout(5_000) { listenerLogs.await() }
+                val flowLogs = withTimeout(5_000.milliseconds) { receivedLogs.await() }
+                val compatibilityLogs = withTimeout(5_000.milliseconds) { listenerLogs.await() }
 
-                assertEquals(GameConnectionStatus.Connected, withTimeout(5_000) { connectedStatus.await() })
+                assertEquals(GameConnectionStatus.Connected, withTimeout(5_000.milliseconds) { connectedStatus.await() })
                 assertEquals("Ready", flowLogs.single().message)
                 assertEquals(flowLogs, compatibilityLogs)
                 assertEquals(
