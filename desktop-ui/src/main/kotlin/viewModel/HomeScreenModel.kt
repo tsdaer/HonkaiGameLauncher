@@ -19,6 +19,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.LocalDateTime
@@ -51,12 +52,13 @@ class HomeScreenModel(
     private val gamePathService: GamePathService = GamePathService(),
     private val processLauncher: ProcessLauncher = ProcessLauncher(),
     private val fileSystemGateway: FileSystemGateway = FileSystemGateway(),
+    private val gameConnectionStatus: StateFlow<GameConnectionStatus> = RuntimeServices.gameService.connectionStatus,
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
         HomeUiState(
             gamePath = settingsStore.state.value.gamePath,
-            gameConnectionStatus = RuntimeServices.gameService.connectionStatus.value,
+            gameConnectionStatus = gameConnectionStatus.value,
         )
     )
         private set
@@ -65,7 +67,7 @@ class HomeScreenModel(
 
     init {
         screenModelScope.launch {
-            RuntimeServices.gameService.connectionStatus.collect(::onConnectionStatusChanged)
+            gameConnectionStatus.collect(::onConnectionStatusChanged)
         }
         screenModelScope.launch {
             settingsStore.state
