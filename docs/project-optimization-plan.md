@@ -82,7 +82,7 @@ desktop-core
 | 里程碑 | 状态 | 当前进展 | 下一步 |
 |---|---|---|---|
 | O1 | done | 已为 `desktop-core` 配置测试依赖，并覆盖路径、插件配置、文档索引、日志解析等核心纯逻辑。 | 后续重构时继续补充边界测试。 |
-| O2 | doing | `GameService` 已暴露 `StateFlow<GameConnectionStatus>` 与 `SharedFlow<List<LauncherLogEntry>>`，UI 层开始通过 Flow 订阅；旧 listener API 暂保留兼容。 | 补充服务生命周期测试或手工验收记录。 |
+| O2 | done | `GameService` 已暴露 `StateFlow<GameConnectionStatus>` 与 `SharedFlow<List<LauncherLogEntry>>`，UI 层开始通过 Flow 订阅；旧 listener API 暂保留兼容，并已补充启动幂等、端口文件清理、`/game/status` 协议与 Flow/listener 兼容测试。 | 后续如继续调整 watchdog 或服务关闭流程，补对应边界测试。 |
 | O3 | done | 已新增 `GamePathService`、`PluginConfigService`、`DocsIndexService`、`DocsLinkResolver`、`ProcessLauncher`、`AppSettingsRepository`、`FileSystemGateway` 与插件 parser；设置读取、目录打开、文档链接解析和 `"null"` 路径兼容已收口到 core 能力。 | 后续新增业务逻辑优先进入 `desktop-core` 并补单元测试。 |
 | O4 | done | `HomeScreen`、`PluginScreen`、`DocsScreen`、`LogScreen` 已直接消费各自 `uiState`，对应 ScreenModel 过渡 getter 已删除；`SettingScreenModel` 也已补充显式 `SettingUiState`。 | 后续新增页面默认先定义 UI state，再由 ScreenModel 调度用户意图。 |
 | O5 | done | 已将 `DocsMarkdownPreview.kt` 拆分为 Markdown 入口、块级渲染、内联渲染、链接处理、代码块、数学公式、Mermaid 渲染/解析、滚动锚点、样式与通用工具文件；单个 Markdown 相关文件均不超过 500 行。 | 后续支持新语法时优先在对应 renderer/parser 文件内扩展。 |

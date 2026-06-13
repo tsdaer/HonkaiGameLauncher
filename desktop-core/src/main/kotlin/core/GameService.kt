@@ -3,6 +3,7 @@ package core
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.request.*
+import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
 import kotlinx.coroutines.CoroutineScope
@@ -34,9 +35,26 @@ data class GameServiceStartResult(
     val portFile: File,
 )
 
-class GameService(
-    private val serviceScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+class GameService private constructor(
+    private val serviceScope: CoroutineScope,
+    private val cancelServiceScopeOnClose: Boolean,
+    private val portFile: File,
 ) {
+    constructor() : this(
+        serviceScope = defaultServiceScope(),
+        cancelServiceScopeOnClose = true,
+        portFile = defaultPortFile(),
+    )
+
+    constructor(
+        serviceScope: CoroutineScope,
+        portFile: File = defaultPortFile(),
+    ) : this(
+        serviceScope = serviceScope,
+        cancelServiceScopeOnClose = false,
+        portFile = portFile,
+    )
+
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
     private var port: Int = -1
     private var connectionWatchdog: Job? = null
@@ -44,7 +62,6 @@ class GameService(
     @Volatile
     private var lastGameSignalAt: Long = 0L
 
-    private val portFile = File(System.getProperty("java.io.tmpdir"), PORT_FILE_NAME)
     private val mutableConnectionStatus = MutableStateFlow(GameConnectionStatus.Stopped)
     private val mutableLogEvents = MutableSharedFlow<List<LauncherLogEntry>>(extraBufferCapacity = 64)
 
@@ -105,6 +122,7 @@ class GameService(
                         println("Received ${parsed.size} log(s) from game.")
                         mutableLogEvents.emit(parsed)
                         notifyLogListeners(parsed)
+                        call.respondText("OK")
                     } catch (e: Exception) {
                         println("Log parse error: ${e.message}")
                     }
@@ -134,7 +152,9 @@ class GameService(
 
     fun close() {
         stop()
-        serviceScope.cancel()
+        if (cancelServiceScopeOnClose) {
+            serviceScope.cancel()
+        }
     }
 
     private fun startConnectionWatchdog() {
@@ -169,5 +189,9 @@ class GameService(
     private companion object {
         const val GAME_CONNECTION_TIMEOUT_MS = 15_000L
         const val PORT_FILE_NAME = "honkai_rts_launcher_port.json"
+
+        fun defaultServiceScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+
+        fun defaultPortFile(): File = File(System.getProperty("java.io.tmpdir"), PORT_FILE_NAME)
     }
 }
