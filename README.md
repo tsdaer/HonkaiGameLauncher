@@ -50,6 +50,45 @@ desktop-app -> desktop-ui -> desktop-core
 
 更详细的架构边界见 [docs/architecture.md](docs/architecture.md)。
 
+### desktop-core 内部结构
+
+```text
+desktop-core/src/main/kotlin/core/
+├── GameService.kt              # Ktor/Netty HTTP 服务，接收游戏 POST /game/status 日志回传
+├── LauncherLogEntry.kt         # 日志条目数据模型（@Serializable）
+├── LauncherLogParser.kt        # 日志 JSON 解析器（支持数组/单条两种格式）
+├── RuntimeServices.kt          # 运行时服务单例注册中心
+├── docs/
+│   ├── DocsIndexService.kt     # 扫描 honkai_rts/docs/*.md 并构建文档索引
+│   └── DocsLinkResolver.kt     # 将 Markdown 内部链接解析为目标 DocEntry
+├── platform/
+│   ├── AppSettingsRepository.kt  # 应用设置读写接口（gamePath、logMaxEntries）
+│   ├── FileSystemGateway.kt      # 文件系统操作网关（打开目录等）
+│   └── ProcessLauncher.kt        # 外部进程启动器（启动游戏 exe）
+├── plugin/
+│   ├── PluginConfigParser.kt     # GamePluginConfigs.toml 轻量级解析器
+│   └── PluginConfigService.kt    # 插件配置加载服务
+└── service/
+    └── GamePathService.kt        # 游戏路径校验与状态快照
+```
+
+| 包 | 职责 |
+|----|------|
+| `core` | 游戏通信服务生命周期、日志 JSON 解析、运行时服务注册 |
+| `core.docs` | Markdown 文档扫描、索引构建、文档间链接解析 |
+| `core.platform` | 平台操作抽象（设置读写、文件系统、进程启动），通过接口或构造函数注入实现可测试性 |
+| `core.plugin` | 插件配置文件定位、TOML 解析、.pak 路径解析 |
+| `core.service` | 跨切面的应用级服务（如游戏路径校验） |
+
+核心设计原则：
+
+- **无 UI 依赖** — 不含 Compose、Voyager、Swing 或任何桌面 UI 类型
+- **结构化返回** — 服务方法返回 `Result<T>` 或含 `status` 字段的结果对象，不返回面向用户的本地化字符串
+- **可注入抽象** — 文件系统、进程等平台操作通过接口或函数参数注入，便于单元测试 mock
+- **测试覆盖** — 各包均配备单元测试，使用 `withTempGameFixture` 创建隔离的临时游戏目录
+
+详细说明见 [desktop-core/README.md](desktop-core/README.md)。
+
 ## 环境要求
 
 - JDK 17 或更高版本。
