@@ -134,6 +134,41 @@ desktop-ui/src/main/kotlin/
 
 详细说明见 [desktop-ui/README.md](desktop-ui/README.md)。
 
+### desktop-app 内部结构
+
+```text
+desktop-app/
+├── build.gradle.kts                  # 构建配置：依赖、打包目标、JVM 参数、ProGuard
+├── compose-desktop.pro               # ProGuard 混淆规则（保护 KCEF 和协程 Swing 调度器）
+├── kcef-bundle/                      # KCEF (Chromium Embedded Framework) 原生运行时
+├── src/main/kotlin/
+│   ├── Main.kt                       # Compose Desktop 入口：main() 函数
+│   ├── AppStartupCoordinator.kt      # 启动初始化：JVM 环境 + 导航注册
+│   ├── AppLifecycleCoordinator.kt    # 生命周期协调：窗口/托盘/服务/退出
+│   └── AppUiSettingsController.kt    # UI 设置控制：主题/语言/导航样式
+└── src/test/kotlin/
+    ├── AppStartupCoordinatorTest.kt
+    ├── AppLifecycleCoordinatorTest.kt
+    └── AppUiSettingsControllerTest.kt
+```
+
+| 文件 | 职责 |
+|------|------|
+| `Main.kt` | Compose Desktop 应用入口，组装窗口、托盘、Fluent 主题、Voyager 导航器 |
+| `AppStartupCoordinator.kt` | 一次性 JVM 环境初始化（UTF-8 编码、字体抗锯齿）和 Voyager 导航页面注册 |
+| `AppLifecycleCoordinator.kt` | 窗口可见性管理、系统托盘行为、Ktor 游戏服务启停、安全退出流程 |
+| `AppUiSettingsController.kt` | 主题/语言/导航样式的响应式状态管理、持久化与 CompositionLocal 注入 |
+
+核心设计原则：
+
+- **不含业务逻辑** — 所有游戏相关的业务规则属于 `desktop-core`，UI 组件属于 `desktop-ui`
+- **生命周期即职责** — 本模块只负责 JVM 环境、窗口/托盘/服务生命周期和打包配置
+- **可测试抽象** — `DesktopGameService`、`DesktopUiSettingsStorage` 和初始化回调均通过接口或 lambda 注入
+- **幂等安全** — `initialize()`、`start()`、`exit()` 等关键方法均保证多次调用安全
+- **平台感知** — 构建配置按 `os.name` 条件化 JVM 参数；当前仅启用 Windows `Exe` 打包目标
+
+详细说明见 [desktop-app/README.md](desktop-app/README.md)。
+
 ## 环境要求
 
 - JDK 17 或更高版本。
