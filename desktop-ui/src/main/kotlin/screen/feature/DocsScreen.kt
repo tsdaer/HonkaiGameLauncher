@@ -4,6 +4,8 @@ import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.text.InlineTextContent
+import androidx.compose.foundation.text.appendInlineContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +31,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.Placeholder
+import androidx.compose.ui.text.PlaceholderVerticalAlign
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -47,6 +51,12 @@ import cafe.adriel.voyager.core.screen.uniqueScreenKey
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.File
+import dev.snipme.highlights.Highlights
+import dev.snipme.highlights.model.BoldHighlight
+import dev.snipme.highlights.model.CodeHighlight
+import dev.snipme.highlights.model.ColorHighlight
+import dev.snipme.highlights.model.SyntaxLanguage
+import dev.snipme.highlights.model.SyntaxThemes
 import compose.icons.feathericons.AlertCircle
 import compose.icons.feathericons.File
 import compose.icons.feathericons.Folder
@@ -78,6 +88,7 @@ import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
+import ui.settings.LocalAppUiSettings
 import viewModel.DocEntry
 import viewModel.DocSection
 import viewModel.DocsLoadStatus
@@ -349,13 +360,14 @@ private fun MarkdownHeading(
 
 @Composable
 private fun MarkdownTextBlock(
-    text: AnnotatedString,
+    text: InlineMarkdown,
     style: TextStyle,
     modifier: Modifier = Modifier,
 ) {
     FluentText(
-        text = text,
+        text = text.content,
         style = style,
+        inlineContent = text.inlineContent,
         modifier = modifier.fillMaxWidth()
     )
 }
@@ -366,21 +378,52 @@ private fun MarkdownCodeBlock(
     source: String,
     style: DocsMarkdownStyle,
 ) {
-    val code = when (node.type) {
-        MarkdownElementTypes.CODE_FENCE -> {
-            val content = node.children
-                .filter { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }
-                .joinToString("") { extractMarkdownText(it, source) }
-                .trimEnd()
+    val fencedCode = if (node.type == MarkdownElementTypes.CODE_FENCE) {
+        parseFencedCodeBlock(extractMarkdownText(node, source))
+    } else {
+        null
+    }
+    val astCodeContent = node.children
+        .filter { it.type == MarkdownTokenTypes.CODE_FENCE_CONTENT }
+        .joinToString("") { extractMarkdownText(it, source) }
+        .trimEnd()
+    val code = fencedCode?.code
+        ?: astCodeContent
+            .ifBlank { extractMarkdownText(node, source).trimEnd() }
+            .let(::trimFencedCodeContent)
+    val language = fencedCode?.language ?: if (node.type == MarkdownElementTypes.CODE_FENCE) {
+        extractFenceLanguage(node, source)
+    } else {
+        null
+    }
+    val trailingMarkdown = fencedCode?.trailingMarkdown.orEmpty()
 
-            content.ifBlank {
-                extractFencedCodeText(extractMarkdownText(node, source))
-            }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        if (language.equals("mermaid", ignoreCase = true)) {
+            MarkdownMermaidBlock(code = code, style = style)
+        } else {
+            MarkdownCodeBlockContent(
+                code = code,
+                language = language,
+                style = style
+            )
         }
 
-        else -> extractMarkdownText(node, source).trimEnd()
+        if (trailingMarkdown.isNotBlank()) {
+            MarkdownTrailingDocument(markdown = trailingMarkdown, style = style)
+        }
     }
+}
 
+@Composable
+private fun MarkdownCodeBlockContent(
+    code: String,
+    language: String?,
+    style: DocsMarkdownStyle,
+) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
@@ -388,10 +431,137 @@ private fun MarkdownCodeBlock(
             .border(1.dp, style.borderColor, RoundedCornerShape(6.dp))
             .padding(horizontal = 12.dp, vertical = 10.dp)
     ) {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (!language.isNullOrBlank()) {
+                MarkdownCodeLanguageBadge(language = language, style = style)
+            }
+            SyntaxHighlightedCodeText(
+                code = code,
+                language = language,
+                style = style,
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun MarkdownTrailingDocument(
+    markdown: String,
+    style: DocsMarkdownStyle,
+) {
+    val flavour = remember { GFMFlavourDescriptor() }
+    val parser = remember(flavour) { MarkdownParser(flavour) }
+    val root = remember(markdown, parser) {
+        parser.buildMarkdownTreeFromString(markdown)
+    }
+
+    FluentMarkdownDocument(
+        root = root,
+        source = markdown,
+        style = style,
+    )
+}
+
+@Composable
+private fun MarkdownCodeLanguageBadge(
+    language: String,
+    style: DocsMarkdownStyle,
+) {
+    FluentText(
+        text = language.uppercase(),
+        style = TextStyle(
+            color = style.mutedColor,
+            fontSize = 11.sp,
+            lineHeight = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+        ),
+        modifier = Modifier
+            .background(style.subtleBackground, RoundedCornerShape(4.dp))
+            .border(1.dp, style.borderColor, RoundedCornerShape(4.dp))
+            .padding(horizontal = 6.dp, vertical = 2.dp)
+    )
+}
+
+@Composable
+private fun MarkdownMermaidBlock(
+    code: String,
+    style: DocsMarkdownStyle,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(style.subtleBackground, RoundedCornerShape(6.dp))
+            .border(1.dp, style.borderColor, RoundedCornerShape(6.dp))
+            .padding(horizontal = 12.dp, vertical = 10.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(8.dp)
+                    .background(style.accentColor.copy(alpha = 0.76f), RoundedCornerShape(50))
+            )
+            FluentText(
+                text = "Mermaid diagram",
+                style = style.bodyTextStyle.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    color = style.textColor,
+                )
+            )
+        }
+        SyntaxHighlightedCodeText(
+            code = code,
+            language = "mermaid",
+            style = style,
+            fallbackStyle = style.codeBlockTextStyle.copy(color = style.mutedColor),
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun SyntaxHighlightedCodeText(
+    code: String,
+    language: String?,
+    style: DocsMarkdownStyle,
+    modifier: Modifier = Modifier,
+    fallbackStyle: TextStyle = style.codeBlockTextStyle,
+) {
+    val isDarkTheme = LocalAppUiSettings.current.isDarkTheme
+    val syntaxLanguage = remember(language) { language?.toSyntaxLanguage() }
+    val syntaxTheme = remember(isDarkTheme) { SyntaxThemes.themes(isDarkTheme).values.firstOrNull() }
+    val highlights = remember(code, syntaxLanguage, syntaxTheme) {
+        if (syntaxLanguage != null && syntaxTheme != null) {
+            Highlights.Builder(code = code)
+                .language(syntaxLanguage)
+                .theme(syntaxTheme)
+                .build()
+        } else {
+            null
+        }
+    }
+    val highlightedCode = remember(code, highlights) {
+        highlights
+            ?.getHighlights()
+            ?.toHighlightedCode(code)
+            ?: AnnotatedString(code)
+    }
+
+    if (highlights == null) {
         FluentText(
             text = code,
-            style = style.codeBlockTextStyle,
-            modifier = Modifier.fillMaxWidth()
+            style = fallbackStyle,
+            modifier = modifier
+        )
+    } else {
+        FluentText(
+            text = highlightedCode,
+            style = fallbackStyle,
+            modifier = modifier
         )
     }
 }
@@ -530,7 +700,7 @@ private fun MarkdownTable(
 
 @Composable
 private fun MarkdownTableRow(
-    cells: List<AnnotatedString>,
+    cells: List<InlineMarkdown>,
     alignments: List<TextAlign>,
     style: DocsMarkdownStyle,
     header: Boolean,
@@ -546,7 +716,7 @@ private fun MarkdownTableRow(
                     .padding(horizontal = 9.dp, vertical = 7.dp)
             ) {
                 MarkdownTextBlock(
-                    text = cells.getOrNull(index) ?: AnnotatedString(""),
+                    text = cells.getOrNull(index) ?: InlineMarkdown.Empty,
                     style = style.bodyTextStyle.copy(
                         fontWeight = if (header) FontWeight.SemiBold else FontWeight.Normal,
                         textAlign = alignments.getOrElse(index) { TextAlign.Start }
@@ -558,8 +728,8 @@ private fun MarkdownTableRow(
 }
 
 private data class MarkdownTableData(
-    val header: List<AnnotatedString>,
-    val rows: List<List<AnnotatedString>>,
+    val header: List<InlineMarkdown>,
+    val rows: List<List<InlineMarkdown>>,
     val alignments: List<TextAlign>,
 )
 
@@ -593,26 +763,148 @@ private fun parseMarkdownTable(raw: String): MarkdownTableData? {
     }
     val rows = lines.drop(2)
         .filter { it.contains("|") }
-        .map { splitMarkdownTableRow(it).map(::AnnotatedString) }
+        .map { splitMarkdownTableRow(it).map { cell -> InlineMarkdown(AnnotatedString(cell)) } }
 
     return MarkdownTableData(
-        header = header.map(::AnnotatedString),
+        header = header.map { InlineMarkdown(AnnotatedString(it)) },
         rows = rows,
         alignments = alignments
     )
 }
 
-private fun extractFencedCodeText(raw: String): String {
+private data class FencedCodeBlock(
+    val language: String?,
+    val code: String,
+    val trailingMarkdown: String,
+)
+
+private fun parseFencedCodeBlock(raw: String): FencedCodeBlock? {
     val lines = raw.lines()
-    if (lines.size <= 2) {
-        return raw.trim('`', '~').trim()
+    val openingLine = lines.firstOrNull()?.trimStart() ?: return null
+    val fenceMarker = openingLine
+        .takeWhile { it == '`' || it == '~' }
+        .takeIf { it.length >= 3 }
+        ?: return null
+    val language = openingLine
+        .removePrefix(fenceMarker)
+        .trim()
+        .substringBefore(' ')
+        .takeIf { it.isNotBlank() }
+    val contentLines = lines.drop(1)
+    val closingFenceIndex = contentLines.indexOfFirst { line ->
+        line.trimStart().startsWith(fenceMarker)
+    }
+    val codeLines = if (closingFenceIndex >= 0) {
+        contentLines.take(closingFenceIndex)
+    } else {
+        contentLines
+    }
+    val trailingLines = if (closingFenceIndex >= 0) {
+        contentLines.drop(closingFenceIndex + 1)
+    } else {
+        emptyList()
     }
 
-    return lines
-        .drop(1)
-        .dropLastWhile { it.trim().startsWith("```") || it.trim().startsWith("~~~") || it.isBlank() }
+    return FencedCodeBlock(
+        language = language,
+        code = codeLines.joinToString("\n").trimEnd(),
+        trailingMarkdown = trailingLines.joinToString("\n").trimStart()
+    )
+}
+
+private fun trimFencedCodeContent(raw: String): String {
+    return raw.lines()
+        .takeWhile { line ->
+            val trimmed = line.trimStart()
+            !trimmed.startsWith("```") && !trimmed.startsWith("~~~")
+        }
         .joinToString("\n")
         .trimEnd()
+}
+
+private fun extractFenceLanguage(node: ASTNode, source: String): String? {
+    return node.children
+        .firstOrNull { it.type == MarkdownTokenTypes.FENCE_LANG }
+        ?.let { extractMarkdownText(it, source).trim() }
+        ?.takeIf { it.isNotBlank() }
+        ?: extractMarkdownText(node, source)
+            .lineSequence()
+            .firstOrNull()
+            ?.trim()
+            ?.trimStart('`', '~')
+            ?.trim()
+            ?.takeIf { it.isNotBlank() }
+            ?.substringBefore(' ')
+}
+
+private fun String.toSyntaxLanguage(): SyntaxLanguage? {
+    val normalized = trim()
+        .lowercase()
+        .removePrefix("language-")
+    if (normalized.isBlank() || normalized == "text" || normalized == "plain" || normalized == "plaintext") {
+        return null
+    }
+
+    val aliases = mapOf(
+        "c++" to "cpp",
+        "cplusplus" to "cpp",
+        "c#" to "csharp",
+        "cs" to "csharp",
+        "f#" to "fsharp",
+        "fs" to "fsharp",
+        "js" to "javascript",
+        "mjs" to "javascript",
+        "cjs" to "javascript",
+        "jsx" to "javascript",
+        "ts" to "typescript",
+        "tsx" to "typescript",
+        "kt" to "kotlin",
+        "kts" to "kotlin",
+        "py" to "python",
+        "rb" to "ruby",
+        "rs" to "rust",
+        "sh" to "shell",
+        "bash" to "shell",
+        "zsh" to "shell",
+        "ps1" to "powershell",
+        "pwsh" to "powershell",
+        "yml" to "yaml",
+        "md" to "markdown",
+        "html" to "xml",
+        "xhtml" to "xml",
+    )
+    val candidates = listOfNotNull(normalized, aliases[normalized]).distinct()
+
+    return candidates.firstNotNullOfOrNull { candidate ->
+        SyntaxLanguage.getByName(candidate)
+    }
+}
+
+private fun List<CodeHighlight>.toHighlightedCode(code: String): AnnotatedString {
+    return buildAnnotatedString {
+        append(code)
+        forEach { highlight ->
+            val start = highlight.location.start.coerceIn(0, code.length)
+            val end = highlight.location.end.coerceIn(start, code.length)
+            if (start == end) {
+                return@forEach
+            }
+
+            when (highlight) {
+                is BoldHighlight -> addStyle(
+                    SpanStyle(fontWeight = FontWeight.Bold),
+                    start = start,
+                    end = end,
+                )
+
+                is ColorHighlight -> addStyle(
+                    SpanStyle(color = Color(highlight.rgb).copy(alpha = 1f)),
+                    start = start,
+                    end = end,
+                )
+            }
+        }
+    }
 }
 
 private fun splitMarkdownTableRow(line: String): List<String> {
@@ -650,21 +942,26 @@ private fun MarkdownDivider(style: DocsMarkdownStyle) {
 
 @Composable
 private fun rememberDocsMarkdownStyle(): DocsMarkdownStyle {
+    val isDarkTheme = LocalAppUiSettings.current.isDarkTheme
     val textColor = FluentTheme.colors.text.text.primary
-    val mutedColor = FluentTokens.ColorToken.LogLevel.veryVerbose
+    val mutedColor = if (isDarkTheme) {
+        FluentTokens.ColorToken.LogLevel.unknown
+    } else {
+        FluentTokens.ColorToken.LogLevel.veryVerbose
+    }
     val accentColor = FluentTokens.ColorToken.accent
     val unknownColor = FluentTokens.ColorToken.LogLevel.unknown
 
-    return remember(textColor, mutedColor, accentColor, unknownColor) {
+    return remember(isDarkTheme, textColor, mutedColor, accentColor, unknownColor) {
         DocsMarkdownStyle(
             textColor = textColor,
             mutedColor = mutedColor,
             accentColor = accentColor,
-            codeBackground = unknownColor.copy(alpha = 0.045f),
-            inlineCodeBackground = unknownColor.copy(alpha = 0.065f),
-            borderColor = unknownColor.copy(alpha = 0.12f),
-            dividerColor = unknownColor.copy(alpha = 0.16f),
-            subtleBackground = unknownColor.copy(alpha = 0.035f),
+            codeBackground = unknownColor.copy(alpha = if (isDarkTheme) 0.18f else 0.045f),
+            inlineCodeBackground = unknownColor.copy(alpha = if (isDarkTheme) 0.24f else 0.065f),
+            borderColor = unknownColor.copy(alpha = if (isDarkTheme) 0.34f else 0.12f),
+            dividerColor = unknownColor.copy(alpha = if (isDarkTheme) 0.28f else 0.16f),
+            subtleBackground = unknownColor.copy(alpha = if (isDarkTheme) 0.12f else 0.035f),
         )
     }
 }
@@ -711,48 +1008,62 @@ private data class DocsMarkdownStyle(
     }
 }
 
+private data class InlineMarkdown(
+    val content: AnnotatedString,
+    val inlineContent: Map<String, InlineTextContent> = emptyMap(),
+) {
+    companion object {
+        val Empty = InlineMarkdown(AnnotatedString(""))
+    }
+}
+
 private fun buildInlineMarkdown(
     node: ASTNode,
     source: String,
     style: DocsMarkdownStyle,
-): AnnotatedString {
-    return buildAnnotatedString {
-        appendInlineNode(node, source, style)
+): InlineMarkdown {
+    val inlineContent = linkedMapOf<String, InlineTextContent>()
+    val content = buildAnnotatedString {
+        appendInlineNode(node, source, style, inlineContent)
     }
+
+    return InlineMarkdown(content, inlineContent)
 }
 
 private fun AnnotatedString.Builder.appendInlineNode(
     node: ASTNode,
     source: String,
     style: DocsMarkdownStyle,
+    inlineContent: MutableMap<String, InlineTextContent>,
 ) {
     when (node.type) {
         MarkdownElementTypes.STRONG -> withStyle(SpanStyle(fontWeight = FontWeight.SemiBold)) {
-            node.children.forEach { appendInlineNode(it, source, style) }
+            node.children.forEach { appendInlineNode(it, source, style, inlineContent) }
         }
 
         MarkdownElementTypes.EMPH -> withStyle(SpanStyle(fontStyle = FontStyle.Italic)) {
-            node.children.forEach { appendInlineNode(it, source, style) }
+            node.children.forEach { appendInlineNode(it, source, style, inlineContent) }
         }
 
         GFMElementTypes.STRIKETHROUGH -> withStyle(SpanStyle(textDecoration = TextDecoration.LineThrough)) {
-            node.children.forEach { appendInlineNode(it, source, style) }
+            node.children.forEach { appendInlineNode(it, source, style, inlineContent) }
         }
 
         MarkdownElementTypes.CODE_SPAN -> {
             val code = extractMarkdownText(node, source)
                 .trim()
                 .trim('`')
-            withStyle(
-                SpanStyle(
-                    color = style.textColor,
-                    background = style.inlineCodeBackground,
-                    fontFamily = FontFamily.Monospace,
-                    fontSize = 13.sp,
+            val contentId = "inline-code-${inlineContent.size}"
+            inlineContent[contentId] = InlineTextContent(
+                placeholder = Placeholder(
+                    width = ((code.length.coerceAtLeast(1) * 7.5f) + 12f).sp,
+                    height = 19.sp,
+                    placeholderVerticalAlign = PlaceholderVerticalAlign.Center,
                 )
             ) {
-                append(code)
+                MarkdownInlineCode(code = code, style = style)
             }
+            appendInlineContent(contentId, code)
         }
 
         MarkdownElementTypes.INLINE_LINK,
@@ -773,12 +1084,15 @@ private fun AnnotatedString.Builder.appendInlineNode(
 
         MarkdownTokenTypes.HARD_LINE_BREAK -> append("\n")
 
+        MarkdownTokenTypes.WHITE_SPACE -> append(extractMarkdownText(node, source))
+
         MarkdownTokenTypes.EOL -> append(" ")
 
         MarkdownTokenTypes.TEXT,
         MarkdownTokenTypes.ATX_CONTENT,
         MarkdownTokenTypes.SETEXT_CONTENT,
-        MarkdownTokenTypes.CODE_LINE,
+        MarkdownTokenTypes.CODE_LINE -> append(extractMarkdownText(node, source))
+
         GFMTokenTypes.CELL -> append(extractMarkdownText(node, source).trimCellPipes())
 
         else -> {
@@ -787,9 +1101,33 @@ private fun AnnotatedString.Builder.appendInlineNode(
                     append(extractMarkdownText(node, source))
                 }
             } else {
-                node.children.forEach { appendInlineNode(it, source, style) }
+                node.children.forEach { appendInlineNode(it, source, style, inlineContent) }
             }
         }
+    }
+}
+
+@Composable
+private fun MarkdownInlineCode(
+    code: String,
+    style: DocsMarkdownStyle,
+) {
+    Box(
+        modifier = Modifier
+            .background(style.inlineCodeBackground, RoundedCornerShape(4.dp))
+            .border(1.dp, style.borderColor, RoundedCornerShape(4.dp))
+            .padding(horizontal = 5.dp, vertical = 1.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        FluentText(
+            text = code,
+            style = TextStyle(
+                color = style.textColor,
+                fontSize = 13.sp,
+                lineHeight = 16.sp,
+                fontFamily = FontFamily.Monospace,
+            )
+        )
     }
 }
 

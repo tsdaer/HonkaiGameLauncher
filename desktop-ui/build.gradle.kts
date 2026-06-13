@@ -15,6 +15,7 @@ dependencies {
     implementation(compose.components.resources)
     implementation("io.github.compose-fluent:fluent:v0.1.0")
     implementation("io.github.compose-fluent:fluent-icons-extended:v0.1.0")
+    implementation("dev.snipme:kodeview:0.9.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect:2.2.20")
 
     implementation("br.com.devsrsouza.compose.icons:eva-icons:1.1.1")
