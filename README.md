@@ -72,13 +72,13 @@ desktop-core/src/main/kotlin/core/
     └── GamePathService.kt        # 游戏路径校验与状态快照
 ```
 
-| 包 | 职责 |
-|----|------|
-| `core` | 游戏通信服务生命周期、日志 JSON 解析、运行时服务注册 |
-| `core.docs` | Markdown 文档扫描、索引构建、文档间链接解析 |
+| 包               | 职责                                       |
+|-----------------|------------------------------------------|
+| `core`          | 游戏通信服务生命周期、日志 JSON 解析、运行时服务注册            |
+| `core.docs`     | Markdown 文档扫描、索引构建、文档间链接解析               |
 | `core.platform` | 平台操作抽象（设置读写、文件系统、进程启动），通过接口或构造函数注入实现可测试性 |
-| `core.plugin` | 插件配置文件定位、TOML 解析、.pak 路径解析 |
-| `core.service` | 跨切面的应用级服务（如游戏路径校验） |
+| `core.plugin`   | 插件配置文件定位、TOML 解析、.pak 路径解析               |
+| `core.service`  | 跨切面的应用级服务（如游戏路径校验）                       |
 
 核心设计原则：
 
@@ -118,12 +118,12 @@ desktop-ui/src/main/kotlin/
     └── WebEngineService.kt    #   KCEF WebEngine 初始化生命周期
 ```
 
-| 层级 | 职责 |
-|------|------|
-| `navigation` | 页面注册、路由解析、URL 导航 |
-| `screen` | Compose 页面实现，纯渲染 + 轻量交互绑定 |
-| `viewModel` | ScreenModel 状态管理、core 服务调用、Flow 收集、协程调度 |
-| `ui` | 跨页面复用的 UI 组件和主题 Token |
+| 层级           | 职责                                      |
+|--------------|-----------------------------------------|
+| `navigation` | 页面注册、路由解析、URL 导航                        |
+| `screen`     | Compose 页面实现，纯渲染 + 轻量交互绑定               |
+| `viewModel`  | ScreenModel 状态管理、core 服务调用、Flow 收集、协程调度 |
+| `ui`         | 跨页面复用的 UI 组件和主题 Token                   |
 
 核心设计原则：
 
@@ -152,12 +152,12 @@ desktop-app/
     └── AppUiSettingsControllerTest.kt
 ```
 
-| 文件 | 职责 |
-|------|------|
-| `Main.kt` | Compose Desktop 应用入口，组装窗口、托盘、Fluent 主题、Voyager 导航器 |
-| `AppStartupCoordinator.kt` | 一次性 JVM 环境初始化（UTF-8 编码、字体抗锯齿）和 Voyager 导航页面注册 |
-| `AppLifecycleCoordinator.kt` | 窗口可见性管理、系统托盘行为、Ktor 游戏服务启停、安全退出流程 |
-| `AppUiSettingsController.kt` | 主题/语言/导航样式的响应式状态管理、持久化与 CompositionLocal 注入 |
+| 文件                           | 职责                                                 |
+|------------------------------|----------------------------------------------------|
+| `Main.kt`                    | Compose Desktop 应用入口，组装窗口、托盘、Fluent 主题、Voyager 导航器 |
+| `AppStartupCoordinator.kt`   | 一次性 JVM 环境初始化（UTF-8 编码、字体抗锯齿）和 Voyager 导航页面注册      |
+| `AppLifecycleCoordinator.kt` | 窗口可见性管理、系统托盘行为、Ktor 游戏服务启停、安全退出流程                  |
+| `AppUiSettingsController.kt` | 主题/语言/导航样式的响应式状态管理、持久化与 CompositionLocal 注入        |
 
 核心设计原则：
 
@@ -289,4 +289,4 @@ desktop-app/
 
 ## 许可证
 
-仓库当前未声明许可证。分发、复用或开源发布前请先补充明确的 `LICENSE` 文件。
+本项目基于 [MIT License](LICENSE) 发布。
