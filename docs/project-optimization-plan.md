@@ -85,7 +85,7 @@ desktop-core
 | O2 | doing | `GameService` 已暴露 `StateFlow<GameConnectionStatus>` 与 `SharedFlow<List<LauncherLogEntry>>`，UI 层开始通过 Flow 订阅；旧 listener API 暂保留兼容。 | 补充服务生命周期测试或手工验收记录。 |
 | O3 | doing | 已新增 `GamePathService`、`PluginConfigService`、`DocsIndexService`、`ProcessLauncher` 与插件 parser，部分 ScreenModel 已切换到 core service。 | 继续抽出设置访问等平台能力。 |
 | O4 | doing | 已为 `HomeScreenModel`、`PluginScreenModel`、`DocsScreenModel`、`LogScreenModel` 引入显式 UI state，并保留旧字段读取兼容页面。 | 逐页让页面直接消费 `uiState`，再删除过渡兼容字段。 |
-| O5 | todo | `DocsMarkdownPreview.kt` 仍待拆分。 | 先做纯移动和私有函数拆分，不改变渲染行为。 |
+| O5 | done | 已将 `DocsMarkdownPreview.kt` 拆分为 Markdown 入口、块级渲染、内联渲染、链接处理、代码块、数学公式、Mermaid 渲染/解析、滚动锚点、样式与通用工具文件；单个 Markdown 相关文件均不超过 500 行。 | 后续支持新语法时优先在对应 renderer/parser 文件内扩展。 |
 | O6 | done | 已建立显式 `ScreenDescriptor` 列表，集中声明 route、标题资源、图标、导航可见性与排序；`NavigationService` 已移除 `sealedSubclasses` 反射路由，并兼容无斜杠旧写法。 | 后续新增页面时同步注册 Voyager Screen 并补充 descriptor。 |
 | O7 | done | 已移除仓库级 Gradle 代理配置，统一 `kotlin-reflect` 版本，将默认打包目标收敛为 Windows `Exe`，清理空的根 `src/` 目录，并通过 `:desktop-app:check` 与当前平台打包命令。 | 后续如扩展多平台支持，再为 native 依赖做平台条件化。 |
 | O8 | done | README 已补充质量检查命令、Windows 打包范围与代理配置说明；已新增 `docs/architecture.md` 与 PR 检查清单。 | 后续随架构边界变化持续维护文档。 |
