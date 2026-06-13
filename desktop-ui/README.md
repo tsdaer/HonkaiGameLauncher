@@ -101,7 +101,7 @@ desktop-ui/src/main/kotlin/
 | `PluginScreenModel` | 插件配置加载 |
 | `LogScreenModel` | 日志收集、类型/分类筛选、自动滚动、缓冲区溢出裁剪 |
 | `WebScreenModel` | WebView 地址管理、URL 归一化 |
-| `SettingScreenModel` | 游戏路径持久化 |
+| `SettingScreenModel` | 游戏路径与游戏设置（GenericSetting/GameSetting TOML）读写持久化 |
 
 ### Markdown 渲染链路
 
@@ -126,6 +126,15 @@ DocsScreen → MarkdownPreview
 ### Fluent 组件库
 
 基于 `compose-fluent` 库的自定义封装，提供一致的主题、排版、ColorToken 和组件样式。
+
+### WebEngine 初始化 (`WebEngineService`)
+
+管理 KCEF (Chromium Embedded Framework) 的懒初始化和生命周期：
+
+- 通过 [WebEngineService] 单例提供就绪状态、进度和错误信息
+- 初始化阶段：Checking → Downloading → DownloadFinishing → Extracting → Installing → Initializing → Ready
+- 支持下载/安装失败后的重试和重启提示
+- 引擎数据存储在 `%LOCALAPPDATA%/HonkaiGameLauncher/kcef-*` 下
 
 ## 技术栈
 

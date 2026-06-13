@@ -33,6 +33,12 @@ import ui.fluent.components.FluentCard
 import viewModel.WebEnginePhase
 import io.github.composefluent.component.Text as FluentText
 
+/**
+ * WebEngine 初始化进度/错误展示界面。
+ *
+ * 根据 [WebEnginePhase] 显示对应的初始化进度、错误信息或重启提示。
+ * 在 WebView 尚未就绪时替代 WebView 内容区域。
+ */
 @Composable
 fun WebEngineInitContent(
     phase: WebEnginePhase,

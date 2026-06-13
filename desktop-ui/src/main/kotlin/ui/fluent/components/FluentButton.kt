@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import io.github.composefluent.component.Button
 
+/** Fluent 风格按钮组件，封装 compose-fluent 的 [Button] */
 @Composable
 fun FluentButton(
     onClick: () -> Unit,

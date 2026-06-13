@@ -38,6 +38,12 @@ import ui.fluent.theme.FluentTokens
 import ui.fluent.theme.LegacyThemeAdapter
 import org.jetbrains.compose.resources.stringResource
 
+/**
+ * 应用导航栏。
+ *
+ * 支持顶部、左侧展开、紧凑和可折叠四种布局样式。
+ * 根据 [AppNavigationStyle] 动态切换布局，集成 Voyager 导航器。
+ */
 @OptIn(ExperimentalAnimationApi::class, ExperimentalVoyagerApi::class, ExperimentalFluentApi::class)
 @Composable
 fun NavigationBar(

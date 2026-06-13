@@ -5,6 +5,12 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import io.github.composefluent.CornerRadius
 
+/**
+ * Fluent Design 设计令牌（单例）。
+ *
+ * 集中管理颜色、圆角半径、间距等设计系统常量。
+ * 各组件的默认尺寸和颜色值统一由此定义，保证视觉一致性。
+ */
 object FluentTokens {
     object ColorToken {
         // Keep Fluent's default accent to ensure stable generated shades in current library version.

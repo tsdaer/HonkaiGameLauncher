@@ -115,6 +115,7 @@ desktop-ui/src/main/kotlin/
 └── viewModel/                 # ScreenModel 层
     ├── AppSettingsStore.kt    #   响应式设置存储（StateFlow）
     ├── HomeScreenModel.kt     #   首页状态、启动流程、20s 连接超时
+    ├── SettingScreenModel.kt  #   设置页状态、游戏设置 TOML 读写
     ├── DocsScreenModel.kt     #   文档加载/选择/链接导航
     ├── PluginScreenModel.kt   #   插件配置加载
     ├── LogScreenModel.kt      #   日志收集/筛选/缓冲区

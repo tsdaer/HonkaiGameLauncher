@@ -65,7 +65,13 @@ import viewModel.WebScreenModel
 import viewModel.WebScreenModel.Companion.normalizeUrl
 import io.github.composefluent.component.Text as FluentText
 
-
+/**
+ * 内置网页工具页。
+ *
+ * 基于 KCEF 嵌入式 Chromium WebView 提供浏览器能力。
+ * 支持地址栏导航、前进/后退、外部链接打开和 WebEngine 初始化状态展示。
+ * 数据由 [WebScreenModel] 管理，引擎初始化由 [WebEngineService] 负责。
+ */
 class WebScreen: Screen, IScreenInterface {
 
     override val key = uniqueScreenKey

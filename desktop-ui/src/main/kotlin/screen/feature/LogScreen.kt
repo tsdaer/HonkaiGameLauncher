@@ -39,6 +39,12 @@ import io.github.composefluent.component.Icon as FluentIcon
 import io.github.composefluent.component.Text as FluentText
 import io.github.composefluent.component.ToggleButton as FluentToggleButton
 
+/**
+ * 游戏日志页。
+ *
+ * 实时展示游戏通过 HTTP 回传的运行日志，支持按日志类型和分类筛选，
+ * 以及自动滚动和缓冲区管理。数据由 [LogScreenModel] 管理。
+ */
 class LogScreen: Screen, IScreenInterface {
     override val key = uniqueScreenKey
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.composefluent.surface.Card
 
+/** Fluent 风格卡片组件，封装 compose-fluent 的 [Card] */
 @Composable
 fun FluentCard(
     modifier: Modifier = Modifier,

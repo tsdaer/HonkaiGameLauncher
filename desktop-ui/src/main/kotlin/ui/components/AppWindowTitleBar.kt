@@ -30,6 +30,12 @@ import org.jetbrains.compose.resources.stringResource
 import ui.fluent.theme.FluentTokens
 import io.github.composefluent.component.Text as FluentText
 
+/**
+ * 自定义窗口标题栏。
+ *
+ * 替代系统原生标题栏，实现窗口拖拽、最小化/最大化/关闭按钮，
+ * 以及页面标题和导航按钮的显示。仅在 [WindowScope] 内可用。
+ */
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun WindowScope.AppWindowTitleBar(

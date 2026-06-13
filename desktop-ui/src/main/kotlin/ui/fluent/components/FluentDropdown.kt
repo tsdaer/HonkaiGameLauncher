@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import io.github.composefluent.component.ComboBox
 
+/** Fluent 风格下拉选择组件，封装 compose-fluent 的 [ComboBox] */
 @Composable
 fun FluentDropdown(
     items: List<String>,

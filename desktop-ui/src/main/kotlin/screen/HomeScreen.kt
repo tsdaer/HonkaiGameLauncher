@@ -59,6 +59,13 @@ import ui.fluent.theme.FluentTokens
 import ui.settings.LocalAppUiSettings
 import viewModel.HomeScreenModel
 
+/**
+ * 首页。
+ *
+ * 展示游戏状态概览（路径、连接状态、插件统计）和快捷导航入口。
+ * 提供游戏 exe 选择、启动/停止、打开目录等操作入口。
+ * 数据与交互逻辑由 [HomeScreenModel] 管理。
+ */
 class HomeScreen : Screen, IScreenInterface {
 
     override val key = uniqueScreenKey

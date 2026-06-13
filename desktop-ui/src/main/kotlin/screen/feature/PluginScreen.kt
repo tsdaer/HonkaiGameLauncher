@@ -22,6 +22,12 @@ import screen.plugin.PluginListPanel
 import screen.plugin.PluginOverview
 import viewModel.PluginScreenModel
 
+/**
+ * 插件配置页。
+ *
+ * 展示从 `GamePluginConfigs.toml` 加载的插件列表，包括插件名称、类型、路径、
+ * 挂载顺序和默认启用状态。数据由 [PluginScreenModel] 管理。
+ */
 class PluginScreen : Screen, IScreenInterface {
 
     override val key = uniqueScreenKey

@@ -33,6 +33,13 @@ import screen.docs.DocsReaderPanel
 import screen.docs.DocsTableOfContents
 import viewModel.DocsScreenModel
 
+/**
+ * 文档中心页。
+ *
+ * 展示从 `honkai_rts/docs/` 目录扫描的 Markdown 文档，
+ * 支持文档列表浏览、文档内链接导航、Markdown 渲染和锚点跳转。
+ * 数据与导航逻辑由 [DocsScreenModel] 管理。
+ */
 class DocsScreen : Screen, IScreenInterface {
 
     override val key = uniqueScreenKey

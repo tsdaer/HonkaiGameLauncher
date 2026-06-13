@@ -1,5 +1,12 @@
 package screen.feature
 
+/**
+ * Markdown 预览组件入口。
+ *
+ * 组合块级渲染、行内渲染和链接处理，构建完整的 Markdown → Compose 渲染管线。
+ * 同时负责 TOC 提取和锚点滚动协调。
+ */
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider

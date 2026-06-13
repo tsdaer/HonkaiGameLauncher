@@ -16,6 +16,7 @@ import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import io.github.composefluent.component.Text
 
+/** Fluent 风格分区卡片，带标题和可选图标的 [FluentCard] 封装 */
 @Composable
 fun FluentSection(
     title: String,

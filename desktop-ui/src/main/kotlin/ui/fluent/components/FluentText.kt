@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.TextUnit
 import io.github.composefluent.component.Text
 
+/** Fluent 风格文本组件，封装 compose-fluent 的 [Text] 并提供完整样式参数 */
 @Composable
 fun FluentText(
     text: String,

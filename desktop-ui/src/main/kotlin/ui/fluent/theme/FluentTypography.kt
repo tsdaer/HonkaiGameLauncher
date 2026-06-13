@@ -9,6 +9,12 @@ import honkaigamelauncher.desktop_ui.generated.resources.*
 import io.github.composefluent.Typography
 import org.jetbrains.compose.resources.Font
 
+/**
+ * Fluent Design 排版自定义。
+ *
+ * 加载 HarmonyOS Sans SC 可变字体家族并配置 Light/Regular/Medium/Bold 字重，
+ * 内部集成 [FluentFontFamily] 和 [FluentTypographyFinal] 作为排版配置。
+ */
 @Composable
 fun FluentFontFamily() = FontFamily(
     Font(Res.font.HarmonyOS_Sans_SC_Thin, weight = FontWeight.Thin),
