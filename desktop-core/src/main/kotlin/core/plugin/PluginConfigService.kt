@@ -1,6 +1,6 @@
 package core.plugin
 
-import core.service.GamePathService
+import core.platform.AppSettingsRepository
 import java.io.File
 
 enum class PluginLoadStatus {
@@ -22,12 +22,11 @@ class PluginConfigService(
     private val parser: PluginConfigParser = PluginConfigParser(),
 ) {
     fun load(path: String?): PluginLoadResult {
-        if (path.isNullOrBlank() || path == GamePathService.NO_GAME_PATH_SENTINEL) {
-            return PluginLoadResult(status = PluginLoadStatus.MissingGamePath)
-        }
+        val normalizedPath = AppSettingsRepository.normalizeGamePath(path)
+            ?: return PluginLoadResult(status = PluginLoadStatus.MissingGamePath)
 
         return runCatching {
-            val gameFile = File(path)
+            val gameFile = File(normalizedPath)
             val gameDirectory = if (gameFile.isDirectory) {
                 gameFile
             } else {

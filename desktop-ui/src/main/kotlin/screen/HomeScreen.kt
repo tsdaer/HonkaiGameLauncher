@@ -98,6 +98,7 @@ import ui.fluent.theme.FluentTokens
 import ui.settings.LocalAppUiSettings
 import viewModel.HomeLaunchStatus
 import viewModel.HomeScreenModel
+import viewModel.HomeUiState
 import io.github.composefluent.component.Text as FluentText
 
 class HomeScreen : Screen, IScreenInterface {
@@ -120,6 +121,7 @@ class HomeScreen : Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { HomeScreenModel() }
+        val uiState = screenModel.uiState
         val navigator = LocalNavigator.current
         val scrollState = rememberScrollState()
         val isDarkTheme = LocalAppUiSettings.current.isDarkTheme
@@ -138,7 +140,7 @@ class HomeScreen : Screen, IScreenInterface {
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 HomeHero(
-                    screenModel = screenModel,
+                    uiState = uiState,
                     onLaunch = { screenModel.launchGame() },
                     onSelectGame = { screenModel.selectGamePath() },
                     onRefresh = { screenModel.refresh() },
@@ -151,12 +153,12 @@ class HomeScreen : Screen, IScreenInterface {
                 ) {
                     HomeStatusCard(
                         title = stringResource(Res.string.homeSectionStatus),
-                        screenModel = screenModel,
+                        uiState = uiState,
                         modifier = Modifier.weight(1.35f),
                         isDarkTheme = isDarkTheme
                     )
                     HomePathCard(
-                        screenModel = screenModel,
+                        uiState = uiState,
                         onOpenFolder = { screenModel.openGameDirectory() },
                         modifier = Modifier.weight(1f),
                         isDarkTheme = isDarkTheme
@@ -215,15 +217,15 @@ class HomeScreen : Screen, IScreenInterface {
 
     @Composable
     private fun HomeHero(
-        screenModel: HomeScreenModel,
+        uiState: HomeUiState,
         onLaunch: () -> Unit,
         onSelectGame: () -> Unit,
         onRefresh: () -> Unit,
         isDarkTheme: Boolean,
     ) {
-        val statusColor = statusColor(screenModel.launchStatus)
-        val canLaunch = screenModel.launchStatus == HomeLaunchStatus.Ready ||
-                screenModel.launchStatus == HomeLaunchStatus.Running
+        val statusColor = statusColor(uiState.launchStatus)
+        val canLaunch = uiState.launchStatus == HomeLaunchStatus.Ready ||
+                uiState.launchStatus == HomeLaunchStatus.Running
 
         FluentCard(modifier = Modifier.fillMaxWidth()) {
             Box(
@@ -248,7 +250,7 @@ class HomeScreen : Screen, IScreenInterface {
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = if (screenModel.launchStatus == HomeLaunchStatus.Ready) {
+                            imageVector = if (uiState.launchStatus == HomeLaunchStatus.Ready) {
                                 FeatherIcons.Play
                             } else {
                                 getIcon()
@@ -264,7 +266,7 @@ class HomeScreen : Screen, IScreenInterface {
                         verticalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         StatusPill(
-                            text = launchStatusText(screenModel),
+                            text = launchStatusText(uiState),
                             color = statusColor,
                         )
                         FluentText(
@@ -282,7 +284,7 @@ class HomeScreen : Screen, IScreenInterface {
                         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             FluentButton(
                                 onClick = onLaunch,
-                                disabled = !canLaunch || screenModel.launchStatus == HomeLaunchStatus.Launching
+                                disabled = !canLaunch || uiState.launchStatus == HomeLaunchStatus.Launching
                             ) {
                                 Icon(FeatherIcons.Play, contentDescription = null)
                                 FluentText(stringResource(Res.string.homeActionStartGame))
@@ -303,7 +305,7 @@ class HomeScreen : Screen, IScreenInterface {
                     }
 
                     ConnectionPulseCard(
-                        status = screenModel.gameConnectionStatus,
+                        status = uiState.gameConnectionStatus,
                         statusColor = statusColor,
                         isDarkTheme = isDarkTheme,
                     )
@@ -315,7 +317,7 @@ class HomeScreen : Screen, IScreenInterface {
     @Composable
     private fun HomeStatusCard(
         title: String,
-        screenModel: HomeScreenModel,
+        uiState: HomeUiState,
         modifier: Modifier = Modifier,
         isDarkTheme: Boolean,
     ) {
@@ -328,27 +330,27 @@ class HomeScreen : Screen, IScreenInterface {
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
-                SectionHeader(title = title, color = statusColor(screenModel.launchStatus))
+                SectionHeader(title = title, color = statusColor(uiState.launchStatus))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     StatusTile(
-                        value = screenModel.pluginCount.toString(),
+                        value = uiState.pluginCount.toString(),
                         label = stringResource(Res.string.homePluginCount),
                         icon = compose.icons.LineAwesomeIcons.PuzzlePieceSolid,
                         color = FluentTokens.ColorToken.accent,
                         modifier = Modifier.weight(1f)
                     )
                     StatusTile(
-                        value = connectionStatusText(screenModel.gameConnectionStatus),
+                        value = connectionStatusText(uiState.gameConnectionStatus),
                         label = stringResource(Res.string.homeConnectionLabel),
                         icon = FeatherIcons.Activity,
-                        color = connectionColor(screenModel.gameConnectionStatus),
+                        color = connectionColor(uiState.gameConnectionStatus),
                         modifier = Modifier.weight(1f)
                     )
                     StatusTile(
-                        value = screenModel.lastLaunchTime.ifBlank {
+                        value = uiState.lastLaunchTime.ifBlank {
                             stringResource(Res.string.homeNeverLaunched)
                         },
                         label = stringResource(Res.string.homeLastLaunch),
@@ -360,17 +362,17 @@ class HomeScreen : Screen, IScreenInterface {
                 PathLine(
                     icon = FeatherIcons.Folder,
                     label = stringResource(Res.string.homeGamePathLabel),
-                    value = screenModel.gamePath.takeIf { screenModel.hasGamePath }
+                    value = uiState.gamePath?.takeIf { it.isNotBlank() }
                         ?: stringResource(Res.string.homePathNotSet),
-                    color = statusColor(screenModel.launchStatus)
+                    color = statusColor(uiState.launchStatus)
                 )
                 PathLine(
                     icon = compose.icons.LineAwesomeIcons.PuzzlePieceSolid,
                     label = stringResource(Res.string.pluginConfigLabel),
-                    value = screenModel.pluginConfigPath.ifBlank {
+                    value = uiState.pluginConfigPath.ifBlank {
                         stringResource(Res.string.homePluginConfigMissing)
                     },
-                    color = if (screenModel.hasPluginConfig) {
+                    color = if (uiState.pluginConfigPath.isNotBlank()) {
                         FluentTokens.ColorToken.accent
                     } else {
                         FluentTokens.ColorToken.LogLevel.warning
@@ -382,7 +384,7 @@ class HomeScreen : Screen, IScreenInterface {
 
     @Composable
     private fun HomePathCard(
-        screenModel: HomeScreenModel,
+        uiState: HomeUiState,
         onOpenFolder: () -> Unit,
         modifier: Modifier = Modifier,
         isDarkTheme: Boolean,
@@ -398,29 +400,29 @@ class HomeScreen : Screen, IScreenInterface {
             ) {
                 SectionHeader(
                     title = stringResource(Res.string.homeGamePathLabel),
-                    color = statusColor(screenModel.launchStatus)
+                    color = statusColor(uiState.launchStatus)
                 )
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clip(RoundedCornerShape(14.dp))
-                        .background(statusColor(screenModel.launchStatus).copy(alpha = 0.08f))
+                        .background(statusColor(uiState.launchStatus).copy(alpha = 0.08f))
                         .border(
                             1.dp,
-                            statusColor(screenModel.launchStatus).copy(alpha = 0.14f),
+                            statusColor(uiState.launchStatus).copy(alpha = 0.14f),
                             RoundedCornerShape(14.dp)
                         )
                         .padding(14.dp)
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         FluentText(
-                            text = screenModel.gameFileName.ifBlank { stringResource(Res.string.homePathNotSet) },
+                            text = uiState.gameFileName.ifBlank { stringResource(Res.string.homePathNotSet) },
                             style = FluentTheme.typography.subtitle,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
                         FluentText(
-                            text = screenModel.gameDirectory.ifBlank { stringResource(Res.string.homeDirectoryMissing) },
+                            text = uiState.gameDirectory.ifBlank { stringResource(Res.string.homeDirectoryMissing) },
                             style = FluentTheme.typography.caption,
                             maxLines = 2,
                             overflow = TextOverflow.Ellipsis
@@ -430,7 +432,7 @@ class HomeScreen : Screen, IScreenInterface {
                 Spacer(modifier = Modifier.height(2.dp))
                 FluentButton(
                     onClick = onOpenFolder,
-                    disabled = screenModel.gameDirectory.isBlank()
+                    disabled = uiState.gameDirectory.isBlank()
                 ) {
                     Icon(FeatherIcons.Folder, contentDescription = null)
                     FluentText(stringResource(Res.string.homeActionOpenFolder))
@@ -696,14 +698,14 @@ class HomeScreen : Screen, IScreenInterface {
     }
 
     @Composable
-    private fun launchStatusText(screenModel: HomeScreenModel): String {
-        return when (screenModel.launchStatus) {
+    private fun launchStatusText(uiState: HomeUiState): String {
+        return when (uiState.launchStatus) {
             HomeLaunchStatus.MissingGamePath -> stringResource(Res.string.homeStatusMissingGamePath)
             HomeLaunchStatus.MissingExecutable -> stringResource(Res.string.homeStatusMissingExecutable)
             HomeLaunchStatus.Ready -> stringResource(Res.string.homeStatusReady)
             HomeLaunchStatus.Launching -> stringResource(Res.string.homeStatusLaunching)
             HomeLaunchStatus.Running -> stringResource(Res.string.homeStatusRunning)
-            HomeLaunchStatus.Error -> screenModel.statusMessage.ifBlank {
+            HomeLaunchStatus.Error -> uiState.statusMessage.ifBlank {
                 stringResource(Res.string.homeStatusError)
             }
         }

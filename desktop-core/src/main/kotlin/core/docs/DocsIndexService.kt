@@ -1,6 +1,6 @@
 package core.docs
 
-import core.service.GamePathService
+import core.platform.AppSettingsRepository
 import java.io.File
 
 enum class DocsLoadStatus {
@@ -41,12 +41,11 @@ data class DocumentReadResult(
 
 class DocsIndexService {
     fun load(path: String?, previousSelection: String?): DocsLoadResult {
-        if (path.isNullOrBlank() || path == GamePathService.NO_GAME_PATH_SENTINEL) {
-            return DocsLoadResult(status = DocsLoadStatus.MissingGamePath)
-        }
+        val normalizedPath = AppSettingsRepository.normalizeGamePath(path)
+            ?: return DocsLoadResult(status = DocsLoadStatus.MissingGamePath)
 
         return runCatching {
-            val gameFile = File(path)
+            val gameFile = File(normalizedPath)
             val gameDirectory = if (gameFile.isDirectory) {
                 gameFile
             } else {

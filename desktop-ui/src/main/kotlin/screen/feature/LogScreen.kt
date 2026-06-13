@@ -58,10 +58,8 @@ class LogScreen: Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { LogScreenModel() }
+        val uiState = screenModel.uiState
         val filteredLogs = screenModel.filteredLogs
-        val selectedType = screenModel.selectedType
-        val selectedCategory = screenModel.selectedCategory
-        val autoScroll = screenModel.autoScroll
 
         val allTypes = screenModel.availableTypes
         val allCategories = screenModel.availableCategories
@@ -75,10 +73,10 @@ class LogScreen: Screen, IScreenInterface {
             add(allTypesLabel)
             addAll(allTypes.map { type -> logTypeLabel(type, allTypesLabel, unknownTypeLabel) })
         }
-        val typeSelectedIndex = if (selectedType == null) {
+        val typeSelectedIndex = if (uiState.selectedType == null) {
             0
         } else {
-            val index = allTypes.indexOf(selectedType)
+            val index = allTypes.indexOf(uiState.selectedType)
             if (index >= 0) index + 1 else 0
         }
 
@@ -86,10 +84,10 @@ class LogScreen: Screen, IScreenInterface {
             add(allCategoriesLabel)
             addAll(allCategories)
         }
-        val categorySelectedIndex = if (selectedCategory == null) {
+        val categorySelectedIndex = if (uiState.selectedCategory == null) {
             0
         } else {
-            val index = allCategories.indexOf(selectedCategory)
+            val index = allCategories.indexOf(uiState.selectedCategory)
             if (index >= 0) index + 1 else 0
         }
 
@@ -105,11 +103,11 @@ class LogScreen: Screen, IScreenInterface {
                     items = typeOptions,
                     selectedIndex = typeSelectedIndex,
                     onSelectionChange = { index, _ ->
-                        screenModel.selectedType = if (index == 0) {
+                        screenModel.selectType(if (index == 0) {
                             null
                         } else {
                             allTypes.getOrNull(index - 1)
-                        }
+                        })
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -118,11 +116,11 @@ class LogScreen: Screen, IScreenInterface {
                     items = categoryOptions,
                     selectedIndex = categorySelectedIndex,
                     onSelectionChange = { index, _ ->
-                        screenModel.selectedCategory = if (index == 0) {
+                        screenModel.selectCategory(if (index == 0) {
                             null
                         } else {
                             allCategories.getOrNull(index - 1)
-                        }
+                        })
                     },
                     modifier = Modifier.weight(1f)
                 )
@@ -130,9 +128,9 @@ class LogScreen: Screen, IScreenInterface {
                 Spacer(modifier = Modifier.weight(1f))
 
                 FluentToggleButton(
-                    checked = autoScroll,
+                    checked = uiState.autoScroll,
                     onCheckedChanged = { checked ->
-                        if (checked != screenModel.autoScroll) {
+                        if (checked != uiState.autoScroll) {
                             screenModel.toggleAutoScroll()
                         }
                     },
@@ -152,8 +150,8 @@ class LogScreen: Screen, IScreenInterface {
             Box(modifier = Modifier.fillMaxSize()) {
                 val state = rememberLazyListState()
 
-                LaunchedEffect(filteredLogs.size, autoScroll) {
-                    if (autoScroll && filteredLogs.isNotEmpty()) {
+                LaunchedEffect(filteredLogs.size, uiState.autoScroll) {
+                    if (uiState.autoScroll && filteredLogs.isNotEmpty()) {
                         state.scrollToItem(filteredLogs.size - 1)
                     }
                 }

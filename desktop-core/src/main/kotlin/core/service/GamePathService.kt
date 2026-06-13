@@ -1,5 +1,6 @@
 package core.service
 
+import core.platform.AppSettingsRepository
 import java.io.File
 
 data class GamePathSnapshot(
@@ -13,11 +14,14 @@ data class GamePathSnapshot(
 
 class GamePathService {
     fun inspect(path: String?): GamePathSnapshot {
-        if (path.isNullOrBlank() || path == NO_GAME_PATH_SENTINEL) {
+        val normalizedPath = AppSettingsRepository.normalizeGamePath(path)
+            ?: return GamePathSnapshot(message = "missing-game-path")
+
+        if (normalizedPath.isBlank()) {
             return GamePathSnapshot(message = "missing-game-path")
         }
 
-        val gameFile = File(path)
+        val gameFile = File(normalizedPath)
         val gameDirectory = when {
             gameFile.isDirectory -> gameFile
             else -> gameFile.parentFile
@@ -50,7 +54,6 @@ class GamePathService {
     }
 
     companion object {
-        const val NO_GAME_PATH_SENTINEL = "null"
         const val PLUGIN_CONFIG_HEADER = "[[PluginConfigs]]"
     }
 }

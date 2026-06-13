@@ -71,6 +71,7 @@ import core.docs.DocEntry
 import core.docs.DocSection
 import core.docs.DocsLoadStatus
 import viewModel.DocsScreenModel
+import viewModel.DocsUiState
 
 class DocsScreen : Screen, IScreenInterface {
 
@@ -92,12 +93,13 @@ class DocsScreen : Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { DocsScreenModel() }
+        val uiState = screenModel.uiState
         val listState = rememberLazyListState()
 
-        val documentPath = screenModel.selectedDocument?.absolutePath
-        val renderedMarkdown = remember(screenModel.markdownContent, documentPath) {
+        val documentPath = uiState.selectedDocument?.absolutePath
+        val renderedMarkdown = remember(uiState.markdownContent, documentPath) {
             rewriteMarkdownResourceLinks(
-                markdown = screenModel.markdownContent,
+                markdown = uiState.markdownContent,
                 currentDocumentPath = documentPath,
             )
         }
@@ -109,16 +111,16 @@ class DocsScreen : Screen, IScreenInterface {
             DocsReaderController(readerScrollState)
         }
 
-        LaunchedEffect(documentPath, screenModel.pendingAnchor, readerController.registeredCount) {
-            val anchor = screenModel.pendingAnchor ?: return@LaunchedEffect
+        LaunchedEffect(documentPath, uiState.pendingAnchor, readerController.registeredCount) {
+            val anchor = uiState.pendingAnchor ?: return@LaunchedEffect
             if (readerController.resolveAnchor(anchor) != null) {
                 readerController.scrollToAnchor(anchor)
                 screenModel.consumePendingAnchor()
             }
         }
 
-        val showToc = screenModel.selectedDocument != null &&
-            screenModel.loadStatus == DocsLoadStatus.Ready &&
+        val showToc = uiState.selectedDocument != null &&
+            uiState.loadStatus == DocsLoadStatus.Ready &&
             tocItems.isNotEmpty()
 
         Column(
@@ -127,7 +129,11 @@ class DocsScreen : Screen, IScreenInterface {
                 .padding(horizontal = 18.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
-            DocsOverview(screenModel = screenModel, icon = getIcon())
+            DocsOverview(
+                uiState = uiState,
+                icon = getIcon(),
+                onRefresh = { screenModel.refresh() },
+            )
 
             Row(
                 modifier = Modifier
@@ -145,8 +151,8 @@ class DocsScreen : Screen, IScreenInterface {
                             .fillMaxSize()
                             .padding(end = 10.dp)
                     ) {
-                        if (screenModel.documents.isEmpty()) {
-                            DocsListEmptyState(screenModel = screenModel)
+                        if (uiState.documents.isEmpty()) {
+                            DocsListEmptyState(uiState = uiState)
                         } else {
                             LazyColumn(
                                 modifier = Modifier
@@ -155,8 +161,8 @@ class DocsScreen : Screen, IScreenInterface {
                                 state = listState,
                                 verticalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
-                                val generalDocs = screenModel.documents.filter { it.section == DocSection.General }
-                                val pluginDocs = screenModel.documents.filter { it.section == DocSection.GamePlugins }
+                                val generalDocs = uiState.documents.filter { it.section == DocSection.General }
+                                val pluginDocs = uiState.documents.filter { it.section == DocSection.GamePlugins }
 
                                 if (generalDocs.isNotEmpty()) {
                                     item {
@@ -165,7 +171,7 @@ class DocsScreen : Screen, IScreenInterface {
                                     items(generalDocs, key = { it.absolutePath }) { entry ->
                                         DocListItem(
                                             entry = entry,
-                                            selected = screenModel.selectedDocument?.absolutePath == entry.absolutePath,
+                                            selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
                                             onClick = { screenModel.selectDocument(entry.absolutePath) },
                                         )
                                     }
@@ -178,7 +184,7 @@ class DocsScreen : Screen, IScreenInterface {
                                     items(pluginDocs, key = { it.absolutePath }) { entry ->
                                         DocListItem(
                                             entry = entry,
-                                            selected = screenModel.selectedDocument?.absolutePath == entry.absolutePath,
+                                            selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
                                             onClick = { screenModel.selectDocument(entry.absolutePath) },
                                         )
                                     }
@@ -202,8 +208,8 @@ class DocsScreen : Screen, IScreenInterface {
                         .fillMaxHeight()
                 ) {
                     when {
-                        screenModel.selectedDocument == null || screenModel.loadStatus != DocsLoadStatus.Ready -> {
-                            DocsReaderPlaceholder(screenModel = screenModel)
+                        uiState.selectedDocument == null || uiState.loadStatus != DocsLoadStatus.Ready -> {
+                            DocsReaderPlaceholder(uiState = uiState)
                         }
 
                         else -> {
@@ -213,13 +219,13 @@ class DocsScreen : Screen, IScreenInterface {
                                     .padding(12.dp),
                                 verticalArrangement = Arrangement.spacedBy(10.dp)
                             ) {
-                                ReaderHeader(screenModel = screenModel)
+                                ReaderHeader(uiState = uiState)
 
-                                if (screenModel.linkErrorMessage.isNotBlank()) {
+                                if (uiState.linkErrorMessage.isNotBlank()) {
                                     InlineWarning(
                                         text = stringResource(
                                             Res.string.docsErrorUnresolvedLink,
-                                            screenModel.linkErrorMessage
+                                            uiState.linkErrorMessage
                                         )
                                     )
                                 }
@@ -272,11 +278,12 @@ class DocsScreen : Screen, IScreenInterface {
 
 @Composable
 private fun DocsOverview(
-    screenModel: DocsScreenModel,
+    uiState: DocsUiState,
     icon: ImageVector,
+    onRefresh: () -> Unit,
 ) {
-    val statusColor = docsStatusColor(screenModel.loadStatus)
-    val docsPath = screenModel.docsDirectory.ifBlank { "-" }
+    val statusColor = docsStatusColor(uiState.loadStatus)
+    val docsPath = uiState.docsDirectory.ifBlank { "-" }
 
     FluentCard(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -316,13 +323,13 @@ private fun DocsOverview(
                         overflow = TextOverflow.Ellipsis
                     )
                     FluentText(
-                        text = "(${screenModel.documents.size})",
+                        text = "(${uiState.documents.size})",
                         style = FluentTheme.typography.caption,
                         color = FluentTokens.ColorToken.LogLevel.veryVerbose,
                         maxLines = 1
                     )
                     FluentText(
-                        text = docsStatusText(screenModel),
+                        text = docsStatusText(uiState),
                         style = FluentTheme.typography.caption,
                         color = statusColor,
                         maxLines = 1,
@@ -339,8 +346,8 @@ private fun DocsOverview(
             }
 
             FluentButton(
-                onClick = { screenModel.refresh() },
-                disabled = screenModel.isLoading,
+                onClick = onRefresh,
+                disabled = uiState.isLoading,
                 iconOnly = true
             ) {
                 Icon(
@@ -428,7 +435,7 @@ private fun DocListItem(
 }
 
 @Composable
-private fun DocsListEmptyState(screenModel: DocsScreenModel) {
+private fun DocsListEmptyState(uiState: DocsUiState) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -436,16 +443,16 @@ private fun DocsListEmptyState(screenModel: DocsScreenModel) {
         contentAlignment = Alignment.Center
     ) {
         FluentText(
-            text = docsStatusText(screenModel),
+            text = docsStatusText(uiState),
             style = FluentTheme.typography.body,
-            color = docsStatusColor(screenModel.loadStatus)
+            color = docsStatusColor(uiState.loadStatus)
         )
     }
 }
 
 @Composable
-private fun ReaderHeader(screenModel: DocsScreenModel) {
-    val entry = screenModel.selectedDocument ?: return
+private fun ReaderHeader(uiState: DocsUiState) {
+    val entry = uiState.selectedDocument ?: return
     val title = if (entry.isDefault) {
         stringResource(Res.string.docsOverviewTitle)
     } else {
@@ -466,7 +473,7 @@ private fun ReaderHeader(screenModel: DocsScreenModel) {
 }
 
 @Composable
-private fun DocsReaderPlaceholder(screenModel: DocsScreenModel) {
+private fun DocsReaderPlaceholder(uiState: DocsUiState) {
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -481,12 +488,12 @@ private fun DocsReaderPlaceholder(screenModel: DocsScreenModel) {
                 modifier = Modifier
                     .size(54.dp)
                     .background(
-                        docsStatusColor(screenModel.loadStatus).copy(alpha = 0.10f),
+                        docsStatusColor(uiState.loadStatus).copy(alpha = 0.10f),
                         RoundedCornerShape(10.dp)
                     )
                     .border(
                         1.dp,
-                        docsStatusColor(screenModel.loadStatus).copy(alpha = 0.18f),
+                        docsStatusColor(uiState.loadStatus).copy(alpha = 0.18f),
                         RoundedCornerShape(10.dp)
                     ),
                 contentAlignment = Alignment.Center
@@ -494,22 +501,22 @@ private fun DocsReaderPlaceholder(screenModel: DocsScreenModel) {
                 Icon(
                     imageVector = compose.icons.FeatherIcons.AlertCircle,
                     contentDescription = null,
-                    tint = docsStatusColor(screenModel.loadStatus),
+                    tint = docsStatusColor(uiState.loadStatus),
                     modifier = Modifier.size(26.dp)
                 )
             }
 
             FluentText(
-                text = docsStatusText(screenModel),
+                text = docsStatusText(uiState),
                 style = FluentTheme.typography.body,
-                color = docsStatusColor(screenModel.loadStatus),
+                color = docsStatusColor(uiState.loadStatus),
                 maxLines = 3,
                 overflow = TextOverflow.Ellipsis
             )
 
-            if (screenModel.loadStatus == DocsLoadStatus.Error && screenModel.errorMessage.isNotBlank()) {
+            if (uiState.loadStatus == DocsLoadStatus.Error && uiState.errorMessage.isNotBlank()) {
                 FluentText(
-                    text = stringResource(Res.string.docsErrorRead, screenModel.errorMessage),
+                    text = stringResource(Res.string.docsErrorRead, uiState.errorMessage),
                     style = FluentTheme.typography.caption,
                     color = FluentTokens.ColorToken.LogLevel.error
                 )
@@ -626,14 +633,14 @@ private fun DocsTocRow(
 }
 
 @Composable
-private fun docsStatusText(screenModel: DocsScreenModel): String {
-    return when (screenModel.loadStatus) {
+private fun docsStatusText(uiState: DocsUiState): String {
+    return when (uiState.loadStatus) {
         DocsLoadStatus.MissingGamePath -> stringResource(Res.string.docsMissingGamePath)
         DocsLoadStatus.MissingDocsDirectory -> stringResource(Res.string.docsMissingDirectory)
         DocsLoadStatus.Empty -> stringResource(Res.string.docsEmptyDirectory)
-        DocsLoadStatus.Ready -> screenModel.selectedDocument?.relativePath
+        DocsLoadStatus.Ready -> uiState.selectedDocument?.relativePath
             ?: stringResource(Res.string.screen_doc)
-        DocsLoadStatus.Error -> stringResource(Res.string.docsErrorRead, screenModel.errorMessage.ifBlank { "-" })
+        DocsLoadStatus.Error -> stringResource(Res.string.docsErrorRead, uiState.errorMessage.ifBlank { "-" })
     }
 }
 

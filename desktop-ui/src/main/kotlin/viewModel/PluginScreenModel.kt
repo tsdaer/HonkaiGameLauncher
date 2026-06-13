@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.russhwolf.settings.Settings
+import core.platform.AppSettingsRepository
 import core.plugin.GamePluginConfig
 import core.plugin.PluginConfigService
 import core.plugin.PluginLoadStatus
@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 data class PluginUiState(
-    val gamePath: String = "null",
+    val gamePath: String? = null,
     val configPath: String = "",
     val pluginDirectory: String = "",
     val plugins: List<GamePluginConfig> = emptyList(),
@@ -24,42 +24,21 @@ data class PluginUiState(
 )
 
 class PluginScreenModel(
-    val settings: Settings = Settings(),
+    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
     private val pluginConfigService: PluginConfigService = PluginConfigService(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
-        PluginUiState(gamePath = settings.getString("gamePath", "null"))
+        PluginUiState(gamePath = settingsRepository.getGamePath())
     )
         private set
-
-    val gamePath: String
-        get() = uiState.gamePath
-
-    val configPath: String
-        get() = uiState.configPath
-
-    val pluginDirectory: String
-        get() = uiState.pluginDirectory
-
-    val plugins: List<GamePluginConfig>
-        get() = uiState.plugins
-
-    val loadStatus: PluginLoadStatus
-        get() = uiState.loadStatus
-
-    val errorMessage: String
-        get() = uiState.errorMessage
-
-    val isLoading: Boolean
-        get() = uiState.isLoading
 
     init {
         refresh()
     }
 
     fun refresh() {
-        val currentGamePath = settings.getString("gamePath", "null")
+        val currentGamePath = settingsRepository.getGamePath()
         uiState = uiState.copy(
             gamePath = currentGamePath,
             isLoading = true,

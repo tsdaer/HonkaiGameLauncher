@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.russhwolf.settings.Settings
+import core.platform.AppSettingsRepository
 import core.LauncherLogEntry
 import core.RuntimeServices
 import kotlinx.coroutines.launch
@@ -23,9 +23,9 @@ data class LogUiState(
 )
 
 class LogScreenModel (
-    val settings: Settings = Settings(),
+    settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
 ) : ScreenModel {
-    private val maxLogCount = settings.getInt("logMaxEntries", DEFAULT_MAX_LOG_COUNT)
+    private val maxLogCount = settingsRepository.getLogMaxEntries(DEFAULT_MAX_LOG_COUNT)
         .coerceAtLeast(MIN_LOG_COUNT)
 
     // Compose 观察用的可变列表
@@ -44,28 +44,6 @@ class LogScreenModel (
     var uiState by mutableStateOf(LogUiState())
         private set
 
-    // 当前选中的日志类型（null 表示全部）
-    var selectedType: Int?
-        get() = uiState.selectedType
-        set(value) {
-            if (uiState.selectedType == value) return
-            uiState = uiState.copy(selectedType = value)
-            rebuildFilteredLogs()
-        }
-
-    // 当前选中的分类（null 表示全部）
-    var selectedCategory: String?
-        get() = uiState.selectedCategory
-        set(value) {
-            if (uiState.selectedCategory == value) return
-            uiState = uiState.copy(selectedCategory = value)
-            rebuildFilteredLogs()
-        }
-
-    // 自动滚动
-    val autoScroll: Boolean
-        get() = uiState.autoScroll
-
     init {
         screenModelScope.launch {
             RuntimeServices.gameService.logEvents.collect(::appendLogs)
@@ -81,8 +59,20 @@ class LogScreenModel (
         categoryCounts.clear()
     }
 
+    fun selectType(type: Int?) {
+        if (uiState.selectedType == type) return
+        uiState = uiState.copy(selectedType = type)
+        rebuildFilteredLogs()
+    }
+
+    fun selectCategory(category: String?) {
+        if (uiState.selectedCategory == category) return
+        uiState = uiState.copy(selectedCategory = category)
+        rebuildFilteredLogs()
+    }
+
     fun toggleAutoScroll() {
-        uiState = uiState.copy(autoScroll = !autoScroll)
+        uiState = uiState.copy(autoScroll = !uiState.autoScroll)
     }
 
     private fun appendLogs(newLogs: List<LauncherLogEntry>) {
@@ -130,18 +120,18 @@ class LogScreenModel (
 
     private fun matchesFilter(entry: LogScreenEntry): Boolean {
         val log = entry.log
-        return (selectedType == null || log.type == selectedType) &&
-                (selectedCategory == null || log.category == selectedCategory)
+        return (uiState.selectedType == null || log.type == uiState.selectedType) &&
+                (uiState.selectedCategory == null || log.category == uiState.selectedCategory)
     }
 
     private fun resetMissingFilters() {
         var needsRebuild = false
-        if (selectedType != null && selectedType !in typeCounts) {
-            selectedType = null
+        if (uiState.selectedType != null && uiState.selectedType !in typeCounts) {
+            uiState = uiState.copy(selectedType = null)
             needsRebuild = true
         }
-        if (selectedCategory != null && selectedCategory !in categoryCounts) {
-            selectedCategory = null
+        if (uiState.selectedCategory != null && uiState.selectedCategory !in categoryCounts) {
+            uiState = uiState.copy(selectedCategory = null)
             needsRebuild = true
         }
         if (needsRebuild) {

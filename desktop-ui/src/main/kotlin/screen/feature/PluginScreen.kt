@@ -35,6 +35,7 @@ import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
 import core.plugin.GamePluginConfig
 import core.plugin.PluginLoadStatus
+import viewModel.PluginUiState
 import viewModel.PluginScreenModel
 import io.github.composefluent.component.Text as FluentText
 
@@ -58,6 +59,7 @@ class PluginScreen: Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { PluginScreenModel() }
+        val uiState = screenModel.uiState
         val state = rememberLazyListState()
 
         Column(
@@ -66,7 +68,10 @@ class PluginScreen: Screen, IScreenInterface {
                 .padding(horizontal = 24.dp, vertical = 18.dp),
             verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
-            PluginOverview(screenModel)
+            PluginOverview(
+                uiState = uiState,
+                onRefresh = { screenModel.refresh() },
+            )
 
             Box(modifier = Modifier.fillMaxSize()) {
                 FluentCard(
@@ -74,8 +79,8 @@ class PluginScreen: Screen, IScreenInterface {
                         .fillMaxSize()
                         .padding(end = 12.dp)
                 ) {
-                    if (screenModel.plugins.isEmpty()) {
-                        EmptyPluginState(screenModel.loadStatus, screenModel.errorMessage)
+                    if (uiState.plugins.isEmpty()) {
+                        EmptyPluginState(uiState.loadStatus, uiState.errorMessage)
                     } else {
                         LazyColumn(
                             modifier = Modifier
@@ -84,7 +89,7 @@ class PluginScreen: Screen, IScreenInterface {
                             state = state,
                             verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-                            items(screenModel.plugins) { plugin ->
+                            items(uiState.plugins) { plugin ->
                                 PluginItem(plugin)
                             }
                         }
@@ -103,12 +108,15 @@ class PluginScreen: Screen, IScreenInterface {
     }
 
     @Composable
-    private fun PluginOverview(screenModel: PluginScreenModel) {
-        val totalPlugins = screenModel.plugins.size
-        val pakPlugins = screenModel.plugins.count { !it.isBuiltIn }
-        val builtInPlugins = screenModel.plugins.count { it.isBuiltIn }
-        val enabledPlugins = screenModel.plugins.count { it.defaultEnable }
-        val statusColor = statusColor(screenModel.loadStatus)
+    private fun PluginOverview(
+        uiState: PluginUiState,
+        onRefresh: () -> Unit,
+    ) {
+        val totalPlugins = uiState.plugins.size
+        val pakPlugins = uiState.plugins.count { !it.isBuiltIn }
+        val builtInPlugins = uiState.plugins.count { it.isBuiltIn }
+        val enabledPlugins = uiState.plugins.count { it.defaultEnable }
+        val statusColor = statusColor(uiState.loadStatus)
 
         FluentCard(modifier = Modifier.fillMaxWidth()) {
             Column(
@@ -157,7 +165,7 @@ class PluginScreen: Screen, IScreenInterface {
                                     .background(statusColor)
                             )
                             FluentText(
-                                text = pluginStatusText(screenModel),
+                                text = pluginStatusText(uiState),
                                 style = FluentTheme.typography.caption,
                                 color = statusColor,
                                 maxLines = 2,
@@ -167,8 +175,8 @@ class PluginScreen: Screen, IScreenInterface {
                     }
 
                     FluentButton(
-                        onClick = { screenModel.refresh() },
-                        disabled = screenModel.isLoading,
+                        onClick = onRefresh,
+                        disabled = uiState.isLoading,
                         iconOnly = true
                     ) {
                         Icon(
@@ -228,13 +236,13 @@ class PluginScreen: Screen, IScreenInterface {
                     PluginPathLine(
                         icon = FeatherIcons.Folder,
                         label = stringResource(Res.string.pluginGameLabel),
-                        value = screenModel.gamePath.takeUnless { it == "null" || it.isBlank() }
+                        value = uiState.gamePath
                             ?: stringResource(Res.string.pluginGamePathNotSet)
                     )
                     PluginPathLine(
                         icon = FeatherIcons.File,
                         label = stringResource(Res.string.pluginConfigLabel),
-                        value = screenModel.configPath.ifBlank { stringResource(Res.string.pluginConfigPathPending) }
+                        value = uiState.configPath.ifBlank { stringResource(Res.string.pluginConfigPathPending) }
                     )
                 }
             }
@@ -291,9 +299,9 @@ class PluginScreen: Screen, IScreenInterface {
     }
 
     @Composable
-    private fun pluginStatusText(screenModel: PluginScreenModel): String {
-        return when (screenModel.loadStatus) {
-            PluginLoadStatus.Ready -> stringResource(Res.string.pluginStatusLoaded, screenModel.plugins.size)
+    private fun pluginStatusText(uiState: PluginUiState): String {
+        return when (uiState.loadStatus) {
+            PluginLoadStatus.Ready -> stringResource(Res.string.pluginStatusLoaded, uiState.plugins.size)
             PluginLoadStatus.MissingGamePath -> stringResource(Res.string.pluginStatusMissingGamePath)
             PluginLoadStatus.MissingConfig -> stringResource(Res.string.pluginStatusMissingConfig)
             PluginLoadStatus.Error -> stringResource(Res.string.pluginStatusError)

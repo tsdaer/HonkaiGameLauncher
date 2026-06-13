@@ -5,24 +5,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.russhwolf.settings.Settings
+import core.platform.AppSettingsRepository
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.launch
 
+data class SettingUiState(
+    val gamePath: String? = null,
+)
+
 class SettingScreenModel(
-    val settings: Settings = Settings(),
+    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
 ) : ScreenModel {
 
-    var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
+    var uiState by mutableStateOf(SettingUiState(gamePath = settingsRepository.getGamePath()))
+        private set
 
     fun setGamePath() {
         screenModelScope.launch {
             val file = FileKit.openFilePicker()
             if(file != null) {
-                settings.putString("gamePath", file.path)
-                gamePath = file.path // 更新状态值
+                settingsRepository.setGamePath(file.path)
+                uiState = uiState.copy(gamePath = settingsRepository.getGamePath())
             }
         }
     }

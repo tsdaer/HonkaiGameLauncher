@@ -5,19 +5,19 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
-import com.russhwolf.settings.Settings
+import core.platform.AppSettingsRepository
 import core.docs.DocEntry
 import core.docs.DocsIndexService
+import core.docs.DocsLinkResolution
+import core.docs.DocsLinkResolver
 import core.docs.DocsLoadResult
 import core.docs.DocsLoadStatus
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.net.URI
 
 data class DocsUiState(
-    val gamePath: String = "null",
+    val gamePath: String? = null,
     val docsDirectory: String = "",
     val documents: List<DocEntry> = emptyList(),
     val selectedDocument: DocEntry? = null,
@@ -30,58 +30,29 @@ data class DocsUiState(
 )
 
 class DocsScreenModel(
-    val settings: Settings = Settings(),
+    private val settingsRepository: AppSettingsRepository = SettingsAppSettingsRepository(),
     private val docsIndexService: DocsIndexService = DocsIndexService(),
+    private val docsLinkResolver: DocsLinkResolver = DocsLinkResolver(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
-        DocsUiState(gamePath = settings.getString("gamePath", "null"))
+        DocsUiState(gamePath = settingsRepository.getGamePath())
     )
         private set
-
-    val gamePath: String
-        get() = uiState.gamePath
-
-    val docsDirectory: String
-        get() = uiState.docsDirectory
-
-    val documents: List<DocEntry>
-        get() = uiState.documents
-
-    val selectedDocument: DocEntry?
-        get() = uiState.selectedDocument
-
-    val markdownContent: String
-        get() = uiState.markdownContent
-
-    val loadStatus: DocsLoadStatus
-        get() = uiState.loadStatus
-
-    val errorMessage: String
-        get() = uiState.errorMessage
-
-    val linkErrorMessage: String
-        get() = uiState.linkErrorMessage
-
-    val pendingAnchor: String?
-        get() = uiState.pendingAnchor
-
-    val isLoading: Boolean
-        get() = uiState.isLoading
 
     init {
         refresh()
     }
 
     fun consumePendingAnchor(): String? {
-        val anchor = pendingAnchor
+        val anchor = uiState.pendingAnchor
         uiState = uiState.copy(pendingAnchor = null)
         return anchor
     }
 
     fun refresh() {
-        val currentGamePath = settings.getString("gamePath", "null")
-        val previousSelection = selectedDocument?.relativePath
+        val currentGamePath = settingsRepository.getGamePath()
+        val previousSelection = uiState.selectedDocument?.relativePath
         uiState = uiState.copy(
             gamePath = currentGamePath,
             isLoading = true,
@@ -95,7 +66,7 @@ class DocsScreenModel(
     }
 
     fun selectDocument(path: String) {
-        val target = documents.firstOrNull { it.absolutePath == path || it.relativePath == path } ?: return
+        val target = uiState.documents.firstOrNull { it.absolutePath == path || it.relativePath == path } ?: return
         uiState = uiState.copy(
             pendingAnchor = null,
             isLoading = true,
@@ -116,27 +87,17 @@ class DocsScreenModel(
     }
 
     fun openLinkedDocument(rawHref: String): Boolean {
-        val href = rawHref.substringBefore('#').trim()
-        val fragment = rawHref.substringAfter('#', "").trim()
-        if (href.isBlank() || href.startsWith("http://", true) || href.startsWith("https://", true)) {
-            return false
-        }
-
-        val currentFile = selectedDocument?.let { File(it.absolutePath) } ?: return false
-        val decodedHref = runCatching { URI(href).path }.getOrDefault(href)
-        val resolvedFile = File(currentFile.parentFile, decodedHref)
-            .normalize()
-            .takeIf { it.extension.equals("md", ignoreCase = true) }
-            ?: return false
-
-        val target = documents.firstOrNull { File(it.absolutePath).normalize() == resolvedFile }
-        return if (target != null) {
-            selectDocument(target.absolutePath)
-            uiState = uiState.copy(pendingAnchor = fragment.ifBlank { null })
-            true
-        } else {
-            uiState = uiState.copy(linkErrorMessage = rawHref)
-            true
+        return when (val resolution = docsLinkResolver.resolve(rawHref, uiState.selectedDocument, uiState.documents)) {
+            DocsLinkResolution.Ignored -> false
+            is DocsLinkResolution.Resolved -> {
+                selectDocument(resolution.target.absolutePath)
+                uiState = uiState.copy(pendingAnchor = resolution.anchor)
+                true
+            }
+            is DocsLinkResolution.Unresolved -> {
+                uiState = uiState.copy(linkErrorMessage = resolution.rawHref)
+                true
+            }
         }
     }
 

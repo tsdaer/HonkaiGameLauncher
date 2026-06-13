@@ -62,6 +62,7 @@ class SettingScreen: Screen, IScreenInterface {
     @Composable
     override fun Content() {
         val screenModel = rememberScreenModel { SettingScreenModel() }
+        val uiState = screenModel.uiState
         val appUi = LocalAppUiSettings.current
         val state = rememberScrollState(0)
         val languageItems = remember {
@@ -80,11 +81,7 @@ class SettingScreen: Screen, IScreenInterface {
         }
         val languageSelectedIndex = if (appUi.languageCode == "en") 1 else 0
         val navigationStyleSelectedIndex = navigationStyles.indexOf(appUi.navigationStyle).takeIf { it >= 0 } ?: 2
-        val gamePathValue = if (screenModel.gamePath == "null" || screenModel.gamePath.isBlank()) {
-            stringResource(Res.string.settingsNotSet)
-        } else {
-            screenModel.gamePath
-        }
+        val gamePathValue = uiState.gamePath ?: stringResource(Res.string.settingsNotSet)
 
         Column(
             modifier = Modifier
