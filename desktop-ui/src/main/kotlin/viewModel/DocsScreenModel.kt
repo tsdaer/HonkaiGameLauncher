@@ -61,11 +61,20 @@ class DocsScreenModel(
     var linkErrorMessage by mutableStateOf("")
         private set
 
+    var pendingAnchor by mutableStateOf<String?>(null)
+        private set
+
     var isLoading by mutableStateOf(false)
         private set
 
     init {
         refresh()
+    }
+
+    fun consumePendingAnchor(): String? {
+        val anchor = pendingAnchor
+        pendingAnchor = null
+        return anchor
     }
 
     fun refresh() {
@@ -82,6 +91,7 @@ class DocsScreenModel(
     }
 
     fun selectDocument(path: String) {
+        pendingAnchor = null
         val target = documents.firstOrNull { it.absolutePath == path || it.relativePath == path } ?: return
         screenModelScope.launch {
             isLoading = true
@@ -99,6 +109,7 @@ class DocsScreenModel(
 
     fun openLinkedDocument(rawHref: String): Boolean {
         val href = rawHref.substringBefore('#').trim()
+        val fragment = rawHref.substringAfter('#', "").trim()
         if (href.isBlank() || href.startsWith("http://", true) || href.startsWith("https://", true)) {
             return false
         }
@@ -113,6 +124,7 @@ class DocsScreenModel(
         val target = documents.firstOrNull { File(it.absolutePath).normalize() == resolvedFile }
         return if (target != null) {
             selectDocument(target.absolutePath)
+            pendingAnchor = fragment.ifBlank { null }
             true
         } else {
             linkErrorMessage = rawHref

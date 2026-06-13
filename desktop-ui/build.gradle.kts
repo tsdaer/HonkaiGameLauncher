@@ -27,6 +27,11 @@ dependencies {
     implementation("cafe.adriel.voyager:voyager-transitions:1.1.0-beta03")
     implementation("org.jetbrains:markdown:0.7.5")
 
+    // LaTeX math rendering (RaTeX-CMP). The native runtime is platform-specific;
+    // windows-x86-64 matches the launcher's target platform.
+    implementation("io.github.darriousliu:ratex:0.1.11")
+    runtimeOnly("io.github.darriousliu:ratex-native-windows-x86-64:0.1.11")
+
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.10.2")
 
