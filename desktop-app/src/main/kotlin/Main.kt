@@ -15,7 +15,6 @@ import cafe.adriel.voyager.navigator.Navigator
 import honkaigamelauncher.desktop_ui.generated.resources.*
 import com.kdroid.composetray.tray.api.Tray
 import com.russhwolf.settings.Settings
-import core.RuntimeServices
 import localization.changeLanguage
 import navigation.SharedScreen
 import navigation.registerNavigation
@@ -44,10 +43,9 @@ fun main() = application {
     System.setOut(java.io.PrintStream(System.out, true, "UTF-8"))
     System.setErr(java.io.PrintStream(System.err, true, "UTF-8"))
 
-    RuntimeServices.gameService.start()
+    val lifecycleCoordinator = remember { AppLifecycleCoordinator().also { it.start() } }
     val settings = remember { Settings() }
 
-    var isVisible by remember { mutableStateOf(true) }
     val appIcon = painterResource(Res.drawable.logo)
     var isDarkTheme by remember { mutableStateOf(settings.getBoolean("isDarkTheme", false)) }
 
@@ -76,16 +74,17 @@ fun main() = application {
             )
         },
         tooltip = stringResource(Res.string.appTitle),
-        primaryAction = { isVisible = !isVisible })
+        primaryAction = { lifecycleCoordinator.toggleWindowVisibility() })
     {
         Item(label = openWindowStr, onClick = {
-            isVisible = true
+            lifecycleCoordinator.showWindow()
         })
         Divider()
         Item(label = exitApplicationStr, onClick = {
-            RuntimeServices.gameService.stop()
-            dispose()
-            exitProcess(0)
+            lifecycleCoordinator.exit(
+                onDispose = { dispose() },
+                onExitProcess = { exitProcess(0) },
+            )
         })
     }
 
@@ -117,8 +116,8 @@ fun main() = application {
         exitApplicationStr = stringResource(Res.string.exit)
 
         Window(
-            onCloseRequest = { isVisible = false },
-            visible = isVisible,
+            onCloseRequest = { lifecycleCoordinator.hideWindow() },
+            visible = lifecycleCoordinator.isVisible,
             state = state,
             title = stringResource(Res.string.appTitle),
             transparent = true,
@@ -141,7 +140,7 @@ fun main() = application {
                         Column(modifier = Modifier.fillMaxSize()) {
                             AppWindowTitleBar(
                                 state = state,
-                                onCloseRequest = { isVisible = false }
+                                onCloseRequest = { lifecycleCoordinator.hideWindow() }
                             )
                             Box(modifier = Modifier.fillMaxSize()) {
                                 MainView(darkTheme = isDarkTheme)

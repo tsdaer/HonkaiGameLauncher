@@ -20,17 +20,17 @@
 | 编号 | 状态 | 已完成内容 | 验证记录 |
 |---|---|---|---|
 | B1 | 已完成 | 新增 `AppSettingsStore` / `AppSettingsState`，统一暴露设置 `StateFlow`；Home、Plugin、Docs、Setting 页面改为订阅共享设置状态；设置页修改游戏路径后相关页面自动刷新。 | `.\gradlew.bat :desktop-ui:test --no-daemon`；`.\gradlew.bat :desktop-app:check --no-daemon` |
-| B2 | 部分完成 | 已补 `desktop-ui` 测试配置；覆盖设置同步、Web URL 规范化、日志筛选与裁剪。`desktop-app` 目前仍无专门测试用例。 | `.\gradlew.bat :desktop-ui:test --no-daemon`；`.\gradlew.bat :desktop-app:check --no-daemon` |
-| B3 | 未开始 | 尚未抽象 Web 引擎初始化运行时。 | 待补 |
+| B2 | 部分完成 | 已补 `desktop-ui` 测试配置；覆盖设置同步、Web URL 规范化、日志筛选与裁剪；新增 `desktop-app` 测试配置，覆盖应用生命周期启动、窗口显隐和退出动作。Home 启动状态映射测试仍待补。 | `.\gradlew.bat :desktop-ui:test --no-daemon`；`.\gradlew.bat :desktop-app:check --no-daemon` |
+| B3 | 已完成 | 新增 `WebEngineRuntime` / `WebEngineController`，将 KCEF 直接调用隔离到 `KcefWebEngineRuntime`；Web 初始化状态机支持 fake runtime 单测，覆盖成功、失败、重启要求、幂等初始化和重试后旧结果隔离。 | `.\gradlew.bat :desktop-ui:test --no-daemon`；`.\gradlew.bat :desktop-app:check --no-daemon` |
 | B4 | 已完成 | 新增 `LogBuffer`，将日志追加、筛选、清空、裁剪、筛选项计数与失效重置下沉为纯逻辑；`LogScreenModel` 只负责收集日志事件并同步 Compose 状态。 | `.\gradlew.bat :desktop-ui:test --no-daemon` |
 | B5 | 未开始 | 尚未拆分 Home、Docs、Plugin 大型页面组件。 | 待补 |
-| B6 | 未开始 | 尚未收口应用生命周期编排。 | 待补 |
+| B6 | 部分完成 | 新增 `AppLifecycleCoordinator`，收口 `GameService` 启动、窗口显隐和托盘退出动作；`Main.kt` 保留 Compose 入口、托盘菜单和窗口组装。主题、语言、导航注册等入口逻辑仍待后续继续拆分。 | `.\gradlew.bat :desktop-app:check --no-daemon` |
 
 下一步建议：
 
-1. 继续完成 B2：补 `desktop-app` 生命周期相关测试，以及 Home 启动状态映射测试。
-2. 推进 B3：抽象 KCEF 初始化运行时，为失败、重试、超时路径补测试。
-3. 推进 B5：每次只拆一个页面，先做纯移动并运行 `.\gradlew.bat :desktop-ui:compileKotlin`。
+1. 继续完成 B2：补 Home 启动状态映射测试。
+2. 推进 B5：每次只拆一个页面，先做纯移动并运行 `.\gradlew.bat :desktop-ui:compileKotlin`。
+3. 继续推进 B6：逐步收口主题、语言、导航注册等入口逻辑。
 
 ## 高优先级
 
