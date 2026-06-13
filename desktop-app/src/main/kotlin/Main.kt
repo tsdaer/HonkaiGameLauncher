@@ -14,18 +14,13 @@ import cafe.adriel.voyager.core.registry.rememberScreen
 import cafe.adriel.voyager.navigator.Navigator
 import honkaigamelauncher.desktop_ui.generated.resources.*
 import com.kdroid.composetray.tray.api.Tray
-import com.russhwolf.settings.Settings
-import localization.changeLanguage
 import navigation.SharedScreen
-import navigation.registerNavigation
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ui.components.AppWindowTitleBar
 import ui.components.NavigationBar
 import ui.fluent.theme.AppFluentTheme
 import ui.fluent.theme.FluentTokens
-import ui.settings.AppNavigationStyle
-import ui.settings.AppUiSettings
 import ui.settings.LocalAppUiSettings
 import kotlin.system.exitProcess
 
@@ -39,81 +34,46 @@ fun MainView(
 @OptIn(ExperimentalVoyagerApi::class)
 fun main() = application {
 
-    System.setProperty("file.encoding", "UTF-8")
-    System.setOut(java.io.PrintStream(System.out, true, "UTF-8"))
-    System.setErr(java.io.PrintStream(System.err, true, "UTF-8"))
-
+    remember { AppStartupCoordinator().also { it.initialize() } }
     val lifecycleCoordinator = remember { AppLifecycleCoordinator().also { it.start() } }
-    val settings = remember { Settings() }
+    val uiSettingsController = remember { AppUiSettingsController() }
 
     val appIcon = painterResource(Res.drawable.logo)
-    var isDarkTheme by remember { mutableStateOf(settings.getBoolean("isDarkTheme", false)) }
 
-    var languageCode by remember { mutableStateOf(settings.getString("languageCode", "zh")) }
-    var navigationStyle by remember {
-        mutableStateOf(AppNavigationStyle.fromKey(settings.getString("navigationStyle", AppNavigationStyle.LeftCompact.key)))
+    LaunchedEffect(uiSettingsController.languageCode) {
+        uiSettingsController.applyCurrentLanguage()
     }
-
-    LaunchedEffect(languageCode) {
-        changeLanguage(languageCode)
-    }
-
-    var openWindowStr = ""
-    var exitApplicationStr = ""
 
     val state = rememberWindowState(size = DpSize(1280.dp, 720.dp))
 
-    registerNavigation()
-
-    Tray(
-        iconContent = {
-            Image(
-                painter = appIcon,
-                contentDescription = "",
-                modifier = Modifier.fillMaxSize()
-            )
-        },
-        tooltip = stringResource(Res.string.appTitle),
-        primaryAction = { lifecycleCoordinator.toggleWindowVisibility() })
-    {
-        Item(label = openWindowStr, onClick = {
-            lifecycleCoordinator.showWindow()
-        })
-        Divider()
-        Item(label = exitApplicationStr, onClick = {
-            lifecycleCoordinator.exit(
-                onDispose = { dispose() },
-                onExitProcess = { exitProcess(0) },
-            )
-        })
-    }
-
     CompositionLocalProvider(
-        LocalAppUiSettings provides AppUiSettings(
-            isDarkTheme = isDarkTheme,
-            languageCode = languageCode,
-            navigationStyle = navigationStyle,
-            onThemeChanged = {
-                isDarkTheme = !isDarkTheme
-                settings.putBoolean("isDarkTheme", isDarkTheme)
-            },
-            onLanguageChanged = { language ->
-                if (languageCode != language) {
-                    languageCode = language
-                    settings.putString("languageCode", language)
-                    changeLanguage(language)
-                }
-            },
-            onNavigationStyleChanged = { style ->
-                if (navigationStyle != style) {
-                    navigationStyle = style
-                    settings.putString("navigationStyle", style.key)
-                }
-            }
-        )
+        LocalAppUiSettings provides uiSettingsController.asAppUiSettings()
     ) {
-        openWindowStr = stringResource(Res.string.openWindow)
-        exitApplicationStr = stringResource(Res.string.exit)
+        val openWindowText = stringResource(Res.string.openWindow)
+        val exitApplicationText = stringResource(Res.string.exit)
+
+        Tray(
+            iconContent = {
+                Image(
+                    painter = appIcon,
+                    contentDescription = "",
+                    modifier = Modifier.fillMaxSize()
+                )
+            },
+            tooltip = stringResource(Res.string.appTitle),
+            primaryAction = { lifecycleCoordinator.toggleWindowVisibility() }
+        ) {
+            Item(label = openWindowText, onClick = {
+                lifecycleCoordinator.showWindow()
+            })
+            Divider()
+            Item(label = exitApplicationText, onClick = {
+                lifecycleCoordinator.exit(
+                    onDispose = { dispose() },
+                    onExitProcess = { exitProcess(0) },
+                )
+            })
+        }
 
         Window(
             onCloseRequest = { lifecycleCoordinator.hideWindow() },
@@ -125,14 +85,12 @@ fun main() = application {
             icon = appIcon,
             resizable = state.placement == WindowPlacement.Floating
         ) {
-            System.setProperty("awt.useSystemAAFontSettings", "on")
-            System.setProperty("swing.aatext", "true")
-            AppFluentTheme(darkTheme = isDarkTheme) {
+            AppFluentTheme(darkTheme = uiSettingsController.isDarkTheme) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()
                         .background(
-                            if (isDarkTheme) FluentTokens.ColorToken.windowBackgroundDark
+                            if (uiSettingsController.isDarkTheme) FluentTokens.ColorToken.windowBackgroundDark
                             else FluentTokens.ColorToken.windowBackgroundLight
                         )
                 ) {
@@ -143,7 +101,7 @@ fun main() = application {
                                 onCloseRequest = { lifecycleCoordinator.hideWindow() }
                             )
                             Box(modifier = Modifier.fillMaxSize()) {
-                                MainView(darkTheme = isDarkTheme)
+                                MainView(darkTheme = uiSettingsController.isDarkTheme)
                             }
                         }
                     }
