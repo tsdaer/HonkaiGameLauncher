@@ -57,9 +57,11 @@ class DocsScreen : Screen, IScreenInterface {
 
         val documentPath = uiState.selectedDocument?.absolutePath
         val renderedMarkdown = remember(uiState.markdownContent, documentPath) {
-            rewriteMarkdownResourceLinks(
-                markdown = uiState.markdownContent,
-                currentDocumentPath = documentPath,
+            normalizeMarkdownLineEndings(
+                rewriteMarkdownResourceLinks(
+                    markdown = uiState.markdownContent,
+                    currentDocumentPath = documentPath,
+                )
             )
         }
         val (tocItems, headingSlugs) = remember(renderedMarkdown) {

@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -102,12 +103,15 @@ internal fun MarkdownTrailingDocument(
     style: DocsMarkdownStyle,
 ) {
     val root = rememberMarkdownAst(markdown)
+    val (_, headingSlugs) = remember(markdown) { extractDocHeadings(markdown) }
 
-    FluentMarkdownDocument(
-        root = root,
-        source = markdown,
-        style = style,
-    )
+    CompositionLocalProvider(LocalDocsHeadingSlugs provides headingSlugs) {
+        FluentMarkdownDocument(
+            root = root,
+            source = markdown,
+            style = style,
+        )
+    }
 }
 
 @Composable

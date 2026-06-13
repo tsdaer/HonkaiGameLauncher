@@ -8,6 +8,10 @@ internal fun extractMarkdownText(node: ASTNode, source: String): String {
     return source.substring(node.startOffset, node.endOffset)
 }
 
+internal fun normalizeMarkdownLineEndings(markdown: String): String {
+    return markdown.replace("\r\n", "\n").replace('\r', '\n')
+}
+
 internal fun ASTNode.isWhitespaceToken(): Boolean {
     return type == MarkdownTokenTypes.WHITE_SPACE || type == MarkdownTokenTypes.EOL
 }
