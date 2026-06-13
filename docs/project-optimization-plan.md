@@ -75,6 +75,21 @@ desktop-core
 | O7 | 构建与平台配置清理 | 提升跨环境构建稳定性 |
 | O8 | 文档与质量门禁 | 固化长期维护规范 |
 
+## 3.1 当前进度
+
+> 最后更新：2026-06-13
+
+| 里程碑 | 状态 | 当前进展 | 下一步 |
+|---|---|---|---|
+| O1 | done | 已为 `desktop-core` 配置测试依赖，并覆盖路径、插件配置、文档索引、日志解析等核心纯逻辑。 | 后续重构时继续补充边界测试。 |
+| O2 | doing | `GameService` 已暴露 `StateFlow<GameConnectionStatus>` 与 `SharedFlow<List<LauncherLogEntry>>`，UI 层开始通过 Flow 订阅；旧 listener API 暂保留兼容。 | 补充服务生命周期测试或手工验收记录。 |
+| O3 | doing | 已新增 `GamePathService`、`PluginConfigService`、`DocsIndexService`、`ProcessLauncher` 与插件 parser，部分 ScreenModel 已切换到 core service。 | 继续抽出设置访问等平台能力。 |
+| O4 | todo | 暂未系统性合并页面 UI state。 | 逐页引入 `HomeUiState`、`PluginUiState`、`DocsUiState`、`LogUiState`。 |
+| O5 | todo | `DocsMarkdownPreview.kt` 仍待拆分。 | 先做纯移动和私有函数拆分，不改变渲染行为。 |
+| O6 | todo | 导航 descriptor 尚未建立。 | 定义显式 route 与 `ScreenDescriptor`。 |
+| O7 | doing | 已移除仓库级 Gradle 代理配置，统一 `kotlin-reflect` 版本，将默认打包目标收敛为 Windows `Exe`，并通过 `:desktop-app:check`。 | 验证当前平台打包命令。 |
+| O8 | doing | README 已补充质量检查命令、Windows 打包范围与代理配置说明。 | 新增 `docs/architecture.md` 与 PR 检查清单。 |
+
 ---
 
 ## O1：基线与测试框架

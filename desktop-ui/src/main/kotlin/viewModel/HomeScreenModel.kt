@@ -8,6 +8,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.russhwolf.settings.Settings
 import core.GameConnectionStatus
 import core.RuntimeServices
+import core.platform.ProcessLauncher
 import core.service.GamePathService
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openFilePicker
@@ -35,6 +36,7 @@ enum class HomeLaunchStatus {
 class HomeScreenModel(
     val settings: Settings = Settings(),
     private val gamePathService: GamePathService = GamePathService(),
+    private val processLauncher: ProcessLauncher = ProcessLauncher(),
 ) : ScreenModel {
 
     var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
@@ -61,16 +63,8 @@ class HomeScreenModel(
     var statusMessage by mutableStateOf("")
         private set
 
-    var gameConnectionStatus by mutableStateOf(RuntimeServices.gameService.connectionStatus)
+    var gameConnectionStatus by mutableStateOf(RuntimeServices.gameService.connectionStatus.value)
         private set
-
-    private val connectionListener: (GameConnectionStatus) -> Unit = { status ->
-        gameConnectionStatus = status
-        if (status == GameConnectionStatus.Connected) {
-            awaitConnectionJob?.cancel()
-        }
-        refresh()
-    }
 
     private var awaitConnectionJob: Job? = null
 
@@ -81,7 +75,17 @@ class HomeScreenModel(
         get() = pluginConfigPath.isNotBlank()
 
     init {
-        RuntimeServices.gameService.addConnectionListener(connectionListener)
+        screenModelScope.launch {
+            RuntimeServices.gameService.connectionStatus.collect(::onConnectionStatusChanged)
+        }
+        refresh()
+    }
+
+    private fun onConnectionStatusChanged(status: GameConnectionStatus) {
+        gameConnectionStatus = status
+        if (status == GameConnectionStatus.Connected) {
+            awaitConnectionJob?.cancel()
+        }
         refresh()
     }
 
@@ -120,12 +124,7 @@ class HomeScreenModel(
             launchStatus = HomeLaunchStatus.Launching
             statusMessage = ""
             val result = withContext(Dispatchers.IO) {
-                runCatching {
-                    val executable = File(gamePath)
-                    ProcessBuilder(executable.absolutePath)
-                        .directory(executable.parentFile)
-                        .start()
-                }
+                processLauncher.launch(gamePath)
             }
 
             result.fold(
@@ -175,7 +174,6 @@ class HomeScreenModel(
 
     override fun onDispose() {
         awaitConnectionJob?.cancel()
-        RuntimeServices.gameService.removeConnectionListener(connectionListener)
         super.onDispose()
     }
 

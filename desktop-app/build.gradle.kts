@@ -12,7 +12,7 @@ dependencies {
 
     implementation(compose.desktop.currentOs)
     implementation(compose.components.resources)
-    implementation("org.jetbrains.kotlin:kotlin-reflect:2.1.20")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:2.2.20")
 
     implementation("io.github.kdroidfilter:composenativetray:0.6.3")
     implementation("com.russhwolf:multiplatform-settings-no-arg:1.3.0")
@@ -25,7 +25,7 @@ compose.desktop {
         mainClass = "MainKt"
 
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
+            targetFormats(TargetFormat.Exe)
             packageName = "HonkaiGameLauncher"
             packageVersion = "1.0.0"
         }

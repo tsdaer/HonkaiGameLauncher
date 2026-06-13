@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.screenModelScope
 import com.russhwolf.settings.Settings
 import core.LauncherLogEntry
 import core.RuntimeServices
+import kotlinx.coroutines.launch
 
 data class LogScreenEntry(
     val id: Long,
@@ -57,12 +59,10 @@ class LogScreenModel (
     // 自动滚动
     var autoScroll by mutableStateOf(true)
 
-    private val logListener: (List<LauncherLogEntry>) -> Unit = { newLogs ->
-        appendLogs(newLogs)
-    }
-
     init {
-        RuntimeServices.gameService.addLogListener(logListener)
+        screenModelScope.launch {
+            RuntimeServices.gameService.logEvents.collect(::appendLogs)
+        }
     }
 
     fun clear() {
@@ -76,11 +76,6 @@ class LogScreenModel (
 
     fun toggleAutoScroll() {
         autoScroll = !autoScroll
-    }
-
-    override fun onDispose() {
-        RuntimeServices.gameService.removeLogListener(logListener)
-        super.onDispose()
     }
 
     private fun appendLogs(newLogs: List<LauncherLogEntry>) {

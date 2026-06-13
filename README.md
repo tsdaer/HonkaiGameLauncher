@@ -44,13 +44,34 @@ Windows:
 ./gradlew build
 ```
 
-### 打包
+### 测试与质量检查
 
 ```bash
-./gradlew :desktop-app:packageDistributionForCurrentOS
+./gradlew :desktop-core:test
+./gradlew :desktop-ui:compileKotlin
+./gradlew :desktop-app:check
+```
+
+Windows:
+
+```powershell
+.\gradlew.bat :desktop-core:test
+.\gradlew.bat :desktop-ui:compileKotlin
+.\gradlew.bat :desktop-app:check
+```
+
+### 打包
+
+当前提交的 native runtime 依赖面向 Windows x86_64，仓库默认只启用 `Exe` 打包目标。
+
+```bash
 ./gradlew :desktop-app:packageExe
-./gradlew :desktop-app:packageDmg
-./gradlew :desktop-app:packageDeb
+```
+
+Windows:
+
+```powershell
+.\gradlew.bat :desktop-app:packageExe
 ```
 
 ## 主要代码位置
@@ -67,10 +88,11 @@ Windows:
 
 - 本次重构**仅面向桌面端**，未引入 Android / iOS source set。
 - `composeResources` 已归属 `desktop-ui`，资源类 `Res` 由该模块统一生成并对外可见。
-- `GameService` 的全局运行时实例已迁移到 `desktop-core`，避免 UI 依赖入口模块。
+- `GameService` 的全局运行时实例已迁移到 `desktop-core`，并通过 Flow 暴露日志与连接状态。
 
 ## 开发注意事项
 
-- `gradle.properties` 当前配置了本地代理（`127.0.0.1:7890`），无代理环境可能影响依赖下载。
-- 日志列表上限仍为 `500` 条（`LogScreenModel`）。
+- 仓库级 `gradle.properties` 不提交本地代理配置；如需代理，请放到用户级 `~/.gradle/gradle.properties`。
+- 日志列表默认上限为 `10000` 条，可通过 `logMaxEntries` 设置调整。
 - 修改多语言文案时保持 `values-zh` 与 `values-en` key 一致。
+- 如需支持 macOS/Linux 打包，需要先为 RaTeX/KCEF 等 native 依赖补齐平台条件化配置。

@@ -5,15 +5,22 @@ import io.ktor.server.netty.*
 import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.*
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.io.File
 import java.net.ServerSocket
 import java.util.concurrent.CopyOnWriteArrayList
-import kotlin.concurrent.thread
 import kotlin.time.Duration.Companion.milliseconds
 
 enum class GameConnectionStatus {
@@ -22,7 +29,14 @@ enum class GameConnectionStatus {
     Connected,
 }
 
-class GameService {
+data class GameServiceStartResult(
+    val port: Int,
+    val portFile: File,
+)
+
+class GameService(
+    private val serviceScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default),
+) {
     private var server: EmbeddedServer<NettyApplicationEngine, NettyApplicationEngine.Configuration>? = null
     private var port: Int = -1
     private var connectionWatchdog: Job? = null
@@ -30,14 +44,13 @@ class GameService {
     @Volatile
     private var lastGameSignalAt: Long = 0L
 
-    @Volatile
-    var connectionStatus: GameConnectionStatus = GameConnectionStatus.Stopped
-        private set
+    private val portFile = File(System.getProperty("java.io.tmpdir"), PORT_FILE_NAME)
+    private val mutableConnectionStatus = MutableStateFlow(GameConnectionStatus.Stopped)
+    private val mutableLogEvents = MutableSharedFlow<List<LauncherLogEntry>>(extraBufferCapacity = 64)
 
-    private val uiScope = CoroutineScope(Dispatchers.Main)
-    private val serviceScope = CoroutineScope(Dispatchers.Default)
+    val connectionStatus: StateFlow<GameConnectionStatus> = mutableConnectionStatus.asStateFlow()
+    val logEvents: SharedFlow<List<LauncherLogEntry>> = mutableLogEvents.asSharedFlow()
 
-    // ✅ 定义事件监听器集合
     private val logListeners = CopyOnWriteArrayList<(List<LauncherLogEntry>) -> Unit>()
     private val connectionListeners = CopyOnWriteArrayList<(GameConnectionStatus) -> Unit>()
 
@@ -50,16 +63,12 @@ class GameService {
     }
 
     private fun notifyLogListeners(logs: List<LauncherLogEntry>) {
-        uiScope.launch {
-            logListeners.forEach { it.invoke(logs) }
-        }
+        logListeners.forEach { it.invoke(logs) }
     }
 
     fun addConnectionListener(listener: (GameConnectionStatus) -> Unit) {
         connectionListeners += listener
-        uiScope.launch {
-            listener(connectionStatus)
-        }
+        listener(connectionStatus.value)
     }
 
     fun removeConnectionListener(listener: (GameConnectionStatus) -> Unit) {
@@ -67,29 +76,26 @@ class GameService {
     }
 
     private fun updateConnectionStatus(status: GameConnectionStatus) {
-        if (connectionStatus == status) return
+        if (mutableConnectionStatus.value == status) return
 
-        connectionStatus = status
-        uiScope.launch {
-            connectionListeners.forEach { it.invoke(status) }
-        }
+        mutableConnectionStatus.value = status
+        connectionListeners.forEach { it.invoke(status) }
     }
 
-    fun start() {
-        if (server != null) return
+    @Synchronized
+    fun start(): GameServiceStartResult {
+        if (server != null) {
+            return GameServiceStartResult(port, portFile)
+        }
         port = findFreePort()
-        writePortFile(port)
-        updateConnectionStatus(GameConnectionStatus.Waiting)
-        startConnectionWatchdog()
+        lastGameSignalAt = 0L
 
-        // 在后台线程启动 HTTP 服务
-        server = embeddedServer(Netty, port,"127.0.0.1") {
+        val nextServer = embeddedServer(Netty, port, "127.0.0.1") {
             routing {
                 post("/game/status") {
                     val bytes = call.receiveChannel().toByteArray()
-                    val text  = bytes.toString(Charsets.UTF_8)
+                    val text = bytes.toString(Charsets.UTF_8)
 
-                    // 尝试解析 JSON
                     try {
                         lastGameSignalAt = System.currentTimeMillis()
                         updateConnectionStatus(GameConnectionStatus.Connected)
@@ -97,6 +103,7 @@ class GameService {
                         val parsed = LauncherLogParser.parse(text).getOrThrow()
 
                         println("Received ${parsed.size} log(s) from game.")
+                        mutableLogEvents.emit(parsed)
                         notifyLogListeners(parsed)
                     } catch (e: Exception) {
                         println("Log parse error: ${e.message}")
@@ -104,18 +111,30 @@ class GameService {
                 }
             }
         }
-        thread(isDaemon = true, name = "LauncherService") {
-            server!!.start(wait = true)
-        }
+
+        nextServer.start(wait = false)
+        server = nextServer
+        writePortFile(port)
+        updateConnectionStatus(GameConnectionStatus.Waiting)
+        startConnectionWatchdog()
         println("Launcher service started on port $port")
+        return GameServiceStartResult(port, portFile)
     }
 
+    @Synchronized
     fun stop() {
         connectionWatchdog?.cancel()
         connectionWatchdog = null
         server?.stop(1000, 2000)
         server = null
+        port = -1
+        deletePortFile()
         updateConnectionStatus(GameConnectionStatus.Stopped)
+    }
+
+    fun close() {
+        stop()
+        serviceScope.cancel()
     }
 
     private fun startConnectionWatchdog() {
@@ -124,7 +143,7 @@ class GameService {
             while (true) {
                 delay(5000.milliseconds)
                 val elapsed = System.currentTimeMillis() - lastGameSignalAt
-                if (connectionStatus == GameConnectionStatus.Connected && elapsed > GAME_CONNECTION_TIMEOUT_MS) {
+                if (connectionStatus.value == GameConnectionStatus.Connected && elapsed > GAME_CONNECTION_TIMEOUT_MS) {
                     updateConnectionStatus(GameConnectionStatus.Waiting)
                 }
             }
@@ -136,11 +155,19 @@ class GameService {
     }
 
     private fun writePortFile(port: Int) {
-        val file = File(System.getProperty("java.io.tmpdir"), "honkai_rts_launcher_port.json")
-        file.writeText("""{"launcher_port":$port,"ts":${System.currentTimeMillis()}}""")
+        portFile.writeText("""{"launcher_port":$port,"ts":${System.currentTimeMillis()}}""")
+    }
+
+    private fun deletePortFile() {
+        runCatching {
+            if (portFile.exists()) {
+                portFile.delete()
+            }
+        }
     }
 
     private companion object {
         const val GAME_CONNECTION_TIMEOUT_MS = 15_000L
+        const val PORT_FILE_NAME = "honkai_rts_launcher_port.json"
     }
 }
