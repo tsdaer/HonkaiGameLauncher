@@ -13,49 +13,69 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+data class PluginUiState(
+    val gamePath: String = "null",
+    val configPath: String = "",
+    val pluginDirectory: String = "",
+    val plugins: List<GamePluginConfig> = emptyList(),
+    val loadStatus: PluginLoadStatus = PluginLoadStatus.MissingGamePath,
+    val errorMessage: String = "",
+    val isLoading: Boolean = false,
+)
+
 class PluginScreenModel(
     val settings: Settings = Settings(),
     private val pluginConfigService: PluginConfigService = PluginConfigService(),
 ) : ScreenModel {
 
-    var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
+    var uiState by mutableStateOf(
+        PluginUiState(gamePath = settings.getString("gamePath", "null"))
+    )
         private set
 
-    var configPath by mutableStateOf("")
-        private set
+    val gamePath: String
+        get() = uiState.gamePath
 
-    var pluginDirectory by mutableStateOf("")
-        private set
+    val configPath: String
+        get() = uiState.configPath
 
-    var plugins by mutableStateOf<List<GamePluginConfig>>(emptyList())
-        private set
+    val pluginDirectory: String
+        get() = uiState.pluginDirectory
 
-    var loadStatus by mutableStateOf(PluginLoadStatus.MissingGamePath)
-        private set
+    val plugins: List<GamePluginConfig>
+        get() = uiState.plugins
 
-    var errorMessage by mutableStateOf("")
-        private set
+    val loadStatus: PluginLoadStatus
+        get() = uiState.loadStatus
 
-    var isLoading by mutableStateOf(false)
-        private set
+    val errorMessage: String
+        get() = uiState.errorMessage
+
+    val isLoading: Boolean
+        get() = uiState.isLoading
 
     init {
         refresh()
     }
 
     fun refresh() {
-        gamePath = settings.getString("gamePath", "null")
+        val currentGamePath = settings.getString("gamePath", "null")
+        uiState = uiState.copy(
+            gamePath = currentGamePath,
+            isLoading = true,
+        )
         screenModelScope.launch {
-            isLoading = true
             val result = withContext(Dispatchers.IO) {
-                pluginConfigService.load(gamePath)
+                pluginConfigService.load(currentGamePath)
             }
-            plugins = result.plugins
-            pluginDirectory = result.pluginDirectory
-            configPath = result.configPath
-            loadStatus = result.status
-            errorMessage = result.errorMessage
-            isLoading = false
+            uiState = uiState.copy(
+                plugins = result.plugins,
+                pluginDirectory = result.pluginDirectory,
+                configPath = result.configPath,
+                loadStatus = result.status,
+                errorMessage = result.errorMessage,
+                isLoading = false,
+            )
         }
     }
 }

@@ -33,38 +33,58 @@ enum class HomeLaunchStatus {
     Error,
 }
 
+data class HomeUiState(
+    val gamePath: String = "null",
+    val gameDirectory: String = "",
+    val gameFileName: String = "",
+    val pluginConfigPath: String = "",
+    val pluginCount: Int = 0,
+    val launchStatus: HomeLaunchStatus = HomeLaunchStatus.MissingGamePath,
+    val lastLaunchTime: String = "",
+    val statusMessage: String = "",
+    val gameConnectionStatus: GameConnectionStatus = GameConnectionStatus.Stopped,
+)
+
 class HomeScreenModel(
     val settings: Settings = Settings(),
     private val gamePathService: GamePathService = GamePathService(),
     private val processLauncher: ProcessLauncher = ProcessLauncher(),
 ) : ScreenModel {
 
-    var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
+    var uiState by mutableStateOf(
+        HomeUiState(
+            gamePath = settings.getString("gamePath", "null"),
+            gameConnectionStatus = RuntimeServices.gameService.connectionStatus.value,
+        )
+    )
         private set
 
-    var gameDirectory by mutableStateOf("")
-        private set
+    val gamePath: String
+        get() = uiState.gamePath
 
-    var gameFileName by mutableStateOf("")
-        private set
+    val gameDirectory: String
+        get() = uiState.gameDirectory
 
-    var pluginConfigPath by mutableStateOf("")
-        private set
+    val gameFileName: String
+        get() = uiState.gameFileName
 
-    var pluginCount by mutableStateOf(0)
-        private set
+    val pluginConfigPath: String
+        get() = uiState.pluginConfigPath
 
-    var launchStatus by mutableStateOf(HomeLaunchStatus.MissingGamePath)
-        private set
+    val pluginCount: Int
+        get() = uiState.pluginCount
 
-    var lastLaunchTime by mutableStateOf("")
-        private set
+    val launchStatus: HomeLaunchStatus
+        get() = uiState.launchStatus
 
-    var statusMessage by mutableStateOf("")
-        private set
+    val lastLaunchTime: String
+        get() = uiState.lastLaunchTime
 
-    var gameConnectionStatus by mutableStateOf(RuntimeServices.gameService.connectionStatus.value)
-        private set
+    val statusMessage: String
+        get() = uiState.statusMessage
+
+    val gameConnectionStatus: GameConnectionStatus
+        get() = uiState.gameConnectionStatus
 
     private var awaitConnectionJob: Job? = null
 
@@ -82,7 +102,7 @@ class HomeScreenModel(
     }
 
     private fun onConnectionStatusChanged(status: GameConnectionStatus) {
-        gameConnectionStatus = status
+        uiState = uiState.copy(gameConnectionStatus = status)
         if (status == GameConnectionStatus.Connected) {
             awaitConnectionJob?.cancel()
         }
@@ -90,20 +110,25 @@ class HomeScreenModel(
     }
 
     fun refresh() {
-        gamePath = settings.getString("gamePath", "null")
-        val snapshot = gamePathService.inspect(gamePath)
-        gameDirectory = snapshot.gameDirectory
-        gameFileName = snapshot.gameFileName
-        pluginConfigPath = snapshot.pluginConfigPath
-        pluginCount = snapshot.pluginCount
-        launchStatus = when {
-            gameConnectionStatus == GameConnectionStatus.Connected -> HomeLaunchStatus.Running
-            !hasGamePath -> HomeLaunchStatus.MissingGamePath
+        val currentGamePath = settings.getString("gamePath", "null")
+        val snapshot = gamePathService.inspect(currentGamePath)
+        val hasCurrentGamePath = currentGamePath != "null" && currentGamePath.isNotBlank()
+        val nextLaunchStatus = when {
+            uiState.gameConnectionStatus == GameConnectionStatus.Connected -> HomeLaunchStatus.Running
+            !hasCurrentGamePath -> HomeLaunchStatus.MissingGamePath
             !snapshot.executableExists -> HomeLaunchStatus.MissingExecutable
-            launchStatus == HomeLaunchStatus.Launching -> HomeLaunchStatus.Launching
+            uiState.launchStatus == HomeLaunchStatus.Launching -> HomeLaunchStatus.Launching
             else -> HomeLaunchStatus.Ready
         }
-        statusMessage = snapshot.message
+        uiState = uiState.copy(
+            gamePath = currentGamePath,
+            gameDirectory = snapshot.gameDirectory,
+            gameFileName = snapshot.gameFileName,
+            pluginConfigPath = snapshot.pluginConfigPath,
+            pluginCount = snapshot.pluginCount,
+            launchStatus = nextLaunchStatus,
+            statusMessage = snapshot.message,
+        )
     }
 
     fun selectGamePath() {
@@ -121,26 +146,33 @@ class HomeScreenModel(
         if (launchStatus != HomeLaunchStatus.Ready && launchStatus != HomeLaunchStatus.Running) return
 
         screenModelScope.launch {
-            launchStatus = HomeLaunchStatus.Launching
-            statusMessage = ""
+            uiState = uiState.copy(
+                launchStatus = HomeLaunchStatus.Launching,
+                statusMessage = "",
+            )
             val result = withContext(Dispatchers.IO) {
                 processLauncher.launch(gamePath)
             }
 
             result.fold(
                 onSuccess = {
-                    lastLaunchTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-                    launchStatus = if (gameConnectionStatus == GameConnectionStatus.Connected) {
+                    val nextLaunchStatus = if (gameConnectionStatus == GameConnectionStatus.Connected) {
                         HomeLaunchStatus.Running
                     } else {
                         HomeLaunchStatus.Launching
                     }
-                    statusMessage = ""
+                    uiState = uiState.copy(
+                        lastLaunchTime = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")),
+                        launchStatus = nextLaunchStatus,
+                        statusMessage = "",
+                    )
                     waitForGameConnection()
                 },
                 onFailure = { error ->
-                    launchStatus = HomeLaunchStatus.Error
-                    statusMessage = error.message ?: error::class.simpleName.orEmpty()
+                    uiState = uiState.copy(
+                        launchStatus = HomeLaunchStatus.Error,
+                        statusMessage = error.message ?: error::class.simpleName.orEmpty(),
+                    )
                 }
             )
         }
@@ -153,7 +185,7 @@ class HomeScreenModel(
             if (launchStatus == HomeLaunchStatus.Launching &&
                 gameConnectionStatus != GameConnectionStatus.Connected
             ) {
-                launchStatus = HomeLaunchStatus.Ready
+                uiState = uiState.copy(launchStatus = HomeLaunchStatus.Ready)
             }
         }
     }
@@ -163,11 +195,18 @@ class HomeScreenModel(
         if (!directory.exists()) return
 
         screenModelScope.launch(Dispatchers.IO) {
-            runCatching {
+            val errorMessage = runCatching {
                 Desktop.getDesktop().open(directory)
-            }.onFailure { error ->
-                statusMessage = error.message ?: error::class.simpleName.orEmpty()
-                launchStatus = HomeLaunchStatus.Error
+            }.exceptionOrNull()?.let { error ->
+                error.message ?: error::class.simpleName.orEmpty()
+            }
+            if (errorMessage != null) {
+                withContext(Dispatchers.Main) {
+                    uiState = uiState.copy(
+                        launchStatus = HomeLaunchStatus.Error,
+                        statusMessage = errorMessage,
+                    )
+                }
             }
         }
     }

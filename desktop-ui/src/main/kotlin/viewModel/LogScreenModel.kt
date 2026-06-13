@@ -16,6 +16,12 @@ data class LogScreenEntry(
     val log: LauncherLogEntry,
 )
 
+data class LogUiState(
+    val selectedType: Int? = null,
+    val selectedCategory: String? = null,
+    val autoScroll: Boolean = true,
+)
+
 class LogScreenModel (
     val settings: Settings = Settings(),
 ) : ScreenModel {
@@ -35,29 +41,30 @@ class LogScreenModel (
     private val categoryCounts = mutableMapOf<String, Int>()
     private var nextLogId = 0L
 
-    private var selectedTypeState by mutableStateOf<Int?>(null)
-    private var selectedCategoryState by mutableStateOf<String?>(null)
+    var uiState by mutableStateOf(LogUiState())
+        private set
 
     // 当前选中的日志类型（null 表示全部）
     var selectedType: Int?
-        get() = selectedTypeState
+        get() = uiState.selectedType
         set(value) {
-            if (selectedTypeState == value) return
-            selectedTypeState = value
+            if (uiState.selectedType == value) return
+            uiState = uiState.copy(selectedType = value)
             rebuildFilteredLogs()
         }
 
     // 当前选中的分类（null 表示全部）
     var selectedCategory: String?
-        get() = selectedCategoryState
+        get() = uiState.selectedCategory
         set(value) {
-            if (selectedCategoryState == value) return
-            selectedCategoryState = value
+            if (uiState.selectedCategory == value) return
+            uiState = uiState.copy(selectedCategory = value)
             rebuildFilteredLogs()
         }
 
     // 自动滚动
-    var autoScroll by mutableStateOf(true)
+    val autoScroll: Boolean
+        get() = uiState.autoScroll
 
     init {
         screenModelScope.launch {
@@ -75,7 +82,7 @@ class LogScreenModel (
     }
 
     fun toggleAutoScroll() {
-        autoScroll = !autoScroll
+        uiState = uiState.copy(autoScroll = !autoScroll)
     }
 
     private fun appendLogs(newLogs: List<LauncherLogEntry>) {

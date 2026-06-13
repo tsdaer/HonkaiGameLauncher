@@ -16,40 +16,58 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.net.URI
 
+data class DocsUiState(
+    val gamePath: String = "null",
+    val docsDirectory: String = "",
+    val documents: List<DocEntry> = emptyList(),
+    val selectedDocument: DocEntry? = null,
+    val markdownContent: String = "",
+    val loadStatus: DocsLoadStatus = DocsLoadStatus.MissingGamePath,
+    val errorMessage: String = "",
+    val linkErrorMessage: String = "",
+    val pendingAnchor: String? = null,
+    val isLoading: Boolean = false,
+)
+
 class DocsScreenModel(
     val settings: Settings = Settings(),
     private val docsIndexService: DocsIndexService = DocsIndexService(),
 ) : ScreenModel {
 
-    var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
+    var uiState by mutableStateOf(
+        DocsUiState(gamePath = settings.getString("gamePath", "null"))
+    )
         private set
 
-    var docsDirectory by mutableStateOf("")
-        private set
+    val gamePath: String
+        get() = uiState.gamePath
 
-    var documents by mutableStateOf<List<DocEntry>>(emptyList())
-        private set
+    val docsDirectory: String
+        get() = uiState.docsDirectory
 
-    var selectedDocument by mutableStateOf<DocEntry?>(null)
-        private set
+    val documents: List<DocEntry>
+        get() = uiState.documents
 
-    var markdownContent by mutableStateOf("")
-        private set
+    val selectedDocument: DocEntry?
+        get() = uiState.selectedDocument
 
-    var loadStatus by mutableStateOf(DocsLoadStatus.MissingGamePath)
-        private set
+    val markdownContent: String
+        get() = uiState.markdownContent
 
-    var errorMessage by mutableStateOf("")
-        private set
+    val loadStatus: DocsLoadStatus
+        get() = uiState.loadStatus
 
-    var linkErrorMessage by mutableStateOf("")
-        private set
+    val errorMessage: String
+        get() = uiState.errorMessage
 
-    var pendingAnchor by mutableStateOf<String?>(null)
-        private set
+    val linkErrorMessage: String
+        get() = uiState.linkErrorMessage
 
-    var isLoading by mutableStateOf(false)
-        private set
+    val pendingAnchor: String?
+        get() = uiState.pendingAnchor
+
+    val isLoading: Boolean
+        get() = uiState.isLoading
 
     init {
         refresh()
@@ -57,37 +75,43 @@ class DocsScreenModel(
 
     fun consumePendingAnchor(): String? {
         val anchor = pendingAnchor
-        pendingAnchor = null
+        uiState = uiState.copy(pendingAnchor = null)
         return anchor
     }
 
     fun refresh() {
-        gamePath = settings.getString("gamePath", "null")
+        val currentGamePath = settings.getString("gamePath", "null")
+        val previousSelection = selectedDocument?.relativePath
+        uiState = uiState.copy(
+            gamePath = currentGamePath,
+            isLoading = true,
+        )
         screenModelScope.launch {
-            isLoading = true
-            val previousSelection = selectedDocument?.relativePath
             val result = withContext(Dispatchers.IO) {
-                docsIndexService.load(gamePath, previousSelection)
+                docsIndexService.load(currentGamePath, previousSelection)
             }
             applyLoadResult(result)
-            isLoading = false
         }
     }
 
     fun selectDocument(path: String) {
-        pendingAnchor = null
         val target = documents.firstOrNull { it.absolutePath == path || it.relativePath == path } ?: return
+        uiState = uiState.copy(
+            pendingAnchor = null,
+            isLoading = true,
+        )
         screenModelScope.launch {
-            isLoading = true
             val result = withContext(Dispatchers.IO) {
                 docsIndexService.read(target)
             }
-            selectedDocument = target
-            markdownContent = result.content
-            loadStatus = result.status
-            errorMessage = result.errorMessage
-            linkErrorMessage = ""
-            isLoading = false
+            uiState = uiState.copy(
+                selectedDocument = target,
+                markdownContent = result.content,
+                loadStatus = result.status,
+                errorMessage = result.errorMessage,
+                linkErrorMessage = "",
+                isLoading = false,
+            )
         }
     }
 
@@ -108,22 +132,25 @@ class DocsScreenModel(
         val target = documents.firstOrNull { File(it.absolutePath).normalize() == resolvedFile }
         return if (target != null) {
             selectDocument(target.absolutePath)
-            pendingAnchor = fragment.ifBlank { null }
+            uiState = uiState.copy(pendingAnchor = fragment.ifBlank { null })
             true
         } else {
-            linkErrorMessage = rawHref
+            uiState = uiState.copy(linkErrorMessage = rawHref)
             true
         }
     }
 
     private fun applyLoadResult(result: DocsLoadResult) {
-        documents = result.documents
-        docsDirectory = result.docsDirectory
-        selectedDocument = result.selectedDocument
-        markdownContent = result.markdownContent
-        loadStatus = result.status
-        errorMessage = result.errorMessage
-        linkErrorMessage = ""
+        uiState = uiState.copy(
+            documents = result.documents,
+            docsDirectory = result.docsDirectory,
+            selectedDocument = result.selectedDocument,
+            markdownContent = result.markdownContent,
+            loadStatus = result.status,
+            errorMessage = result.errorMessage,
+            linkErrorMessage = "",
+            isLoading = false,
+        )
     }
 
 }
