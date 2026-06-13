@@ -65,9 +65,9 @@ import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
-import viewModel.DocEntry
-import viewModel.DocSection
-import viewModel.DocsLoadStatus
+import core.docs.DocEntry
+import core.docs.DocSection
+import core.docs.DocsLoadStatus
 import viewModel.DocsScreenModel
 
 class DocsScreen : Screen, IScreenInterface {

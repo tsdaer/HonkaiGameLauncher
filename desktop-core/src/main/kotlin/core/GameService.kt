@@ -10,7 +10,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
 import java.io.File
 import java.net.ServerSocket
 import java.util.concurrent.CopyOnWriteArrayList
@@ -95,11 +94,7 @@ class GameService {
                         lastGameSignalAt = System.currentTimeMillis()
                         updateConnectionStatus(GameConnectionStatus.Connected)
 
-                        val parsed = if (text.trim().startsWith("[")) {
-                            Json.decodeFromString<List<LauncherLogEntry>>(text)
-                        } else {
-                            listOf(Json.decodeFromString<LauncherLogEntry>(text))
-                        }
+                        val parsed = LauncherLogParser.parse(text).getOrThrow()
 
                         println("Received ${parsed.size} log(s) from game.")
                         notifyLogListeners(parsed)

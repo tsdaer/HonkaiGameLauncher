@@ -31,8 +31,8 @@ import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
-import viewModel.GamePluginConfig
-import viewModel.PluginLoadStatus
+import core.plugin.GamePluginConfig
+import core.plugin.PluginLoadStatus
 import viewModel.PluginScreenModel
 import io.github.composefluent.component.Text as FluentText
 

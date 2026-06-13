@@ -8,6 +8,7 @@ import cafe.adriel.voyager.core.model.screenModelScope
 import com.russhwolf.settings.Settings
 import core.GameConnectionStatus
 import core.RuntimeServices
+import core.service.GamePathService
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
@@ -33,6 +34,7 @@ enum class HomeLaunchStatus {
 
 class HomeScreenModel(
     val settings: Settings = Settings(),
+    private val gamePathService: GamePathService = GamePathService(),
 ) : ScreenModel {
 
     var gamePath by mutableStateOf(settings.getString("gamePath", "null"))
@@ -85,7 +87,7 @@ class HomeScreenModel(
 
     fun refresh() {
         gamePath = settings.getString("gamePath", "null")
-        val snapshot = inspectGamePath(gamePath)
+        val snapshot = gamePathService.inspect(gamePath)
         gameDirectory = snapshot.gameDirectory
         gameFileName = snapshot.gameFileName
         pluginConfigPath = snapshot.pluginConfigPath
@@ -171,43 +173,6 @@ class HomeScreenModel(
         }
     }
 
-    private fun inspectGamePath(path: String): HomeSnapshot {
-        if (path == "null" || path.isBlank()) {
-            return HomeSnapshot(message = "missing-game-path")
-        }
-
-        val gameFile = File(path)
-        val gameDirectory = when {
-            gameFile.isDirectory -> gameFile
-            else -> gameFile.parentFile
-        }
-
-        if (!gameFile.exists() || gameDirectory == null) {
-            return HomeSnapshot(
-                gameFileName = gameFile.name,
-                gameDirectory = gameDirectory?.absolutePath.orEmpty(),
-                message = "missing-executable",
-            )
-        }
-
-        val configFile = File(File(gameDirectory, "honkai_rts"), "GamePlugins/GamePluginConfigs.toml")
-        val pluginCount = if (configFile.exists()) {
-            runCatching {
-                configFile.readLines().count { it.trim() == "[[PluginConfigs]]" }
-            }.getOrDefault(0)
-        } else {
-            0
-        }
-
-        return HomeSnapshot(
-            executableExists = gameFile.isFile,
-            gameFileName = gameFile.name,
-            gameDirectory = gameDirectory.absolutePath,
-            pluginConfigPath = configFile.takeIf { it.exists() }?.absolutePath.orEmpty(),
-            pluginCount = pluginCount,
-        )
-    }
-
     override fun onDispose() {
         awaitConnectionJob?.cancel()
         RuntimeServices.gameService.removeConnectionListener(connectionListener)
@@ -218,12 +183,3 @@ class HomeScreenModel(
         const val GAME_CONNECTION_WAIT_TIMEOUT_MS = 20_000L
     }
 }
-
-private data class HomeSnapshot(
-    val executableExists: Boolean = false,
-    val gameFileName: String = "",
-    val gameDirectory: String = "",
-    val pluginConfigPath: String = "",
-    val pluginCount: Int = 0,
-    val message: String = "",
-)
