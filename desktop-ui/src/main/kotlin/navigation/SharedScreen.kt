@@ -26,15 +26,39 @@ import screen.feature.LogScreen
 import screen.feature.PluginScreen
 import screen.feature.WebScreen
 
+/**
+ * 共享页面标识符（密封类）。
+ *
+ * 每个对象代表一个全局唯一的页面，作为 Voyager [ScreenProvider] 注册和路由解析的 key。
+ * 新增页面时需在此添加对应对象，并在 [screenDescriptors] 和 [registerNavigation] 中注册。
+ */
 sealed class SharedScreen : ScreenProvider {
+    /** 首页 */
     object Home : SharedScreen()
+    /** 设置页 */
     object Setting : SharedScreen()
+    /** 插件配置页 */
     object Plugin : SharedScreen()
+    /** 文档中心页 */
     object Docs : SharedScreen()
+    /** 内置网页工具页 */
     object Web : SharedScreen()
+    /** 游戏日志页 */
     object Log : SharedScreen()
 }
 
+/**
+ * 页面描述符。
+ *
+ * 每个页面在导航系统中的唯一配置入口，包含路由、标题、图标、可见性和排序信息。
+ *
+ * @property provider        [SharedScreen] 唯一标识
+ * @property route          稳定路由路径（如 `/home`、`/plugin`）
+ * @property titleKey       标题本地化资源 key
+ * @property icon           导航栏图标
+ * @property showInNavigation 是否在导航栏中显示（false = 隐藏页面，如设置页）
+ * @property order          导航栏排序权重（数值越小越靠前）
+ */
 data class ScreenDescriptor(
     val provider: SharedScreen,
     val route: String,
@@ -44,6 +68,10 @@ data class ScreenDescriptor(
     val order: Int,
 )
 
+/**
+ * 所有页面的描述符列表（按 [order] 排序）。
+ * 这是导航栏渲染和路由解析的唯一数据源。
+ */
 val screenDescriptors = listOf(
     ScreenDescriptor(
         provider = SharedScreen.Home,
@@ -90,22 +118,38 @@ val screenDescriptors = listOf(
         route = "/setting",
         titleKey = Res.string.setting,
         icon = compose.icons.FeatherIcons.Settings,
-        showInNavigation = false,
+        showInNavigation = false,   // 设置页不在主导航栏显示，通过其他入口访问
         order = 100,
     ),
 ).sortedBy { it.order }
 
+/** 功能页面列表（排除首页），供特殊导航场景使用 */
 val featureScreens = screenDescriptors
     .filter { it.showInNavigation && it.provider != SharedScreen.Home }
 
+/**
+ * 根据 [SharedScreen] provider 获取对应的 [ScreenDescriptor]。
+ *
+ * @throws NoSuchElementException 如果 provider 未注册
+ */
 fun screenDescriptorFor(provider: SharedScreen): ScreenDescriptor {
     return screenDescriptors.first { it.provider == provider }
 }
 
+/**
+ * 获取 provider 对应的稳定路由路径。
+ * 页面实现类应通过此函数返回其 [getUrl]。
+ */
 fun screenRoute(provider: SharedScreen): String {
     return screenDescriptorFor(provider).route
 }
 
+/**
+ * 将所有页面注册到 Voyager [ScreenRegistry]。
+ * 应用启动时必须调用此函数一次。
+ *
+ * 新增页面时在此处添加 `register<SharedScreen.NewPage> { NewPageScreen() }`
+ */
 fun registerNavigation() {
     ScreenRegistry {
         register<SharedScreen.Home> { HomeScreen() }

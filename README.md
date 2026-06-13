@@ -89,6 +89,51 @@ desktop-core/src/main/kotlin/core/
 
 详细说明见 [desktop-core/README.md](desktop-core/README.md)。
 
+### desktop-ui 内部结构
+
+```text
+desktop-ui/src/main/kotlin/
+├── localization/              # 本地化：changeLanguage()
+├── navigation/                # 导航系统：SharedScreen、ScreenDescriptor、路由映射
+├── screen/
+│   ├── IScreenInterface.kt    #   页面公共接口（URL、图标、标题）
+│   ├── HomeScreen.kt          #   首页
+│   ├── SettingScreen.kt       #   设置页
+│   ├── docs/                  #   文档中心组件（概览、列表、阅读器、目录）
+│   ├── feature/               #   功能页面（Docs、Plugin、Web、Log）
+│   │   └── Markdown*.kt       #   Markdown 渲染链路（块级/行内/链接/锚点/数学/Mermaid）
+│   ├── home/                  #   首页组件（Hero、状态卡、快捷入口）
+│   └── plugin/                #   插件页组件
+├── ui/
+│   ├── components/            #   窗口标题栏、导航栏、WebEngine 初始化页面
+│   ├── fluent/                #   Fluent Design 组件库与主题
+│   └── settings/              #   AppUiSettings（主题/语言/导航 CompositionLocal）
+└── viewModel/                 # ScreenModel 层
+    ├── AppSettingsStore.kt    #   响应式设置存储（StateFlow）
+    ├── HomeScreenModel.kt     #   首页状态、启动流程、20s 连接超时
+    ├── DocsScreenModel.kt     #   文档加载/选择/链接导航
+    ├── PluginScreenModel.kt   #   插件配置加载
+    ├── LogScreenModel.kt      #   日志收集/筛选/缓冲区
+    ├── WebScreenModel.kt      #   WebView 地址管理
+    └── WebEngineService.kt    #   KCEF WebEngine 初始化生命周期
+```
+
+| 层级 | 职责 |
+|------|------|
+| `navigation` | 页面注册、路由解析、URL 导航 |
+| `screen` | Compose 页面实现，纯渲染 + 轻量交互绑定 |
+| `viewModel` | ScreenModel 状态管理、core 服务调用、Flow 收集、协程调度 |
+| `ui` | 跨页面复用的 UI 组件和主题 Token |
+
+核心设计原则：
+
+- **ScreenModel 持有状态** — Composable 只负责渲染，业务逻辑在 ScreenModel
+- **IO → Dispatchers.IO** — 文件、进程操作不阻塞 UI 线程
+- **core 结果转换** — ScreenModel 将 core 层结构化结果映射为 UI 状态
+- **CompositionLocal 注入** — 通过 `LocalAppUiSettings` 注入主题/语言等全局偏好
+
+详细说明见 [desktop-ui/README.md](desktop-ui/README.md)。
+
 ## 环境要求
 
 - JDK 17 或更高版本。

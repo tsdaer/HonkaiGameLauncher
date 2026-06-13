@@ -22,6 +22,7 @@ import ui.fluent.theme.FluentTokens
 import viewModel.HomeLaunchStatus
 import viewModel.HomeUiState
 
+/** 根据启动状态返回本地化状态文本 */
 @Composable
 internal fun launchStatusText(uiState: HomeUiState): String {
     return when (uiState.launchStatus) {
@@ -36,6 +37,7 @@ internal fun launchStatusText(uiState: HomeUiState): String {
     }
 }
 
+/** 根据连接状态返回本地化文本 */
 @Composable
 internal fun connectionStatusText(status: GameConnectionStatus): String {
     return when (status) {
@@ -45,6 +47,7 @@ internal fun connectionStatusText(status: GameConnectionStatus): String {
     }
 }
 
+/** 连接状态辅助提示文本 */
 @Composable
 internal fun launchConnectionHint(status: GameConnectionStatus): String {
     return when (status) {
@@ -54,6 +57,7 @@ internal fun launchConnectionHint(status: GameConnectionStatus): String {
     }
 }
 
+/** 启动状态对应的主题色 */
 internal fun statusColor(status: HomeLaunchStatus): Color {
     return when (status) {
         HomeLaunchStatus.Ready -> Color(0xFF0E9F6E)
@@ -65,6 +69,7 @@ internal fun statusColor(status: HomeLaunchStatus): Color {
     }
 }
 
+/** 连接状态对应的主题色 */
 internal fun connectionColor(status: GameConnectionStatus): Color {
     return when (status) {
         GameConnectionStatus.Stopped -> FluentTokens.ColorToken.LogLevel.error
@@ -73,6 +78,7 @@ internal fun connectionColor(status: GameConnectionStatus): Color {
     }
 }
 
+/** 首页背景渐变（深色/浅色主题） */
 internal fun homeBackgroundBrush(isDarkTheme: Boolean): Brush {
     return if (isDarkTheme) {
         Brush.linearGradient(
@@ -93,6 +99,7 @@ internal fun homeBackgroundBrush(isDarkTheme: Boolean): Brush {
     }
 }
 
+/** 首页 Hero 卡片背景渐变 */
 internal fun heroBrush(color: Color, isDarkTheme: Boolean): Brush {
     val base = if (isDarkTheme) Color(0xFF252525) else Color.White
     return Brush.linearGradient(
@@ -104,6 +111,7 @@ internal fun heroBrush(color: Color, isDarkTheme: Boolean): Brush {
     )
 }
 
+/** 卡片背景渐变 */
 internal fun cardBrush(isDarkTheme: Boolean): Brush {
     return Brush.linearGradient(
         colors = if (isDarkTheme) {

@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+/**
+ * 插件页 UI 状态。
+ */
 data class PluginUiState(
     val gamePath: String? = null,
     val configPath: String = "",
@@ -26,6 +29,12 @@ data class PluginUiState(
     val isLoading: Boolean = false,
 )
 
+/**
+ * 插件页 ScreenModel。
+ *
+ * 监听 gamePath 变化自动加载插件配置。
+ * 加载操作在 IO 线程执行以避免阻塞 UI。
+ */
 class PluginScreenModel(
     private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val pluginConfigService: PluginConfigService = PluginConfigService(),

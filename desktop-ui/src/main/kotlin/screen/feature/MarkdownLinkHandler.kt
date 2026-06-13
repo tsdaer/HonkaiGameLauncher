@@ -9,10 +9,17 @@ import org.intellij.markdown.ast.ASTNode
 import java.io.File
 import java.net.URI
 
+/** Markdown 阅读器的 CompositionLocal（供标题注册和锚点跳转） */
 internal val LocalDocsReaderController = compositionLocalOf<DocsReaderController?> { null }
+/** 标题起始偏移量 → slug 映射的 CompositionLocal */
 internal val LocalDocsHeadingSlugs = compositionLocalOf<Map<Int, String>> { emptyMap() }
+/** Markdown 链接点击监听器的 CompositionLocal */
 internal val LocalMarkdownLinkListener = compositionLocalOf<LinkInteractionListener?> { null }
 
+/**
+ * 在 [AnnotatedString.Builder] 中追加一个可交互的 Markdown 链接。
+ * 提取链接文本和 destination，通过 [LinkInteractionListener] 处理点击。
+ */
 internal fun AnnotatedString.Builder.appendLinkNode(
     node: ASTNode,
     source: String,
@@ -54,6 +61,7 @@ internal fun AnnotatedString.Builder.appendLinkNode(
     }
 }
 
+/** 从 Markdown 链接节点提取目标 URL */
 internal fun linkDestination(node: ASTNode, source: String): String? {
     node.children
         .firstOrNull { it.type == MarkdownElementTypes.LINK_DESTINATION }
@@ -66,6 +74,10 @@ internal fun linkDestination(node: ASTNode, source: String): String? {
     return null
 }
 
+/**
+ * 重写 Markdown 中的资源链接（图片等）为 file:// 绝对路径。
+ * 使 Markdown 中相对路径引用的本地图片可在渲染中正常显示。
+ */
 internal fun rewriteMarkdownResourceLinks(
     markdown: String,
     currentDocumentPath: String?,
@@ -81,11 +93,13 @@ internal fun rewriteMarkdownResourceLinks(
     }
 }
 
+/** 单条资源链接重写 */
 internal fun rewriteMarkdownResourceLink(
     rawValue: String,
     currentDocumentPath: String?,
 ): String {
     val value = rawValue.trim()
+    // 不处理锚点链接、外部链接和 .md 文档链接
     if (value.isBlank() || value.startsWith("#") || value.hasKnownScheme()) {
         return rawValue
     }
@@ -100,6 +114,7 @@ internal fun rewriteMarkdownResourceLink(
         ?: rawValue
 }
 
+/** 将资源相对路径解析为本地 File 对象 */
 internal fun resolveMarkdownResource(currentDocumentPath: String?, rawLink: String): File? {
     val currentFile = currentDocumentPath?.let(::File) ?: return null
     val cleaned = rawLink.substringBefore('#').trim()
@@ -115,6 +130,7 @@ internal fun resolveMarkdownResource(currentDocumentPath: String?, rawLink: Stri
     }.takeIf { it.exists() && it.isFile }
 }
 
+/** 检查链接是否指向 .md 文件 */
 internal fun String.isMarkdownDocumentLink(): Boolean {
     val path = runCatching { URI(this).path }
         .getOrDefault(substringBefore('#').substringBefore('?'))
@@ -122,6 +138,7 @@ internal fun String.isMarkdownDocumentLink(): Boolean {
     return path.endsWith(".md", ignoreCase = true)
 }
 
+/** 检查 URL 是否有已知协议前缀 */
 internal fun String.hasKnownScheme(): Boolean {
     val lowerValue = lowercase()
     return lowerValue.startsWith("http://") ||
@@ -131,6 +148,5 @@ internal fun String.hasKnownScheme(): Boolean {
         lowerValue.startsWith("mailto:")
 }
 
-
+/** Markdown 资源链接正则：匹配 `![label](url)` 或 `[label](url)` 格式 */
 internal val MarkdownResourceLinkRegex = Regex("""(!?\[)([^\]]*)]\(([^)\s]+)([^)]*)\)""")
-

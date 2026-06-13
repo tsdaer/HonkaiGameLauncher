@@ -8,32 +8,47 @@ import org.intellij.markdown.MarkdownElementTypes
 import org.intellij.markdown.MarkdownTokenTypes
 import org.intellij.markdown.ast.ASTNode
 
+/** 文档目录项 */
 internal data class DocTocItem(
     val level: Int,
     val title: String,
     val slug: String,
 )
 
+/**
+ * 文档阅读器滚动控制器。
+ *
+ * 管理 Markdown 标题的位置注册和锚点跳转。
+ * 标题通过 [registerHeading] 注册其相对于滚动顶部的偏移量，
+ * 然后 [scrollToAnchor] 可根据 slug 平滑滚动到目标位置。
+ *
+ * @property scrollState 关联的 Compose [ScrollState]
+ */
 @Stable
 internal class DocsReaderController(
     val scrollState: ScrollState,
 ) {
+    /** 阅读器视口在窗口中的 Y 坐标，用于坐标转换 */
     var viewportTopInWindow: Float = 0f
 
+    /** slug → 内容顶部偏移量（px）的映射 */
     private val headingOffsets = mutableStateMapOf<String, Int>()
 
     fun registerHeading(slug: String, contentTopPx: Int) {
         headingOffsets[slug] = contentTopPx.coerceAtLeast(0)
     }
 
+    /** 已注册的标题数量（用于触发 LaunchedEffect） */
     val registeredCount: Int
         get() = headingOffsets.size
 
+    /** 根据锚点查找标题偏移量，先精确匹配再尝试 slug 化匹配 */
     fun resolveAnchor(anchor: String): Int? {
         headingOffsets[anchor]?.let { return it }
         return headingOffsets[slugifyHeading(anchor)]
     }
 
+    /** 滚动到指定锚点，失败返回 false */
     suspend fun scrollToAnchor(anchor: String): Boolean {
         val target = resolveAnchor(anchor) ?: return false
         scrollState.animateScrollTo((target - ANCHOR_TOP_PADDING_PX).coerceAtLeast(0))
@@ -46,8 +61,9 @@ internal class DocsReaderController(
 }
 
 /**
- * GitHub-style heading slug. Keeps unicode letters/digits (so CJK headings work),
- * maps spaces/hyphens to '-', keeps '_', and drops other punctuation.
+ * GitHub 风格标题 slug。
+ * 保留 Unicode 字母/数字（支持 CJK 标题），空格/连字符映射为 '-'，
+ * 保留下划线，删除其他标点。
  */
 internal fun slugifyHeading(raw: String): String {
     val builder = StringBuilder()
@@ -62,9 +78,10 @@ internal fun slugifyHeading(raw: String): String {
 }
 
 /**
- * Build the table of contents and a stable heading-start-offset → slug map.
- * This scans source lines directly so fenced code blocks cannot hide later
- * headings if the markdown AST parser is confused by platform line endings.
+ * 构建文档目录 (TOC) 和标题起始偏移量 → slug 映射。
+ *
+ * 直接扫描源文本行（而非 AST），因为代码块内的 `#` 不应被当作标题。
+ * 通过追踪 fenced code block 状态来跳过代码块内的行。
  */
 internal fun extractDocHeadings(markdown: String): Pair<List<DocTocItem>, Map<Int, String>> {
     if (markdown.isBlank()) {
@@ -141,6 +158,7 @@ internal fun extractDocHeadings(markdown: String): Pair<List<DocTocItem>, Map<In
     return items to slugByOffset
 }
 
+/** 根据 Markdown 元素类型获取标题级别（1-6） */
 internal fun headingLevel(type: IElementType): Int {
     return when (type) {
         MarkdownElementTypes.ATX_1,
@@ -155,6 +173,7 @@ internal fun headingLevel(type: IElementType): Int {
     }
 }
 
+/** 返回标题级别，非标题类型返回 null */
 internal fun headingLevelOrNull(type: IElementType): Int? {
     return when (type) {
         MarkdownElementTypes.ATX_1,
@@ -169,6 +188,7 @@ internal fun headingLevelOrNull(type: IElementType): Int? {
     }
 }
 
+/** 从标题 AST 节点提取纯文本内容 */
 internal fun headingText(node: ASTNode, source: String): String {
     return node.children
         .firstOrNull {
@@ -199,6 +219,7 @@ private data class PendingSetextHeading(
     val startOffset: Int,
 )
 
+/** 逐行遍历 Markdown 文本，回调传入行内容和行在源文本中的起始偏移量 */
 private fun forEachMarkdownLine(markdown: String, block: (line: String, startOffset: Int) -> Unit) {
     var start = 0
     while (start <= markdown.length) {
@@ -211,12 +232,14 @@ private fun forEachMarkdownLine(markdown: String, block: (line: String, startOff
     }
 }
 
+/** 判断一行是否为 fenced code block 标记（``` 或 ~~~），并返回标记字符串 */
 private fun fenceMarkerOrNull(trimmedLine: String): String? {
     val markerChar = trimmedLine.firstOrNull()?.takeIf { it == '`' || it == '~' } ?: return null
     val marker = trimmedLine.takeWhile { it == markerChar }
     return marker.takeIf { it.length >= 3 }
 }
 
+/** 解析 ATX 标题（`### Title`），返回级别和标题文本 */
 private fun parseAtxHeading(trimmedLine: String): ParsedAtxHeading? {
     val marker = trimmedLine.takeWhile { it == '#' }
     if (marker.isEmpty() || marker.length > 6) {
@@ -232,6 +255,7 @@ private fun parseAtxHeading(trimmedLine: String): ParsedAtxHeading? {
     )
 }
 
+/** 解析 Setext 标题下划线（`===` → 级别 1，`---` → 级别 2） */
 private fun parseSetextLevel(trimmedLine: String): Int? {
     if (trimmedLine.isEmpty()) {
         return null
@@ -242,4 +266,3 @@ private fun parseSetextLevel(trimmedLine: String): Int? {
         else -> null
     }
 }
-
