@@ -1,5 +1,9 @@
 package core.service
 
+import com.akuleshov7.ktoml.TomlInputConfig
+import com.akuleshov7.ktoml.parsers.TomlParser
+import com.akuleshov7.ktoml.tree.nodes.TableType
+import com.akuleshov7.ktoml.tree.nodes.TomlTable
 import core.platform.AppSettingsRepository
 import java.io.File
 
@@ -13,7 +17,7 @@ import java.io.File
  * @property gameFileName     游戏可执行文件名（如 `HonkaiRTS.exe`）
  * @property gameDirectory    游戏所在目录的绝对路径
  * @property pluginConfigPath 插件配置文件 `GamePluginConfigs.toml` 的绝对路径（若存在）
- * @property pluginCount      插件配置文件中的插件数量（统计 `[[PluginConfigs]]` 段头出现次数）
+ * @property pluginCount      插件配置文件中的插件数量（统计 `[[PluginConfigs]]` 数组表的元素个数）
  * @property message          状态消息 key：空字符串表示正常，"missing-game-path" 表示未设置路径，
  *                            "missing-executable" 表示可执行文件不存在
  */
@@ -74,8 +78,12 @@ class GamePathService {
         val configFile = File(File(gameDirectory, "honkai_rts"), "GamePlugins/GamePluginConfigs.toml")
         val pluginCount = if (configFile.exists()) {
             runCatching {
-                // 统计 [[PluginConfigs]] 段头数量，每个段头对应一个插件
-                configFile.readLines().count { it.trim() == PLUGIN_CONFIG_HEADER }
+                // 解析 TOML，统计 [[PluginConfigs]] 数组表的元素个数，每个元素对应一个插件
+                val file = TomlParser(TomlInputConfig()).parseString(configFile.readText())
+                file.children
+                    .filterIsInstance<TomlTable>()
+                    .filter { it.type == TableType.ARRAY && it.name == PLUGIN_CONFIG_TABLE }
+                    .sumOf { it.children.size }
             }.getOrDefault(0)
         } else {
             0
@@ -91,7 +99,7 @@ class GamePathService {
     }
 
     companion object {
-        /** 插件配置段头标记，用于统计插件数量 */
-        const val PLUGIN_CONFIG_HEADER = "[[PluginConfigs]]"
+        /** 插件配置数组表名 `[[PluginConfigs]]`，每个数组元素对应一个插件 */
+        const val PLUGIN_CONFIG_TABLE = "PluginConfigs"
     }
 }

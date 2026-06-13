@@ -40,6 +40,7 @@ import io.github.composefluent.component.ColorSpectrum
 import io.github.composefluent.component.FlyoutContainer
 import io.github.composefluent.component.FlyoutPlacement
 import io.github.composefluent.component.Icon
+import io.github.composefluent.component.Slider
 import io.github.composefluent.component.Switcher
 import io.github.composefluent.component.TextField
 import navigation.SharedScreen
@@ -104,9 +105,8 @@ class SettingScreen: Screen, IScreenInterface {
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            FluentTokens.ColorToken.accent.copy(alpha = 0.08f),
+                            FluentTokens.ColorToken.accent.copy(alpha = 0.04f),
                             Color.Transparent,
-                            Color.Gray.copy(alpha = 0.04f),
                         )
                     )
                 )
@@ -118,7 +118,7 @@ class SettingScreen: Screen, IScreenInterface {
                     .widthIn(max = 1080.dp)
                     .verticalScroll(state)
                     .padding(horizontal = 28.dp, vertical = 18.dp),
-                verticalArrangement = Arrangement.spacedBy(20.dp)
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
                 SettingsHero()
 
@@ -202,6 +202,7 @@ class SettingScreen: Screen, IScreenInterface {
                         onRefresh = screenModel::refreshGameSettings,
                         onSave = screenModel::saveGameSettings,
                         onChange = screenModel::updateGameSettingsForm,
+                        onPickMusicFolder = screenModel::pickMusicFolder,
                     )
                 }
             }
@@ -215,6 +216,7 @@ private fun GameSettingsEditor(
     onRefresh: () -> Unit,
     onSave: () -> Unit,
     onChange: (GameSettingsForm) -> Unit,
+    onPickMusicFolder: (GameSettingsForm) -> Unit,
 ) {
     val form = uiState.gameSettingsForm
     val busy = uiState.gameSettingsStatus == SettingGameSettingsStatus.Loading ||
@@ -227,15 +229,8 @@ private fun GameSettingsEditor(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .clip(RoundedCornerShape(14.dp))
-                .background(
-                    Brush.horizontalGradient(
-                        colors = listOf(
-                            FluentTokens.ColorToken.accent.copy(alpha = 0.16f),
-                            FluentTokens.ColorToken.accent.copy(alpha = 0.05f),
-                        )
-                    )
-                )
+                .clip(RoundedCornerShape(8.dp))
+                .background(FluentTokens.ColorToken.accent.copy(alpha = 0.06f))
                 .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -335,32 +330,43 @@ private fun GameSettingsEditor(
             Spacer(modifier = Modifier.weight(1f))
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(
+            GameSettingsSlider(
                 label = stringResource(Res.string.settingsGameResolutionScale),
                 value = form.resolutionScale,
+                range = 50f..100f,
+                decimals = 0,
+                suffix = "%",
                 onValueChange = { onChange(form.copy(resolutionScale = it)) },
             )
             GameSettingsDropdown(
                 label = stringResource(Res.string.settingsGameUpscaler),
-                values = withCurrent(listOf("TSR", "NIS", "FSR"), form.upscalerName),
-                labels = withCurrent(listOf("TSR", "NIS", "FSR"), form.upscalerName),
+                values = withCurrent(UPSCALER_VALUES, form.upscalerName),
+                labels = labelsWithCurrent(UPSCALER_VALUES, upscalerLabels(), form.upscalerName),
                 selectedValue = form.upscalerName,
                 onSelected = { onChange(form.copy(upscalerName = it)) },
             )
         }
         GameSettingsSectionTitle(stringResource(Res.string.settingsGameMotionBlurSection))
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameMotionBlurAmount), form.motionBlurAmount) {
-                onChange(form.copy(motionBlurAmount = it))
-            }
+            GameSettingsSlider(
+                label = stringResource(Res.string.settingsGameMotionBlurAmount),
+                value = form.motionBlurAmount,
+                range = 0f..1f,
+                decimals = 2,
+                onValueChange = { onChange(form.copy(motionBlurAmount = it)) },
+            )
             GameSettingsTextField(stringResource(Res.string.settingsGameMotionBlurMax), form.motionBlurMax) {
                 onChange(form.copy(motionBlurMax = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameMotionBlurScale), form.motionBlurScale) {
-                onChange(form.copy(motionBlurScale = it))
-            }
+            GameSettingsSlider(
+                label = stringResource(Res.string.settingsGameMotionBlurScale),
+                value = form.motionBlurScale,
+                range = 0f..2f,
+                decimals = 2,
+                onValueChange = { onChange(form.copy(motionBlurScale = it)) },
+            )
             GameSettingsTextField(stringResource(Res.string.settingsGameMotionBlurTargetFps), form.motionBlurTargetFps) {
                 onChange(form.copy(motionBlurTargetFps = it))
             }
@@ -368,29 +374,47 @@ private fun GameSettingsEditor(
 
         GameSettingsSectionTitle(stringResource(Res.string.settingsGameUpscalerSection))
         GameSettingsTwoColumnRow {
-            GameSettingsTextField("FSR", form.fsr) { onChange(form.copy(fsr = it)) }
-            GameSettingsTextField(stringResource(Res.string.settingsGameSuperResolution), form.superResolution) {
-                onChange(form.copy(superResolution = it))
-            }
+            GameSettingsDropdown(
+                label = "FSR",
+                values = withCurrent(FSR_VALUES, form.fsr),
+                labels = labelsWithCurrent(FSR_VALUES, fsrQualityLabels(), form.fsr),
+                selectedValue = form.fsr,
+                onSelected = { onChange(form.copy(fsr = it)) },
+            )
+            GameSettingsDropdown(
+                label = stringResource(Res.string.settingsGameSuperResolution),
+                values = withCurrent(DLSS_MODE_VALUES, form.superResolution),
+                labels = labelsWithCurrent(DLSS_MODE_VALUES, dlssModeLabels(), form.superResolution),
+                selectedValue = form.superResolution,
+                onSelected = { onChange(form.copy(superResolution = it)) },
+            )
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField("NIS", form.nis) { onChange(form.copy(nis = it)) }
-            GameSettingsTextField(stringResource(Res.string.settingsGameNisSharpness), form.nisSharpness) {
+            GameSettingsIntSlider("NIS", form.nis, min = 0, max = 10) { onChange(form.copy(nis = it)) }
+            GameSettingsIntSlider(stringResource(Res.string.settingsGameNisSharpness), form.nisSharpness, min = 0, max = 255) {
                 onChange(form.copy(nisSharpness = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameFrameGeneration), form.frameGeneration) {
-                onChange(form.copy(frameGeneration = it))
-            }
+            GameSettingsDropdown(
+                label = stringResource(Res.string.settingsGameFrameGeneration),
+                values = withCurrent(FRAME_GEN_VALUES, form.frameGeneration),
+                labels = labelsWithCurrent(FRAME_GEN_VALUES, frameGenLabels(), form.frameGeneration),
+                selectedValue = form.frameGeneration,
+                onSelected = { onChange(form.copy(frameGeneration = it)) },
+            )
             GameSettingsTextField(stringResource(Res.string.settingsGameFrameWarp), form.frameWarp) {
                 onChange(form.copy(frameWarp = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameReflex), form.reflex) {
-                onChange(form.copy(reflex = it))
-            }
+            GameSettingsDropdown(
+                label = stringResource(Res.string.settingsGameReflex),
+                values = withCurrent(REFLEX_VALUES, form.reflex),
+                labels = labelsWithCurrent(REFLEX_VALUES, reflexLabels(), form.reflex),
+                selectedValue = form.reflex,
+                onSelected = { onChange(form.copy(reflex = it)) },
+            )
             GameSettingsTextField(stringResource(Res.string.settingsGameRayReconstruction), form.rayReconstruction) {
                 onChange(form.copy(rayReconstruction = it))
             }
@@ -410,7 +434,7 @@ private fun GameSettingsEditor(
             )
         }
         GameSettingsTwoColumnRow {
-            QualityDropdown(stringResource(Res.string.settingsGameAudioQuality), form.audioQualityLevel) {
+            GameSettingsIntSlider(stringResource(Res.string.settingsGameAudioQuality), form.audioQualityLevel, min = 0, max = 4) {
                 onChange(form.copy(audioQualityLevel = it))
             }
             Spacer(modifier = Modifier.weight(1f))
@@ -472,50 +496,51 @@ private fun GameSettingsEditor(
             )
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(
+            GameSettingsFolderField(
                 label = stringResource(Res.string.settingsGameMusicFolder),
                 value = form.defaultMusicPlayerFolder,
-                keyboardType = KeyboardType.Text,
-                onValueChange = { onChange(form.copy(defaultMusicPlayerFolder = it)) },
+                onBrowse = { onPickMusicFolder(form) },
             )
             Spacer(modifier = Modifier.weight(1f))
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameMainVolume), form.mainVolume) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameMainVolume), form.mainVolume, range = 0f..100f, decimals = 0) {
                 onChange(form.copy(mainVolume = it))
             }
-            GameSettingsTextField(stringResource(Res.string.settingsGameMusicVolume), form.musicVolume) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameMusicVolume), form.musicVolume, range = 0f..100f, decimals = 0) {
                 onChange(form.copy(musicVolume = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameVoiceVolume), form.voiceVolume) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameVoiceVolume), form.voiceVolume, range = 0f..100f, decimals = 0) {
                 onChange(form.copy(voiceVolume = it))
             }
-            GameSettingsTextField(stringResource(Res.string.settingsGameEnvVolume), form.envVolume) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameEnvVolume), form.envVolume, range = 0f..100f, decimals = 0) {
                 onChange(form.copy(envVolume = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameWidgetVolume), form.widgetVolume) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameWidgetVolume), form.widgetVolume, range = 0f..100f, decimals = 0) {
                 onChange(form.copy(widgetVolume = it))
             }
-            GameSettingsTextField(stringResource(Res.string.settingsGameCameraMoveSpeed), form.cameraMoveSpeedScale) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameCameraMoveSpeed), form.cameraMoveSpeedScale, range = 0f..3f, decimals = 2) {
                 onChange(form.copy(cameraMoveSpeedScale = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameCameraArmScale), form.cameraArmScale) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameCameraArmScale), form.cameraArmScale, range = 0f..3f, decimals = 2) {
                 onChange(form.copy(cameraArmScale = it))
             }
-            GameSettingsTextField(stringResource(Res.string.settingsGameCameraMoveLag), form.cameraMoveLag) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameCameraMoveLag), form.cameraMoveLag, range = 0f..1f, decimals = 2) {
                 onChange(form.copy(cameraMoveLag = it))
             }
         }
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(
+            GameSettingsSlider(
                 label = stringResource(Res.string.settingsGameCameraRotationSpeed),
                 value = form.cameraRotationScale,
+                range = 0f..3f,
+                decimals = 2,
                 onValueChange = { onChange(form.copy(cameraRotationScale = it)) },
             )
             Spacer(modifier = Modifier.weight(1f))
@@ -523,10 +548,10 @@ private fun GameSettingsEditor(
 
         GameSettingsSectionTitle(stringResource(Res.string.settingsGameAdvancedSection))
         GameSettingsTwoColumnRow {
-            GameSettingsTextField(stringResource(Res.string.settingsGameAnimBudgetAllocator), form.animBudgetAllocator) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameAnimBudgetAllocator), form.animBudgetAllocator, range = 0f..2f, decimals = 2) {
                 onChange(form.copy(animBudgetAllocator = it))
             }
-            GameSettingsTextField(stringResource(Res.string.settingsGameSceneElementUpdate), form.sceneElementUpdate) {
+            GameSettingsSlider(stringResource(Res.string.settingsGameSceneElementUpdate), form.sceneElementUpdate, range = 0f..2f, decimals = 2) {
                 onChange(form.copy(sceneElementUpdate = it))
             }
         }
@@ -581,20 +606,22 @@ private fun gameSettingsStatusText(uiState: viewModel.SettingUiState): String {
 @Composable
 private fun GameSettingsSectionTitle(title: String) {
     Row(
-        modifier = Modifier.padding(top = 8.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
     ) {
-        Box(
-            modifier = Modifier
-                .width(4.dp)
-                .height(18.dp)
-                .clip(RoundedCornerShape(2.dp))
-                .background(FluentTokens.ColorToken.accent)
-        )
         FluentText(
             text = title,
-            style = FluentTheme.typography.bodyStrong
+            style = FluentTheme.typography.bodyStrong,
+            color = FluentTokens.ColorToken.accent
+        )
+        Box(
+            modifier = Modifier
+                .weight(1f)
+                .height(1.dp)
+                .background(Color.Gray.copy(alpha = 0.16f))
         )
     }
 }
@@ -729,6 +756,170 @@ private fun RowScope.GameSettingsDropdown(
     }
 }
 
+/**
+ * 浮点滑块字段：把字符串值映射到 [Slider]，并在标签右侧实时显示当前数值。
+ *
+ * @param decimals 显示与回写时保留的小数位（0 表示按整数回写）
+ */
+@Composable
+private fun RowScope.GameSettingsSlider(
+    label: String,
+    value: String,
+    range: ClosedFloatingPointRange<Float>,
+    decimals: Int = 1,
+    steps: Int = 0,
+    suffix: String = "",
+    onValueChange: (String) -> Unit,
+) {
+    val current = value.toFloatOrNull()?.coerceIn(range.start, range.endInclusive) ?: range.start
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            FluentText(text = label, style = FluentTheme.typography.caption)
+            FluentText(
+                text = current.format(decimals) + suffix,
+                style = FluentTheme.typography.caption
+            )
+        }
+        Slider(
+            value = current,
+            onValueChange = { onValueChange(it.format(decimals)) },
+            modifier = Modifier.fillMaxWidth(),
+            valueRange = range,
+            steps = steps,
+        )
+    }
+}
+
+/**
+ * 整数滑块字段：在 [min]..[max] 间按整数步进取值（如 NIS 锐化 0-255、音频质量 0-4）。
+ */
+@Composable
+private fun RowScope.GameSettingsIntSlider(
+    label: String,
+    value: String,
+    min: Int,
+    max: Int,
+    onValueChange: (String) -> Unit,
+) {
+    GameSettingsSlider(
+        label = label,
+        value = value,
+        range = min.toFloat()..max.toFloat(),
+        decimals = 0,
+        steps = (max - min - 1).coerceAtLeast(0),
+        onValueChange = onValueChange,
+    )
+}
+
+/**
+ * 目录选择字段：只读展示当前路径 + 「浏览」按钮弹出系统目录选择框。
+ */
+@Composable
+private fun RowScope.GameSettingsFolderField(
+    label: String,
+    value: String,
+    onBrowse: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.weight(1f),
+        verticalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        FluentText(text = label, style = FluentTheme.typography.caption)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color.Gray.copy(alpha = 0.08f))
+                .padding(start = 12.dp, end = 6.dp, top = 4.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Icon(
+                imageVector = EvaIcons.Fill.Folder,
+                contentDescription = null,
+                modifier = Modifier.size(14.dp)
+            )
+            FluentText(
+                text = value.ifBlank { stringResource(Res.string.settingsNotSet) },
+                style = FluentTheme.typography.caption,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.weight(1f)
+            )
+            FluentButton(onClick = onBrowse) {
+                FluentText(stringResource(Res.string.settingsActionBrowse))
+            }
+        }
+    }
+}
+
+private fun Float.format(decimals: Int): String {
+    return if (decimals <= 0) toInt().toString() else "%.${decimals}f".format(this)
+}
+
+// 与游戏枚举顺序严格对应（见 temp/GameSettingSystem.cpp）
+private val UPSCALER_VALUES = listOf("Off", "DLSS", "NIS", "FSR", "FXAA", "TAA", "MSAA", "TSR", "SMAA")
+private val DLSS_MODE_VALUES = listOf("0", "1", "2", "3", "4", "5", "6", "7")
+private val FRAME_GEN_VALUES = listOf("0", "1", "2", "3", "4")
+private val REFLEX_VALUES = listOf("0", "1", "2")
+private val FSR_VALUES = listOf("0", "1", "2", "3")
+
+@Composable
+private fun upscalerLabels(): List<String> = listOf(
+    stringResource(Res.string.settingsGameUpscalerOff),
+    stringResource(Res.string.settingsGameUpscalerDlss),
+    stringResource(Res.string.settingsGameUpscalerNis),
+    stringResource(Res.string.settingsGameUpscalerFsr),
+    stringResource(Res.string.settingsGameUpscalerFxaa),
+    stringResource(Res.string.settingsGameUpscalerTaa),
+    stringResource(Res.string.settingsGameUpscalerMsaa),
+    stringResource(Res.string.settingsGameUpscalerTsr),
+    stringResource(Res.string.settingsGameUpscalerSmaa),
+)
+
+@Composable
+private fun dlssModeLabels(): List<String> = listOf(
+    stringResource(Res.string.settingsGameDlssOff),
+    stringResource(Res.string.settingsGameDlssAuto),
+    stringResource(Res.string.settingsGameDlssDlaa),
+    stringResource(Res.string.settingsGameDlssUltraQuality),
+    stringResource(Res.string.settingsGameDlssQuality),
+    stringResource(Res.string.settingsGameDlssBalanced),
+    stringResource(Res.string.settingsGameDlssPerformance),
+    stringResource(Res.string.settingsGameDlssUltraPerformance),
+)
+
+@Composable
+private fun frameGenLabels(): List<String> = listOf(
+    stringResource(Res.string.settingsGameFrameGenOff),
+    stringResource(Res.string.settingsGameFrameGenAuto),
+    stringResource(Res.string.settingsGameFrameGenOn2x),
+    stringResource(Res.string.settingsGameFrameGenOn3x),
+    stringResource(Res.string.settingsGameFrameGenOn4x),
+)
+
+@Composable
+private fun reflexLabels(): List<String> = listOf(
+    stringResource(Res.string.settingsGameReflexOff),
+    stringResource(Res.string.settingsGameReflexEnabled),
+    stringResource(Res.string.settingsGameReflexBoost),
+)
+
+@Composable
+private fun fsrQualityLabels(): List<String> = listOf(
+    stringResource(Res.string.settingsGameFsrQuality0),
+    stringResource(Res.string.settingsGameFsrQuality1),
+    stringResource(Res.string.settingsGameFsrQuality2),
+    stringResource(Res.string.settingsGameFsrQuality3),
+)
+
 @Composable
 private fun GameColorPickerRow(
     colorForm: GameColorForm,
@@ -781,19 +972,12 @@ private fun GameColorPickerRow(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(
-                        Brush.horizontalGradient(
-                            colors = listOf(
-                                color.copy(alpha = 0.16f),
-                                Color.Gray.copy(alpha = 0.04f),
-                            )
-                        )
-                    )
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(Color.Gray.copy(alpha = 0.05f))
                     .border(
                         width = 1.dp,
-                        color = color.copy(alpha = 0.24f),
-                        shape = RoundedCornerShape(14.dp)
+                        color = color.copy(alpha = 0.28f),
+                        shape = RoundedCornerShape(8.dp)
                     )
                     .clickable { isFlyoutVisible = !isFlyoutVisible }
                     .padding(horizontal = 12.dp, vertical = 10.dp),
@@ -876,35 +1060,37 @@ private fun Double.toDisplayChannel(): String {
 
 @Composable
 private fun SettingsHero() {
-    Column(
+    Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .background(
-                Brush.linearGradient(
-                    colors = listOf(
-                        FluentTokens.ColorToken.accent.copy(alpha = 0.22f),
-                        FluentTokens.ColorToken.accent.copy(alpha = 0.08f),
-                        Color.White.copy(alpha = 0.05f),
-                    )
-                )
-            )
+            .clip(RoundedCornerShape(12.dp))
+            .background(FluentTokens.ColorToken.accent.copy(alpha = 0.06f))
             .border(
                 width = 1.dp,
-                color = FluentTokens.ColorToken.accent.copy(alpha = 0.18f),
-                shape = RoundedCornerShape(22.dp)
+                color = FluentTokens.ColorToken.accent.copy(alpha = 0.12f),
+                shape = RoundedCornerShape(12.dp)
             )
-            .padding(horizontal = 24.dp, vertical = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
+            .padding(horizontal = 20.dp, vertical = 18.dp),
+        horizontalArrangement = Arrangement.spacedBy(14.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        FluentText(
-            text = stringResource(Res.string.settingsHeroTitle),
-            style = FluentTheme.typography.title
+        Box(
+            modifier = Modifier
+                .width(3.dp)
+                .height(40.dp)
+                .clip(RoundedCornerShape(2.dp))
+                .background(FluentTokens.ColorToken.accent)
         )
-        FluentText(
-            text = stringResource(Res.string.settingsHeroDesc),
-            style = FluentTheme.typography.body
-        )
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            FluentText(
+                text = stringResource(Res.string.settingsHeroTitle),
+                style = FluentTheme.typography.title
+            )
+            FluentText(
+                text = stringResource(Res.string.settingsHeroDesc),
+                style = FluentTheme.typography.body
+            )
+        }
     }
 }
 
@@ -925,9 +1111,9 @@ private fun SettingsGroupCard(
         ) {
             Box(
                 modifier = Modifier
-                    .width(5.dp)
-                    .height(22.dp)
-                    .clip(RoundedCornerShape(3.dp))
+                    .width(3.dp)
+                    .height(18.dp)
+                    .clip(RoundedCornerShape(2.dp))
                     .background(FluentTokens.ColorToken.accent)
             )
             FluentText(

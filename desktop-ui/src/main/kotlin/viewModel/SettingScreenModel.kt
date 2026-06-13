@@ -11,6 +11,7 @@ import core.config.GameSettings
 import core.config.GameSettingsService
 import core.config.GameSettingsStatus
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.dialogs.openDirectoryPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.Dispatchers
@@ -215,6 +216,16 @@ class SettingScreenModel(
 
     fun refreshGameSettings() {
         loadGameSettings(settingsStore.state.value.gamePath)
+    }
+
+    /** 打开目录选择器，选中后把路径写入音乐目录字段 */
+    fun pickMusicFolder(current: GameSettingsForm) {
+        screenModelScope.launch {
+            val dir = FileKit.openDirectoryPicker()
+            if (dir != null) {
+                updateGameSettingsForm(current.copy(defaultMusicPlayerFolder = dir.path))
+            }
+        }
     }
 
     fun updateGameSettingsForm(form: GameSettingsForm) {

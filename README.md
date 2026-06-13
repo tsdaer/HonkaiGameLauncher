@@ -58,6 +58,9 @@ desktop-core/src/main/kotlin/core/
 ├── LauncherLogEntry.kt         # 日志条目数据模型（@Serializable）
 ├── LauncherLogParser.kt        # 日志 JSON 解析器（支持数组/单条两种格式）
 ├── RuntimeServices.kt          # 运行时服务单例注册中心
+├── config/
+│   ├── GameSettingsService.kt  # GenericSetting.toml / GameSetting.toml 读写服务
+│   └── TomlReader.kt           # 基于 ktoml 的只读 TOML 查询器
 ├── docs/
 │   ├── DocsIndexService.kt     # 扫描 honkai_rts/docs/*.md 并构建文档索引
 │   └── DocsLinkResolver.kt     # 将 Markdown 内部链接解析为目标 DocEntry
@@ -75,6 +78,7 @@ desktop-core/src/main/kotlin/core/
 | 包               | 职责                                       |
 |-----------------|------------------------------------------|
 | `core`          | 游戏通信服务生命周期、日志 JSON 解析、运行时服务注册            |
+| `core.config`   | 游戏设置 TOML 文件读写（GenericSetting / GameSetting），点分路径查询与逐行编辑保留 |
 | `core.docs`     | Markdown 文档扫描、索引构建、文档间链接解析               |
 | `core.platform` | 平台操作抽象（设置读写、文件系统、进程启动），通过接口或构造函数注入实现可测试性 |
 | `core.plugin`   | 插件配置文件定位、TOML 解析、.pak 路径解析               |
