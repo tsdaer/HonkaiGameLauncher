@@ -27,6 +27,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.*
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import org.jetbrains.compose.resources.stringResource
+import navigation.SharedScreen
+import navigation.screenRoute
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
@@ -41,7 +43,7 @@ class PluginScreen: Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "plugin"
+        return screenRoute(SharedScreen.Plugin)
     }
 
     override fun getIcon(): ImageVector {

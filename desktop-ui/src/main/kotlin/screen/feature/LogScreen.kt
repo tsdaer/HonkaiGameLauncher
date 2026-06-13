@@ -25,6 +25,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.logAllCategories
 import honkaigamelauncher.desktop_ui.generated.resources.logAllTypes
 import honkaigamelauncher.desktop_ui.generated.resources.logTypeUnknown
 import honkaigamelauncher.desktop_ui.generated.resources.screen_log
+import navigation.SharedScreen
+import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
@@ -41,7 +43,7 @@ class LogScreen: Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "log"
+        return screenRoute(SharedScreen.Log)
     }
 
     override fun getIcon(): ImageVector {

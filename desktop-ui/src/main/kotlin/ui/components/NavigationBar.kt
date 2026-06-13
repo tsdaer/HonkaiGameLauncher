@@ -28,18 +28,15 @@ import io.github.composefluent.component.NavigationDisplayMode
 import io.github.composefluent.component.NavigationView
 import io.github.composefluent.component.Text
 import io.github.composefluent.component.rememberNavigationState
-import navigation.SharedScreen
-import navigation.featureScreens
+import navigation.ScreenDescriptor
+import navigation.screenDescriptors
 import screen.IScreenInterface
 import ui.settings.AppNavigationStyle
 import ui.settings.LocalAppUiSettings
 import ui.settings.LocalNavExpanded
 import ui.fluent.theme.FluentTokens
 import ui.fluent.theme.LegacyThemeAdapter
-
-private data class NavEntry(
-    val screenProvider: SharedScreen
-)
+import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalAnimationApi::class, ExperimentalVoyagerApi::class, ExperimentalFluentApi::class)
 @Composable
@@ -56,15 +53,10 @@ fun NavigationBar(
     }
 
     val menuEntries = remember {
-        buildList {
-            add(NavEntry(screenProvider = SharedScreen.Home))
-            addAll(featureScreens.map { NavEntry(screenProvider = it) })
-        }
+        screenDescriptors.filter { it.showInNavigation }
     }
     val footerEntries = remember {
-        listOf(
-            NavEntry(screenProvider = SharedScreen.Setting)
-        )
+        screenDescriptors.filter { !it.showInNavigation }
     }
 
     LegacyThemeAdapter(darkTheme = darkTheme) {
@@ -74,24 +66,22 @@ fun NavigationBar(
             menuItems = {
                 items(menuEntries.size) { index ->
                     val entry = menuEntries[index]
-                    val screen = rememberScreen(entry.screenProvider)
-                    val screenInfo = screen as IScreenInterface
+                    val screen = rememberScreen(entry.provider)
                     val current = navigator?.lastItem as? IScreenInterface
-                    val selected = current?.getUrl() == screenInfo.getUrl()
-                    val titleText = screenInfo.getTitle()
-                    val iconVector = screenInfo.getIcon()
+                    val selected = current.isRoute(entry)
+                    val titleText = stringResource(entry.titleKey)
 
                     MenuItem(
                         selected = selected,
                         onClick = {
-                            if (current?.getUrl() != screenInfo.getUrl()) {
+                            if (!selected) {
                                 navigator?.push(screen)
                             }
                         },
                         text = { Text(text = titleText) },
                         icon = {
                             Icon(
-                                imageVector = iconVector,
+                                imageVector = entry.icon,
                                 contentDescription = titleText
                             )
                         }
@@ -101,22 +91,21 @@ fun NavigationBar(
             footerItems = {
                 items(footerEntries.size) { index ->
                     val entry = footerEntries[index]
-                    val screen = rememberScreen(entry.screenProvider)
-                    val screenInfo = screen as IScreenInterface
+                    val screen = rememberScreen(entry.provider)
                     val current = navigator?.lastItem as? IScreenInterface
-                    val titleText = screenInfo.getTitle()
-                    val iconVector = screenInfo.getIcon()
+                    val selected = current.isRoute(entry)
+                    val titleText = stringResource(entry.titleKey)
                     MenuItem(
-                        selected = current?.getUrl() == screenInfo.getUrl(),
+                        selected = selected,
                         onClick = {
-                            if (current?.getUrl() != screenInfo.getUrl()) {
+                            if (!selected) {
                                 navigator?.push(screen)
                             }
                         },
                         text = { Text(text = titleText) },
                         icon = {
                             Icon(
-                                imageVector = iconVector,
+                                imageVector = entry.icon,
                                 contentDescription = titleText
                             )
                         }
@@ -164,6 +153,11 @@ fun NavigationBar(
             }
         )
     }
+}
+
+private fun IScreenInterface?.isRoute(descriptor: ScreenDescriptor): Boolean {
+    val currentRoute = this?.getUrl() ?: return false
+    return currentRoute == descriptor.route || currentRoute == descriptor.route.removePrefix("/")
 }
 
 private fun AppNavigationStyle.toNavigationDisplayMode(): NavigationDisplayMode {

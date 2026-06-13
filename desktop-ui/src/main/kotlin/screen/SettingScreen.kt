@@ -30,6 +30,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.*
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import io.github.composefluent.component.Switcher
+import navigation.SharedScreen
+import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
@@ -45,7 +47,7 @@ class SettingScreen: Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "setting"
+        return screenRoute(SharedScreen.Setting)
     }
 
     @Composable

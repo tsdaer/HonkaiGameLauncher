@@ -53,6 +53,8 @@ import io.github.composefluent.component.InfoBar
 import io.github.composefluent.component.InfoBarSeverity
 import io.github.composefluent.component.ProgressBar
 import io.github.composefluent.component.TextField
+import navigation.SharedScreen
+import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.components.WebEngineInitContent
@@ -68,7 +70,7 @@ class WebScreen: Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "web"
+        return screenRoute(SharedScreen.Web)
     }
 
     override fun getIcon(): ImageVector {

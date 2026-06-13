@@ -5,15 +5,19 @@ import cafe.adriel.voyager.navigator.Navigator
 
 object NavigationService {
     private val routeMap by lazy {
-        SharedScreen::class.sealedSubclasses
-            .associate { clazz ->
-                val screen = clazz.objectInstance as SharedScreen
-                "/${screen::class.simpleName!!.lowercase()}" to screen
+        screenDescriptors
+            .flatMap { descriptor ->
+                listOf(
+                    descriptor.route to descriptor.provider,
+                    descriptor.route.removePrefix("/") to descriptor.provider,
+                )
             }
+            .toMap()
     }
 
-    fun navigateTo(url: String,navigator:Navigator) {
-        routeMap[url]?.let { provider -> navigator.push(ScreenRegistry.get(provider))
+    fun navigateTo(url: String, navigator: Navigator) {
+        routeMap[url]?.let { provider ->
+            navigator.push(ScreenRegistry.get(provider))
         }
     }
 }

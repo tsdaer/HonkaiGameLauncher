@@ -90,6 +90,7 @@ import honkaigamelauncher.desktop_ui.generated.resources.setting
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import navigation.SharedScreen
+import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
@@ -104,7 +105,7 @@ class HomeScreen : Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "home"
+        return screenRoute(SharedScreen.Home)
     }
 
     override fun getIcon(): ImageVector {

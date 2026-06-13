@@ -92,6 +92,7 @@ Windows:
 
 ## 开发注意事项
 
+- 架构边界、页面新增流程与 core service 新增流程见 `docs/architecture.md`。
 - 仓库级 `gradle.properties` 不提交本地代理配置；如需代理，请放到用户级 `~/.gradle/gradle.properties`。
 - 日志列表默认上限为 `10000` 条，可通过 `logMaxEntries` 设置调整。
 - 修改多语言文案时保持 `values-zh` 与 `values-en` key 一致。

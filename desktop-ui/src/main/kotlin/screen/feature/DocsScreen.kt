@@ -60,6 +60,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
 import io.github.composefluent.FluentTheme
 import io.github.composefluent.component.Icon
 import io.github.composefluent.component.Text as FluentText
+import navigation.SharedScreen
+import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import ui.fluent.components.FluentButton
@@ -75,7 +77,7 @@ class DocsScreen : Screen, IScreenInterface {
     override val key = uniqueScreenKey
 
     override fun getUrl(): String {
-        return "docs"
+        return screenRoute(SharedScreen.Docs)
     }
 
     override fun getIcon(): ImageVector {

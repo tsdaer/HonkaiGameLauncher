@@ -86,9 +86,9 @@ desktop-core
 | O3 | doing | 已新增 `GamePathService`、`PluginConfigService`、`DocsIndexService`、`ProcessLauncher` 与插件 parser，部分 ScreenModel 已切换到 core service。 | 继续抽出设置访问等平台能力。 |
 | O4 | todo | 暂未系统性合并页面 UI state。 | 逐页引入 `HomeUiState`、`PluginUiState`、`DocsUiState`、`LogUiState`。 |
 | O5 | todo | `DocsMarkdownPreview.kt` 仍待拆分。 | 先做纯移动和私有函数拆分，不改变渲染行为。 |
-| O6 | todo | 导航 descriptor 尚未建立。 | 定义显式 route 与 `ScreenDescriptor`。 |
+| O6 | done | 已建立显式 `ScreenDescriptor` 列表，集中声明 route、标题资源、图标、导航可见性与排序；`NavigationService` 已移除 `sealedSubclasses` 反射路由，并兼容无斜杠旧写法。 | 后续新增页面时同步注册 Voyager Screen 并补充 descriptor。 |
 | O7 | doing | 已移除仓库级 Gradle 代理配置，统一 `kotlin-reflect` 版本，将默认打包目标收敛为 Windows `Exe`，并通过 `:desktop-app:check`。 | 验证当前平台打包命令。 |
-| O8 | doing | README 已补充质量检查命令、Windows 打包范围与代理配置说明。 | 新增 `docs/architecture.md` 与 PR 检查清单。 |
+| O8 | done | README 已补充质量检查命令、Windows 打包范围与代理配置说明；已新增 `docs/architecture.md` 与 PR 检查清单。 | 后续随架构边界变化持续维护文档。 |
 
 ---
 
@@ -330,7 +330,7 @@ desktop-core
 ### 交付物
 
 - 导航 descriptor
-- 路由兼容清单
+- 路由兼容清单：新 route 使用 `/home`、`/setting`、`/plugin`、`/docs`、`/web`、`/log`；`NavigationService` 仍接受不带 `/` 的 `home`、`setting`、`plugin`、`docs`、`web`、`log`。
 
 ---
 
