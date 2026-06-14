@@ -9,14 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.registry.ScreenRegistry
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
+import cafe.adriel.voyager.navigator.LocalNavigator
 import compose.icons.lineawesomeicons.PuzzlePieceSolid
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.screen_plugin
 import navigation.SharedScreen
 import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
+import navigation.FeatureLinkIntents
 import screen.IScreenInterface
 import screen.plugin.PluginListPanel
 import screen.plugin.PluginOverview
@@ -49,6 +52,7 @@ class PluginScreen : Screen, IScreenInterface {
     override fun Content() {
         val screenModel = rememberScreenModel { PluginScreenModel() }
         val uiState = screenModel.uiState
+        val navigator = LocalNavigator.current
 
         Column(
             modifier = Modifier
@@ -64,6 +68,10 @@ class PluginScreen : Screen, IScreenInterface {
 
             PluginListPanel(
                 uiState = uiState,
+                onOpenDocument = { document ->
+                    FeatureLinkIntents.openDocument(document.relativePath)
+                    navigator?.push(ScreenRegistry.get(SharedScreen.Docs))
+                },
                 modifier = Modifier.fillMaxSize(),
             )
         }

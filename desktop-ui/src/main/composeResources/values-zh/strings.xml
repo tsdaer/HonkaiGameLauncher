@@ -93,6 +93,8 @@
     <string name="pluginMetaGameFeature">GameFeature</string>
     <string name="pluginMetaPakPath">PakPath</string>
     <string name="pluginMetaResolved">Resolved</string>
+    <string name="pluginLinkedDoc">关联文档</string>
+    <string name="pluginOpenDocument">打开文档</string>
 
     <string name="docsRefresh">刷新文档</string>
     <string name="docsDirectoryLabel">文档目录</string>
@@ -109,6 +111,7 @@
     <string name="docsEmptyDirectory">文档目录为空，或其中没有 markdown 文件。</string>
     <string name="docsErrorRead">文档读取失败：%1$s</string>
     <string name="docsErrorUnresolvedLink">未找到链接目标：%1$s</string>
+    <string name="docsOpenPlugin">打开插件</string>
 
     <string name="setGamePath">设置游戏路径</string>
     <string name="themeSetting">主题</string>

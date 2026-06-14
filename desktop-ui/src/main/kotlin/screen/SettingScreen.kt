@@ -927,20 +927,24 @@ private fun GameColorPickerRow(
     onColorChanged: (GameColorForm) -> Unit,
 ) {
     val color = colorForm.toComposeColor()
+    val flyoutScrollState = rememberScrollState()
 
     FlyoutContainer(
-        placement = FlyoutPlacement.BottomAlignedStart,
+        placement = FlyoutPlacement.Auto,
         flyout = {
             Column(
-                modifier = Modifier.width(330.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                modifier = Modifier
+                    .widthIn(min = 280.dp, max = 300.dp)
+                    .heightIn(max = 320.dp)
+                    .verticalScroll(flyoutScrollState),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    ColorPreviewDot(color = color, size = 32.dp)
+                    ColorPreviewDot(color = color, size = 28.dp)
                     Column(modifier = Modifier.weight(1f)) {
                         FluentText(
                             text = colorForm.name,
@@ -953,6 +957,7 @@ private fun GameColorPickerRow(
                     }
                 }
                 ColorPicker(
+                    modifier = Modifier.fillMaxWidth(),
                     colorSpectrum = ColorSpectrum.Round,
                     color = color,
                     onSelectedColorChanged = { selectedColor ->
@@ -961,11 +966,15 @@ private fun GameColorPickerRow(
                     alphaEnabled = true,
                     moreButtonVisible = false,
                 )
-                FluentButton(
-                    onClick = { isFlyoutVisible = false },
-                    modifier = Modifier.align(Alignment.End)
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    FluentText(stringResource(Res.string.settingsGameColorClose))
+                    FluentButton(
+                        onClick = { isFlyoutVisible = false }
+                    ) {
+                        FluentText(stringResource(Res.string.settingsGameColorClose))
+                    }
                 }
             }
         },

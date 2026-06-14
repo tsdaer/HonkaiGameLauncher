@@ -93,6 +93,8 @@
     <string name="pluginMetaGameFeature">GameFeature</string>
     <string name="pluginMetaPakPath">PakPath</string>
     <string name="pluginMetaResolved">Resolved</string>
+    <string name="pluginLinkedDoc">linked doc</string>
+    <string name="pluginOpenDocument">open docs</string>
 
     <string name="docsRefresh">refresh docs</string>
     <string name="docsDirectoryLabel">docs directory</string>
@@ -109,6 +111,7 @@
     <string name="docsEmptyDirectory">the docs directory is empty or contains no markdown files.</string>
     <string name="docsErrorRead">failed to read doc: %1$s</string>
     <string name="docsErrorUnresolvedLink">link target was not found: %1$s</string>
+    <string name="docsOpenPlugin">open plugin</string>
 
     <string name="setGamePath">set game path</string>
     <string name="themeSetting">theme</string>

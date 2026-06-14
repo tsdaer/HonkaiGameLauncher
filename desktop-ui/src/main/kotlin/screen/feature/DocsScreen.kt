@@ -18,14 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
+import cafe.adriel.voyager.core.registry.ScreenRegistry
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.core.screen.uniqueScreenKey
+import cafe.adriel.voyager.navigator.LocalNavigator
 import compose.icons.EvaIcons
 import compose.icons.evaicons.Fill
 import compose.icons.evaicons.fill.File
 import core.docs.DocsLoadStatus
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
+import navigation.FeatureLinkIntents
 import navigation.SharedScreen
 import navigation.screenRoute
 import org.jetbrains.compose.resources.stringResource
@@ -64,6 +67,7 @@ class DocsScreen : Screen, IScreenInterface {
     override fun Content() {
         val screenModel = rememberScreenModel { DocsScreenModel() }
         val uiState = screenModel.uiState
+        val navigator = LocalNavigator.current
 
         val documentPath = uiState.selectedDocument?.absolutePath
         val renderedMarkdown = remember(uiState.markdownContent, documentPath) {
@@ -133,6 +137,10 @@ class DocsScreen : Screen, IScreenInterface {
                 DocsReaderPanel(
                     uiState = uiState,
                     screenModel = screenModel,
+                    onOpenPlugin = { pluginName ->
+                        FeatureLinkIntents.openPlugin(pluginName)
+                        navigator?.push(ScreenRegistry.get(SharedScreen.Plugin))
+                    },
                     renderedMarkdown = renderedMarkdown,
                     headingSlugs = headingSlugs,
                     readerScrollState = readerScrollState,

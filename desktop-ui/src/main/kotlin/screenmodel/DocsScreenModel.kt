@@ -11,6 +11,8 @@ import core.docs.DocsLinkResolution
 import core.docs.DocsLinkResolver
 import core.docs.DocsLoadResult
 import core.docs.DocsLoadStatus
+import core.docs.PluginDocsLinker
+import core.plugin.PluginConfigService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import navigation.FeatureLinkIntents
 import ui.settings.AppSettingsStore
 import ui.settings.SharedAppSettingsStore
 
@@ -44,6 +47,7 @@ data class DocsUiState(
     val loadStatus: DocsLoadStatus = DocsLoadStatus.MissingGamePath,
     val errorMessage: String = "",
     val linkErrorMessage: String = "",
+    val pluginNameByDocumentPath: Map<String, String> = emptyMap(),
     val pendingAnchor: String? = null,
     val isLoading: Boolean = false,
 )
@@ -62,6 +66,8 @@ class DocsScreenModel(
     private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val docsIndexService: DocsIndexService = DocsIndexService(),
     private val docsLinkResolver: DocsLinkResolver = DocsLinkResolver(),
+    private val pluginConfigService: PluginConfigService = PluginConfigService(),
+    private val pluginDocsLinker: PluginDocsLinker = PluginDocsLinker(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
@@ -99,16 +105,23 @@ class DocsScreenModel(
 
     private fun refresh(currentGamePath: String?) {
         refreshJob?.cancel()
-        val previousSelection = uiState.selectedDocument?.relativePath
+        val previousSelection = FeatureLinkIntents.consumeDocumentSelection()
+            ?: uiState.selectedDocument?.relativePath
         uiState = uiState.copy(
             gamePath = currentGamePath,
             isLoading = true,
         )
         refreshJob = screenModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                docsIndexService.load(currentGamePath, previousSelection)
+                val docsResult = docsIndexService.load(currentGamePath, previousSelection)
+                val pluginResult = pluginConfigService.load(currentGamePath)
+                val links = pluginDocsLinker.link(pluginResult.plugins, docsResult.documents)
+                DocsRefreshResult(
+                    docsResult = docsResult,
+                    pluginNameByDocumentPath = links.pluginNameByDocumentPath,
+                )
             }
-            applyLoadResult(result)
+            applyLoadResult(result.docsResult, result.pluginNameByDocumentPath)
         }
     }
 
@@ -161,7 +174,10 @@ class DocsScreenModel(
         }
     }
 
-    private fun applyLoadResult(result: DocsLoadResult) {
+    private fun applyLoadResult(
+        result: DocsLoadResult,
+        pluginNameByDocumentPath: Map<String, String>,
+    ) {
         uiState = uiState.copy(
             documents = result.documents,
             docsDirectory = result.docsDirectory,
@@ -170,8 +186,14 @@ class DocsScreenModel(
             loadStatus = result.status,
             errorMessage = result.errorMessage,
             linkErrorMessage = "",
+            pluginNameByDocumentPath = pluginNameByDocumentPath,
             isLoading = false,
         )
     }
 
 }
+
+private data class DocsRefreshResult(
+    val docsResult: DocsLoadResult,
+    val pluginNameByDocumentPath: Map<String, String>,
+)

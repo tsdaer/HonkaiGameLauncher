@@ -3,6 +3,7 @@ package screen.plugin
 import androidx.compose.foundation.VerticalScrollbar
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,6 +22,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollbarAdapter
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -40,6 +42,7 @@ import compose.icons.feathericons.RefreshCw
 import compose.icons.feathericons.Settings
 import core.plugin.GamePluginConfig
 import core.plugin.PluginLoadStatus
+import core.docs.DocEntry
 import honkaigamelauncher.desktop_ui.generated.resources.Res
 import honkaigamelauncher.desktop_ui.generated.resources.pluginCategoryDefault
 import honkaigamelauncher.desktop_ui.generated.resources.pluginConfigLabel
@@ -59,6 +62,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.pluginMetaPakPath
 import honkaigamelauncher.desktop_ui.generated.resources.pluginMetaResolved
 import honkaigamelauncher.desktop_ui.generated.resources.pluginMountOrder
 import honkaigamelauncher.desktop_ui.generated.resources.pluginNotBound
+import honkaigamelauncher.desktop_ui.generated.resources.pluginLinkedDoc
+import honkaigamelauncher.desktop_ui.generated.resources.pluginOpenDocument
 import honkaigamelauncher.desktop_ui.generated.resources.pluginRefresh
 import honkaigamelauncher.desktop_ui.generated.resources.pluginStatusError
 import honkaigamelauncher.desktop_ui.generated.resources.pluginStatusLoaded
@@ -222,9 +227,16 @@ fun PluginOverview(
 @Composable
 fun PluginListPanel(
     uiState: PluginUiState,
+    onOpenDocument: (DocEntry) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val state = rememberLazyListState()
+    LaunchedEffect(uiState.selectedPluginName, uiState.plugins) {
+        val selectedIndex = uiState.plugins.indexOfFirst { it.name == uiState.selectedPluginName }
+        if (selectedIndex >= 0) {
+            state.animateScrollToItem(selectedIndex)
+        }
+    }
 
     Box(modifier = modifier) {
         FluentCard(
@@ -243,7 +255,12 @@ fun PluginListPanel(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(uiState.plugins) { plugin ->
-                        PluginItem(plugin)
+                        PluginItem(
+                            plugin = plugin,
+                            document = uiState.pluginDocumentByPluginName[plugin.name],
+                            selected = uiState.selectedPluginName == plugin.name,
+                            onOpenDocument = onOpenDocument,
+                        )
                     }
                 }
             }
@@ -403,12 +420,18 @@ private fun EmptyPluginState(status: PluginLoadStatus, errorMessage: String) {
 }
 
 @Composable
-private fun PluginItem(plugin: GamePluginConfig) {
-    val accentColor = if (plugin.defaultEnable) {
-        FluentTokens.ColorToken.accent
-    } else {
-        FluentTokens.ColorToken.LogLevel.unknown
+private fun PluginItem(
+    plugin: GamePluginConfig,
+    document: DocEntry?,
+    selected: Boolean,
+    onOpenDocument: (DocEntry) -> Unit,
+) {
+    val accentColor = when {
+        selected -> FluentTokens.ColorToken.accent
+        plugin.defaultEnable -> FluentTokens.ColorToken.accent
+        else -> FluentTokens.ColorToken.LogLevel.unknown
     }
+    val borderAlpha = if (selected) 0.28f else 0.10f
 
     FluentCard(modifier = Modifier.fillMaxWidth()) {
         Row(
@@ -464,6 +487,14 @@ private fun PluginItem(plugin: GamePluginConfig) {
                             overflow = TextOverflow.Ellipsis
                         )
                     }
+                    document?.let {
+                        PluginChip(
+                            text = stringResource(Res.string.pluginOpenDocument),
+                            icon = FeatherIcons.File,
+                            color = FluentTokens.ColorToken.accent,
+                            onClick = { onOpenDocument(it) }
+                        )
+                    }
                     PluginChip(
                         text = if (plugin.isBuiltIn) stringResource(Res.string.pluginTypeBuiltIn) else stringResource(Res.string.pluginTypePak),
                         icon = if (plugin.isBuiltIn) FeatherIcons.Box else FeatherIcons.File,
@@ -507,7 +538,7 @@ private fun PluginItem(plugin: GamePluginConfig) {
                         .background(FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.05f))
                         .border(
                             1.dp,
-                            FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = 0.10f),
+                            FluentTokens.ColorToken.LogLevel.unknown.copy(alpha = borderAlpha),
                             RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 10.dp, vertical = 8.dp),
@@ -518,6 +549,9 @@ private fun PluginItem(plugin: GamePluginConfig) {
                     PluginMetaLine(stringResource(Res.string.pluginMetaPakPath), plugin.pakPath.ifBlank { stringResource(Res.string.pluginNotBound) })
                     if (!plugin.isBuiltIn) {
                         PluginMetaLine(stringResource(Res.string.pluginMetaResolved), plugin.resolvedPakPath.orEmpty())
+                    }
+                    document?.let {
+                        PluginMetaLine(stringResource(Res.string.pluginLinkedDoc), it.relativePath)
                     }
                 }
             }
@@ -553,9 +587,11 @@ private fun PluginChip(
     text: String,
     icon: ImageVector,
     color: Color,
+    onClick: (() -> Unit)? = null,
 ) {
     Row(
         modifier = Modifier
+            .let { base -> if (onClick != null) base.clickable(onClick = onClick) else base }
             .clip(RoundedCornerShape(6.dp))
             .background(color.copy(alpha = 0.12f))
             .border(1.dp, color.copy(alpha = 0.18f), RoundedCornerShape(6.dp))

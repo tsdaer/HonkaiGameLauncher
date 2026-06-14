@@ -58,6 +58,7 @@ import honkaigamelauncher.desktop_ui.generated.resources.docsGeneralSection
 import honkaigamelauncher.desktop_ui.generated.resources.docsMissingDirectory
 import honkaigamelauncher.desktop_ui.generated.resources.docsMissingGamePath
 import honkaigamelauncher.desktop_ui.generated.resources.docsOverviewTitle
+import honkaigamelauncher.desktop_ui.generated.resources.docsOpenPlugin
 import honkaigamelauncher.desktop_ui.generated.resources.docsRefresh
 import honkaigamelauncher.desktop_ui.generated.resources.docsTocTitle
 import honkaigamelauncher.desktop_ui.generated.resources.screen_doc
@@ -244,6 +245,7 @@ internal fun DocsListPanel(
 internal fun DocsReaderPanel(
     uiState: DocsUiState,
     screenModel: DocsScreenModel,
+    onOpenPlugin: (String) -> Unit,
     renderedMarkdown: String,
     headingSlugs: Map<Int, String>,
     readerScrollState: ScrollState,
@@ -263,7 +265,10 @@ internal fun DocsReaderPanel(
                         .padding(12.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    ReaderHeader(uiState = uiState)
+                    ReaderHeader(
+                        uiState = uiState,
+                        onOpenPlugin = onOpenPlugin,
+                    )
 
                     if (uiState.linkErrorMessage.isNotBlank()) {
                         InlineWarning(
@@ -531,24 +536,54 @@ private fun DocsListEmptyState(uiState: DocsUiState) {
 }
 
 @Composable
-private fun ReaderHeader(uiState: DocsUiState) {
+private fun ReaderHeader(
+    uiState: DocsUiState,
+    onOpenPlugin: (String) -> Unit,
+) {
     val entry = uiState.selectedDocument ?: return
     val title = if (entry.isDefault) {
         stringResource(Res.string.docsOverviewTitle)
     } else {
         entry.title
     }
+    val pluginName = uiState.pluginNameByDocumentPath[entry.relativePath]
 
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        FluentText(
-            text = title,
-            style = FluentTheme.typography.title
-        )
-        FluentText(
-            text = entry.relativePath,
-            style = FluentTheme.typography.caption,
-            color = FluentTokens.ColorToken.LogLevel.veryVerbose
-        )
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Top,
+        horizontalArrangement = Arrangement.spacedBy(10.dp)
+    ) {
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            FluentText(
+                text = title,
+                style = FluentTheme.typography.title
+            )
+            FluentText(
+                text = entry.relativePath,
+                style = FluentTheme.typography.caption,
+                color = FluentTokens.ColorToken.LogLevel.veryVerbose
+            )
+        }
+        if (pluginName != null) {
+            FluentButton(
+                onClick = { onOpenPlugin(pluginName) },
+            ) {
+                Icon(
+                    imageVector = FeatherIcons.Folder,
+                    contentDescription = stringResource(Res.string.docsOpenPlugin),
+                    modifier = Modifier.size(16.dp)
+                )
+                FluentText(
+                    text = stringResource(Res.string.docsOpenPlugin),
+                    style = FluentTheme.typography.caption,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
     }
 }
 

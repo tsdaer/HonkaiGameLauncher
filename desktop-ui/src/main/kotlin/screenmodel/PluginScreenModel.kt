@@ -5,6 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
+import core.docs.DocEntry
+import core.docs.DocsIndexService
+import core.docs.PluginDocsLinker
 import core.plugin.GamePluginConfig
 import core.plugin.PluginConfigService
 import core.plugin.PluginLoadStatus
@@ -15,6 +18,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import navigation.FeatureLinkIntents
 import ui.settings.AppSettingsStore
 import ui.settings.SharedAppSettingsStore
 
@@ -26,6 +30,8 @@ data class PluginUiState(
     val configPath: String = "",
     val pluginDirectory: String = "",
     val plugins: List<GamePluginConfig> = emptyList(),
+    val pluginDocumentByPluginName: Map<String, DocEntry> = emptyMap(),
+    val selectedPluginName: String? = null,
     val loadStatus: PluginLoadStatus = PluginLoadStatus.MissingGamePath,
     val errorMessage: String = "",
     val isLoading: Boolean = false,
@@ -40,6 +46,8 @@ data class PluginUiState(
 class PluginScreenModel(
     private val settingsStore: AppSettingsStore = SharedAppSettingsStore.instance,
     private val pluginConfigService: PluginConfigService = PluginConfigService(),
+    private val docsIndexService: DocsIndexService = DocsIndexService(),
+    private val pluginDocsLinker: PluginDocsLinker = PluginDocsLinker(),
 ) : ScreenModel {
 
     var uiState by mutableStateOf(
@@ -70,16 +78,33 @@ class PluginScreenModel(
         )
         refreshJob = screenModelScope.launch {
             val result = withContext(Dispatchers.IO) {
-                pluginConfigService.load(currentGamePath)
+                val pluginResult = pluginConfigService.load(currentGamePath)
+                val docsResult = docsIndexService.load(currentGamePath, null)
+                val links = pluginDocsLinker.link(pluginResult.plugins, docsResult.documents)
+                PluginRefreshResult(
+                    pluginResult = pluginResult,
+                    pluginDocumentByPluginName = links.pluginDocumentByPluginName
+                        .mapNotNull { (pluginName, document) -> document?.let { pluginName to it } }
+                        .toMap(),
+                )
             }
+            val selectedPluginName = FeatureLinkIntents.consumePluginSelection()
+                ?.takeIf { targetName -> result.pluginResult.plugins.any { it.name == targetName } }
             uiState = uiState.copy(
-                plugins = result.plugins,
-                pluginDirectory = result.pluginDirectory,
-                configPath = result.configPath,
-                loadStatus = result.status,
-                errorMessage = result.errorMessage,
+                plugins = result.pluginResult.plugins,
+                pluginDocumentByPluginName = result.pluginDocumentByPluginName,
+                selectedPluginName = selectedPluginName,
+                pluginDirectory = result.pluginResult.pluginDirectory,
+                configPath = result.pluginResult.configPath,
+                loadStatus = result.pluginResult.status,
+                errorMessage = result.pluginResult.errorMessage,
                 isLoading = false,
             )
         }
     }
 }
+
+private data class PluginRefreshResult(
+    val pluginResult: core.plugin.PluginLoadResult,
+    val pluginDocumentByPluginName: Map<String, DocEntry>,
+)
