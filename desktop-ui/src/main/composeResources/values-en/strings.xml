@@ -100,6 +100,10 @@
     <string name="docsGamePluginsSection">plugin docs</string>
     <string name="docsOverviewTitle">overview</string>
     <string name="docsTocTitle">Table of contents</string>
+    <string name="docsCollapseList">collapse doc list</string>
+    <string name="docsExpandList">expand doc list</string>
+    <string name="docsCollapseToc">collapse table of contents</string>
+    <string name="docsExpandToc">expand table of contents</string>
     <string name="docsMissingGamePath">game path is not set. Choose the game exe file in Settings first.</string>
     <string name="docsMissingDirectory">honkai_rts\\docs directory was not found.</string>
     <string name="docsEmptyDirectory">the docs directory is empty or contains no markdown files.</string>

@@ -100,6 +100,10 @@
     <string name="docsGamePluginsSection">插件文档</string>
     <string name="docsOverviewTitle">概览</string>
     <string name="docsTocTitle">目录</string>
+    <string name="docsCollapseList">收起文档列表</string>
+    <string name="docsExpandList">展开文档列表</string>
+    <string name="docsCollapseToc">收起目录</string>
+    <string name="docsExpandToc">展开目录</string>
     <string name="docsMissingGamePath">未设置游戏路径。请先在设置中选择游戏 exe 文件。</string>
     <string name="docsMissingDirectory">未找到 honkai_rts\\docs 目录。</string>
     <string name="docsEmptyDirectory">文档目录为空，或其中没有 markdown 文件。</string>

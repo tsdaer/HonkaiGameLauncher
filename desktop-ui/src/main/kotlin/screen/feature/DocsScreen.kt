@@ -10,7 +10,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
@@ -79,6 +82,10 @@ class DocsScreen : Screen, IScreenInterface {
             DocsReaderController(readerScrollState)
         }
 
+        // 文档列表与目录面板的折叠状态，由用户手动切换
+        var listCollapsed by remember { mutableStateOf(false) }
+        var tocCollapsed by remember { mutableStateOf(false) }
+
         LaunchedEffect(documentPath, uiState.pendingAnchor, readerController.registeredCount) {
             val anchor = uiState.pendingAnchor ?: return@LaunchedEffect
             if (readerController.resolveAnchor(anchor) != null) {
@@ -112,9 +119,15 @@ class DocsScreen : Screen, IScreenInterface {
                 DocsListPanel(
                     uiState = uiState,
                     onSelectDocument = { screenModel.selectDocument(it) },
-                    modifier = Modifier
-                        .weight(0.92f)
-                        .fillMaxHeight(),
+                    collapsed = listCollapsed,
+                    onToggleCollapsed = { listCollapsed = !listCollapsed },
+                    modifier = if (listCollapsed) {
+                        Modifier.fillMaxHeight()
+                    } else {
+                        Modifier
+                            .weight(0.92f)
+                            .fillMaxHeight()
+                    },
                 )
 
                 DocsReaderPanel(
@@ -133,9 +146,15 @@ class DocsScreen : Screen, IScreenInterface {
                     DocsTableOfContents(
                         items = tocItems,
                         controller = readerController,
-                        modifier = Modifier
-                            .weight(0.7f)
-                            .fillMaxHeight()
+                        collapsed = tocCollapsed,
+                        onToggleCollapsed = { tocCollapsed = !tocCollapsed },
+                        modifier = if (tocCollapsed) {
+                            Modifier.fillMaxHeight()
+                        } else {
+                            Modifier
+                                .weight(0.7f)
+                                .fillMaxHeight()
+                        }
                     )
                 }
             }

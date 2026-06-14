@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -34,17 +35,24 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
 import compose.icons.feathericons.AlertCircle
+import compose.icons.feathericons.ChevronLeft
+import compose.icons.feathericons.ChevronRight
 import compose.icons.feathericons.File
 import compose.icons.feathericons.Folder
+import compose.icons.feathericons.List
 import compose.icons.feathericons.RefreshCw
 import core.docs.DocEntry
 import core.docs.DocSection
 import core.docs.DocsLoadStatus
 import honkaigamelauncher.desktop_ui.generated.resources.Res
+import honkaigamelauncher.desktop_ui.generated.resources.docsCollapseList
+import honkaigamelauncher.desktop_ui.generated.resources.docsCollapseToc
 import honkaigamelauncher.desktop_ui.generated.resources.docsDirectoryLabel
 import honkaigamelauncher.desktop_ui.generated.resources.docsEmptyDirectory
 import honkaigamelauncher.desktop_ui.generated.resources.docsErrorRead
 import honkaigamelauncher.desktop_ui.generated.resources.docsErrorUnresolvedLink
+import honkaigamelauncher.desktop_ui.generated.resources.docsExpandList
+import honkaigamelauncher.desktop_ui.generated.resources.docsExpandToc
 import honkaigamelauncher.desktop_ui.generated.resources.docsGamePluginsSection
 import honkaigamelauncher.desktop_ui.generated.resources.docsGeneralSection
 import honkaigamelauncher.desktop_ui.generated.resources.docsMissingDirectory
@@ -154,65 +162,81 @@ internal fun DocsOverview(
 internal fun DocsListPanel(
     uiState: DocsUiState,
     onSelectDocument: (String) -> Unit,
+    collapsed: Boolean,
+    onToggleCollapsed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (collapsed) {
+        DocsCollapsedRail(
+            icon = FeatherIcons.List,
+            expandDescription = stringResource(Res.string.docsExpandList),
+            onExpand = onToggleCollapsed,
+            modifier = modifier,
+        )
+        return
+    }
+
     val listState = rememberLazyListState()
 
-    Box(modifier = modifier) {
-        FluentCard(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(end = 10.dp)
-        ) {
-            if (uiState.documents.isEmpty()) {
-                DocsListEmptyState(uiState = uiState)
-            } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 10.dp, vertical = 10.dp),
-                    state = listState,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    val generalDocs = uiState.documents.filter { it.section == DocSection.General }
-                    val pluginDocs = uiState.documents.filter { it.section == DocSection.GamePlugins }
+    FluentCard(modifier = modifier) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            DocsPanelHeader(
+                title = stringResource(Res.string.screen_doc),
+                collapseDescription = stringResource(Res.string.docsCollapseList),
+                onCollapse = onToggleCollapsed,
+            )
 
-                    if (generalDocs.isNotEmpty()) {
-                        item {
-                            DocsSectionHeader(stringResource(Res.string.docsGeneralSection))
+            Box(modifier = Modifier.fillMaxSize()) {
+                if (uiState.documents.isEmpty()) {
+                    DocsListEmptyState(uiState = uiState)
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(start = 10.dp, end = 20.dp, bottom = 10.dp),
+                        state = listState,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                    ) {
+                        val generalDocs = uiState.documents.filter { it.section == DocSection.General }
+                        val pluginDocs = uiState.documents.filter { it.section == DocSection.GamePlugins }
+
+                        if (generalDocs.isNotEmpty()) {
+                            item {
+                                DocsSectionHeader(stringResource(Res.string.docsGeneralSection))
+                            }
+                            items(generalDocs, key = { it.absolutePath }) { entry ->
+                                DocListItem(
+                                    entry = entry,
+                                    selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
+                                    onClick = { onSelectDocument(entry.absolutePath) },
+                                )
+                            }
                         }
-                        items(generalDocs, key = { it.absolutePath }) { entry ->
-                            DocListItem(
-                                entry = entry,
-                                selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
-                                onClick = { onSelectDocument(entry.absolutePath) },
-                            )
+
+                        if (pluginDocs.isNotEmpty()) {
+                            item {
+                                DocsSectionHeader(stringResource(Res.string.docsGamePluginsSection))
+                            }
+                            items(pluginDocs, key = { it.absolutePath }) { entry ->
+                                DocListItem(
+                                    entry = entry,
+                                    selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
+                                    onClick = { onSelectDocument(entry.absolutePath) },
+                                )
+                            }
                         }
                     }
 
-                    if (pluginDocs.isNotEmpty()) {
-                        item {
-                            DocsSectionHeader(stringResource(Res.string.docsGamePluginsSection))
-                        }
-                        items(pluginDocs, key = { it.absolutePath }) { entry ->
-                            DocListItem(
-                                entry = entry,
-                                selected = uiState.selectedDocument?.absolutePath == entry.absolutePath,
-                                onClick = { onSelectDocument(entry.absolutePath) },
-                            )
-                        }
-                    }
+                    VerticalScrollbar(
+                        modifier = Modifier
+                            .align(Alignment.CenterEnd)
+                            .fillMaxHeight()
+                            .padding(vertical = 4.dp),
+                        adapter = rememberScrollbarAdapter(scrollState = listState)
+                    )
                 }
             }
         }
-
-        VerticalScrollbar(
-            modifier = Modifier
-                .align(Alignment.CenterEnd)
-                .fillMaxHeight()
-                .padding(vertical = 8.dp),
-            adapter = rememberScrollbarAdapter(scrollState = listState)
-        )
     }
 }
 
@@ -287,22 +311,29 @@ internal fun DocsReaderPanel(
 internal fun DocsTableOfContents(
     items: List<DocTocItem>,
     controller: DocsReaderController,
+    collapsed: Boolean,
+    onToggleCollapsed: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    if (collapsed) {
+        DocsCollapsedRail(
+            icon = FeatherIcons.List,
+            expandDescription = stringResource(Res.string.docsExpandToc),
+            onExpand = onToggleCollapsed,
+            modifier = modifier,
+        )
+        return
+    }
+
     val scope = rememberCoroutineScope()
     val tocScrollState = rememberScrollState()
 
     FluentCard(modifier = modifier) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(12.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            FluentText(
-                text = stringResource(Res.string.docsTocTitle),
-                style = FluentTheme.typography.bodyStrong,
-                color = FluentTokens.ColorToken.LogLevel.veryVerbose,
+        Column(modifier = Modifier.fillMaxSize()) {
+            DocsPanelHeader(
+                title = stringResource(Res.string.docsTocTitle),
+                collapseDescription = stringResource(Res.string.docsCollapseToc),
+                onCollapse = onToggleCollapsed,
             )
 
             Box(modifier = Modifier.fillMaxSize()) {
@@ -310,7 +341,7 @@ internal fun DocsTableOfContents(
                     modifier = Modifier
                         .fillMaxSize()
                         .verticalScroll(tocScrollState)
-                        .padding(end = 10.dp),
+                        .padding(start = 12.dp, end = 16.dp, bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(1.dp)
                 ) {
                     items.forEach { item ->
@@ -329,6 +360,81 @@ internal fun DocsTableOfContents(
                     adapter = rememberScrollbarAdapter(tocScrollState)
                 )
             }
+        }
+    }
+}
+
+/**
+ * 可折叠面板的标题栏，右侧带一个收起按钮。
+ */
+@Composable
+private fun DocsPanelHeader(
+    title: String,
+    collapseDescription: String,
+    onCollapse: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 12.dp, end = 8.dp, top = 10.dp, bottom = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        FluentText(
+            text = title,
+            style = FluentTheme.typography.bodyStrong,
+            color = FluentTokens.ColorToken.LogLevel.veryVerbose,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f)
+        )
+        FluentButton(
+            onClick = onCollapse,
+            iconOnly = true
+        ) {
+            Icon(
+                imageVector = FeatherIcons.ChevronLeft,
+                contentDescription = collapseDescription,
+                modifier = Modifier.size(16.dp)
+            )
+        }
+    }
+}
+
+/**
+ * 面板折叠后的窄条，仅显示一个展开按钮与标识图标。
+ */
+@Composable
+private fun DocsCollapsedRail(
+    icon: ImageVector,
+    expandDescription: String,
+    onExpand: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    FluentCard(modifier = modifier.width(44.dp)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            FluentButton(
+                onClick = onExpand,
+                iconOnly = true
+            ) {
+                Icon(
+                    imageVector = FeatherIcons.ChevronRight,
+                    contentDescription = expandDescription,
+                    modifier = Modifier.size(16.dp)
+                )
+            }
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = FluentTokens.ColorToken.LogLevel.veryVerbose,
+                modifier = Modifier.size(18.dp)
+            )
         }
     }
 }

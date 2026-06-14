@@ -57,3 +57,66 @@ jobs:
         with:
           name: HonkaiGameLauncher-Windows
           path: desktop-app/build/compose/binaries/
+
+  release:
+    name: Create release draft
+    needs: build-desktop
+    # 仅在 push 到 main/master 时创建草稿，PR 不触发
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 拉取完整历史，以便生成 changelog
+
+      - name: Read package version
+        id: version
+        run: |
+          VERSION=$(grep -oP 'packageVersion\s*=\s*"\K[^"]+' desktop-app/build.gradle.kts)
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+          echo "解析到版本: $VERSION"
+
+      - name: Generate changelog
+        id: changelog
+        run: |
+          # 上一个 tag（按提交可达性排序）；首次无 tag 时回退为全部历史
+          PREV_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+          if [ -n "$PREV_TAG" ]; then
+            RANGE="$PREV_TAG..HEAD"
+            echo "对比范围: $PREV_TAG..HEAD"
+          else
+            RANGE="HEAD"
+            echo "未发现已有 tag，使用全部提交历史"
+          fi
+          {
+            echo "body<<__CHANGELOG_EOF__"
+            if [ -n "$PREV_TAG" ]; then
+              echo "## 自 $PREV_TAG 以来的变更"
+            else
+              echo "## 变更内容"
+            fi
+            echo ""
+            git log "$RANGE" --no-merges --pretty=format:'- %s (%h)'
+            echo ""
+            echo "__CHANGELOG_EOF__"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download Windows artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: HonkaiGameLauncher-Windows
+          path: artifacts
+
+      - name: Create draft release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          body: ${{ steps.changelog.outputs.body }}
+          draft: true
+          prerelease: false
+          files: artifacts/**/*
