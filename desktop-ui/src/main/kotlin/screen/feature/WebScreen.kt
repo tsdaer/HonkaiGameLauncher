@@ -61,8 +61,8 @@ import ui.components.WebEngineInitContent
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.settings.LocalNavExpanded
-import viewModel.WebScreenModel
-import viewModel.WebScreenModel.Companion.normalizeUrl
+import screenmodel.WebScreenModel
+import screenmodel.WebScreenModel.Companion.normalizeUrl
 import io.github.composefluent.component.Text as FluentText
 
 /**

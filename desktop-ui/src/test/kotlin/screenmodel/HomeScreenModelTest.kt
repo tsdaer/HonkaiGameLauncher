@@ -1,4 +1,4 @@
-package viewModel
+package screenmodel
 
 import core.GameConnectionStatus
 import core.platform.AppSettingsRepository
@@ -12,6 +12,9 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import screenmodel.HomeLaunchStatus
+import screenmodel.HomeScreenModel
+import ui.settings.AppSettingsStore
 import java.nio.file.Path
 import kotlin.io.path.createDirectories
 import kotlin.io.path.createFile

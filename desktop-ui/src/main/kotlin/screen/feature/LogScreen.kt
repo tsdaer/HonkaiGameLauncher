@@ -33,8 +33,8 @@ import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.components.FluentDropdown
 import ui.fluent.theme.FluentTokens
-import viewModel.LogScreenEntry
-import viewModel.LogScreenModel
+import core.LogScreenEntry
+import screenmodel.LogScreenModel
 import io.github.composefluent.component.Icon as FluentIcon
 import io.github.composefluent.component.Text as FluentText
 import io.github.composefluent.component.ToggleButton as FluentToggleButton

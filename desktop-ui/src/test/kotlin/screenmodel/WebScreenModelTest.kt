@@ -1,5 +1,6 @@
-package viewModel
+package screenmodel
 
+import screenmodel.WebScreenModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 

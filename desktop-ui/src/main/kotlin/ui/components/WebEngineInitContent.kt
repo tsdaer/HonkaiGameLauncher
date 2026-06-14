@@ -30,7 +30,7 @@ import io.github.composefluent.component.ProgressBar
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
-import viewModel.WebEnginePhase
+import core.webengine.WebEnginePhase
 import io.github.composefluent.component.Text as FluentText
 
 /**

@@ -1,4 +1,4 @@
-package viewModel
+package ui.settings
 
 import core.platform.AppSettingsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi

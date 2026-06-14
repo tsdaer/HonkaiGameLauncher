@@ -52,10 +52,11 @@ import ui.fluent.components.FluentDropdown
 import ui.fluent.theme.FluentTokens
 import ui.settings.AppNavigationStyle
 import ui.settings.LocalAppUiSettings
-import viewModel.GameColorForm
-import viewModel.GameSettingsForm
-import viewModel.SettingGameSettingsStatus
-import viewModel.SettingScreenModel
+import screenmodel.GameColorForm
+import screenmodel.GameSettingsForm
+import screenmodel.SettingGameSettingsStatus
+import screenmodel.SettingScreenModel
+import screenmodel.SettingUiState
 import io.github.composefluent.component.Text as FluentText
 
 class SettingScreen: Screen, IScreenInterface {
@@ -212,7 +213,7 @@ class SettingScreen: Screen, IScreenInterface {
 
 @Composable
 private fun GameSettingsEditor(
-    uiState: viewModel.SettingUiState,
+    uiState: SettingUiState,
     onRefresh: () -> Unit,
     onSave: () -> Unit,
     onChange: (GameSettingsForm) -> Unit,
@@ -587,7 +588,7 @@ private fun GameSettingsEditor(
 }
 
 @Composable
-private fun gameSettingsStatusText(uiState: viewModel.SettingUiState): String {
+private fun gameSettingsStatusText(uiState: SettingUiState): String {
     return when (uiState.gameSettingsStatus) {
         SettingGameSettingsStatus.Loading -> stringResource(Res.string.settingsGameStatusLoading)
         SettingGameSettingsStatus.Ready -> stringResource(Res.string.settingsGameStatusReady)

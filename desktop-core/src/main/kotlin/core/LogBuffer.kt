@@ -1,6 +1,4 @@
-package viewModel
-
-import core.LauncherLogEntry
+package core
 
 /**
  * 日志屏幕上显示的日志条目。

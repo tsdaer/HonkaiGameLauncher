@@ -13,10 +13,11 @@ desktop-app -> desktop-ui -> desktop-core
 ## 包结构
 
 ```
-core/                       # 根包：游戏通信服务、日志解析、运行时服务注册
+core/                       # 根包：游戏通信服务、日志解析与缓冲、运行时服务注册
 ├── GameService.kt          #   基于 Ktor Netty 的 HTTP 服务端，接收游戏日志回传
 ├── LauncherLogEntry.kt     #   游戏回传日志条目的数据模型
 ├── LauncherLogParser.kt    #   游戏日志 JSON 反序列化器
+├── LogBuffer.kt            #   日志环形缓冲区：筛选、计数、溢出裁剪（纯算法）
 └── RuntimeServices.kt      #   运行时服务单例注册中心
 
 core/config/                # 游戏设置配置读写
@@ -38,6 +39,10 @@ core/plugin/                # 插件配置解析
 
 core/service/               # 应用级服务
 └── GamePathService.kt      #   游戏路径校验与状态快照
+
+core/webengine/             # WebEngine 初始化逻辑（平台无关，KCEF 实现在 desktop-ui）
+├── WebEngineController.kt  #   初始化生命周期、进度、重试与竞态保护（StateFlow）
+└── WebEngineModels.kt      #   状态/阶段枚举/运行时接口/初始化结果
 ```
 
 ## 核心功能

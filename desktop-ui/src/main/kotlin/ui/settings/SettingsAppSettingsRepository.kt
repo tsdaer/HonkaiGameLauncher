@@ -1,12 +1,12 @@
-package viewModel
+package ui.settings
 
 import com.russhwolf.settings.Settings
 import core.platform.AppSettingsRepository
 
 /**
- * 基于 multiplatform-settings 的 [AppSettingsRepository] 实现。
+ * 基于 multiplatform-settings 的 [core.platform.AppSettingsRepository] 实现。
  *
- * 使用 `com.russhwolf:multiplatform-settings-no-arg` 提供的 [Settings] 接口
+ * 使用 `com.russhwolf:multiplatform-settings-no-arg` 提供的 [com.russhwolf.settings.Settings] 接口
  * 进行键值对持久化存储。存储路径由库自动管理（通常为用户 AppData 目录）。
  *
  * @property settings Settings 实例，默认使用无参工厂创建
@@ -16,8 +16,8 @@ class SettingsAppSettingsRepository(
 ) : AppSettingsRepository {
     /**
      * 读取游戏路径。
-     * 从持久化存储中获取，默认值为哨兵值 [AppSettingsRepository.NO_GAME_PATH_SENTINEL]，
-     * 读取后调用 [AppSettingsRepository.normalizeGamePath] 归一化。
+     * 从持久化存储中获取，默认值为哨兵值 [Companion.NO_GAME_PATH_SENTINEL]，
+     * 读取后调用 [Companion.normalizeGamePath] 归一化。
      */
     override fun getGamePath(): String? {
         return AppSettingsRepository.normalizeGamePath(
@@ -30,7 +30,7 @@ class SettingsAppSettingsRepository(
 
     /**
      * 保存游戏路径。
-     * 写入前同样调用 [AppSettingsRepository.normalizeGamePath] 归一化，
+     * 写入前同样调用 [Companion.normalizeGamePath] 归一化，
      * 如果结果为 null 则写入哨兵值 "null"。
      */
     override fun setGamePath(path: String?) {

@@ -57,7 +57,7 @@ import screen.home.SectionHeader
 import screen.home.homeBackgroundBrush
 import ui.fluent.theme.FluentTokens
 import ui.settings.LocalAppUiSettings
-import viewModel.HomeScreenModel
+import screenmodel.HomeScreenModel
 
 /**
  * 首页。

@@ -1,4 +1,4 @@
-package viewModel
+package screenmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -7,8 +7,14 @@ import androidx.compose.runtime.setValue
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import core.LauncherLogEntry
+import core.LogBuffer
+import core.LogBufferSnapshot
+import core.LogScreenEntry
+import core.LogUiState
 import core.RuntimeServices
 import kotlinx.coroutines.launch
+import ui.settings.AppSettingsStore
+import ui.settings.SharedAppSettingsStore
 
 /**
  * 日志页 ScreenModel。

@@ -20,7 +20,7 @@ import org.jetbrains.compose.resources.stringResource
 import screen.IScreenInterface
 import screen.plugin.PluginListPanel
 import screen.plugin.PluginOverview
-import viewModel.PluginScreenModel
+import screenmodel.PluginScreenModel
 
 /**
  * 插件配置页。

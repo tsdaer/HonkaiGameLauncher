@@ -18,7 +18,7 @@ import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.LinkInteractionListener
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import viewModel.DocsScreenModel
+import screenmodel.DocsScreenModel
 
 @Composable
 internal fun MarkdownPreview(

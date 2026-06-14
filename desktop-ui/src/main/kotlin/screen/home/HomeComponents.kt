@@ -56,8 +56,8 @@ import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
-import viewModel.HomeLaunchStatus
-import viewModel.HomeUiState
+import screenmodel.HomeLaunchStatus
+import screenmodel.HomeUiState
 import io.github.composefluent.component.Text as FluentText
 
 @Composable

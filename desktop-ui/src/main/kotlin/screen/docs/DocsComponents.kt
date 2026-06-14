@@ -64,8 +64,8 @@ import screen.feature.MarkdownPreview
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
-import viewModel.DocsScreenModel
-import viewModel.DocsUiState
+import screenmodel.DocsScreenModel
+import screenmodel.DocsUiState
 
 @Composable
 internal fun DocsOverview(

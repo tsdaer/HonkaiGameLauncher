@@ -65,18 +65,19 @@ desktop-ui/src/main/kotlin/
 │   │       ├── FluentTokens.kt
 │   │       ├── FluentTypography.kt
 │   │       └── LegacyThemeAdapter.kt
-│   └── settings/              #   UI 设置
-│       └── AppUiSettings.kt   #   主题/语言/导航样式 CompositionLocal
-└── viewModel/                 # ScreenModel 状态管理
-    ├── AppSettingsStore.kt            # 响应式设置存储
-    ├── SettingsAppSettingsRepository.kt # multiplatform-settings 实现
+│   └── settings/              #   UI 设置与应用设置存储
+│       ├── AppUiSettings.kt   #   主题/语言/导航样式 CompositionLocal
+│       ├── AppSettingsStore.kt #  响应式设置存储（StateFlow）
+│       └── SettingsAppSettingsRepository.kt # AppSettingsRepository 的 multiplatform-settings 实现
+├── ui/webengine/              # WebEngine 服务
+│   └── WebEngineService.kt    #   KCEF WebEngine 单例 + 运行时实现（逻辑在 desktop-core）
+└── screenmodel/               # ScreenModel 状态管理
     ├── HomeScreenModel.kt             # 首页状态与启动流程
     ├── SettingScreenModel.kt          # 设置页状态
     ├── DocsScreenModel.kt             # 文档加载/选择/链接导航
     ├── PluginScreenModel.kt           # 插件配置加载
-    ├── LogScreenModel.kt / LogBuffer.kt # 日志收集/筛选/缓冲区
-    ├── WebScreenModel.kt              # WebView 地址管理
-    └── WebEngineService.kt            # KCEF WebEngine 生命周期
+    ├── LogScreenModel.kt              # 日志收集/筛选（缓冲区算法在 desktop-core）
+    └── WebScreenModel.kt              # WebView 地址管理、订阅 WebEngine 状态流
 ```
 
 ## 核心功能
@@ -131,7 +132,8 @@ DocsScreen → MarkdownPreview
 
 管理 KCEF (Chromium Embedded Framework) 的懒初始化和生命周期：
 
-- 通过 [WebEngineService] 单例提供就绪状态、进度和错误信息
+- 初始化生命周期、进度、重试与竞态保护逻辑在 desktop-core 的 `WebEngineController`（`StateFlow` 暴露状态），可脱离 Compose 单元测试
+- `ui.webengine.WebEngineService` 单例只提供 KCEF 平台运行时实现和单例作用域，并转发 core 的状态流
 - 初始化阶段：Checking → Downloading → DownloadFinishing → Extracting → Installing → Initializing → Ready
 - 支持下载/安装失败后的重试和重启提示
 - 引擎数据存储在 `%LOCALAPPDATA%/HonkaiGameLauncher/kcef-*` 下

@@ -57,6 +57,7 @@ desktop-core/src/main/kotlin/core/
 ├── GameService.kt              # Ktor/Netty HTTP 服务，接收游戏 POST /game/status 日志回传
 ├── LauncherLogEntry.kt         # 日志条目数据模型（@Serializable）
 ├── LauncherLogParser.kt        # 日志 JSON 解析器（支持数组/单条两种格式）
+├── LogBuffer.kt                # 日志环形缓冲区：筛选、计数、溢出裁剪（纯算法）
 ├── RuntimeServices.kt          # 运行时服务单例注册中心
 ├── config/
 │   ├── GameSettingsService.kt  # GenericSetting.toml / GameSetting.toml 读写服务
@@ -71,18 +72,22 @@ desktop-core/src/main/kotlin/core/
 ├── plugin/
 │   ├── PluginConfigParser.kt     # GamePluginConfigs.toml 轻量级解析器
 │   └── PluginConfigService.kt    # 插件配置加载服务
-└── service/
-    └── GamePathService.kt        # 游戏路径校验与状态快照
+├── service/
+│   └── GamePathService.kt        # 游戏路径校验与状态快照
+└── webengine/
+    ├── WebEngineController.kt    # WebEngine 初始化生命周期、进度、重试与竞态保护（StateFlow）
+    └── WebEngineModels.kt        # 状态/阶段/运行时接口/结果（KCEF 实现在 desktop-ui）
 ```
 
 | 包               | 职责                                       |
 |-----------------|------------------------------------------|
-| `core`          | 游戏通信服务生命周期、日志 JSON 解析、运行时服务注册            |
+| `core`          | 游戏通信服务生命周期、日志 JSON 解析与缓冲、运行时服务注册         |
 | `core.config`   | 游戏设置 TOML 文件读写（GenericSetting / GameSetting），点分路径查询与逐行编辑保留 |
 | `core.docs`     | Markdown 文档扫描、索引构建、文档间链接解析               |
 | `core.platform` | 平台操作抽象（设置读写、文件系统、进程启动），通过接口或构造函数注入实现可测试性 |
 | `core.plugin`   | 插件配置文件定位、TOML 解析、.pak 路径解析               |
 | `core.service`  | 跨切面的应用级服务（如游戏路径校验）                       |
+| `core.webengine`| WebEngine 初始化的平台无关逻辑（运行时实现由 desktop-ui 提供） |
 
 核心设计原则：
 
@@ -111,24 +116,23 @@ desktop-ui/src/main/kotlin/
 ├── ui/
 │   ├── components/            #   窗口标题栏、导航栏、WebEngine 初始化页面
 │   ├── fluent/                #   Fluent Design 组件库与主题
-│   └── settings/              #   AppUiSettings（主题/语言/导航 CompositionLocal）
-└── viewModel/                 # ScreenModel 层
-    ├── AppSettingsStore.kt    #   响应式设置存储（StateFlow）
+│   ├── settings/              #   AppUiSettings（CompositionLocal）、AppSettingsStore、设置持久化实现
+│   └── webengine/             #   WebEngineService 单例 + KCEF 运行时实现
+└── screenmodel/               # ScreenModel 层
     ├── HomeScreenModel.kt     #   首页状态、启动流程、20s 连接超时
     ├── SettingScreenModel.kt  #   设置页状态、游戏设置 TOML 读写
     ├── DocsScreenModel.kt     #   文档加载/选择/链接导航
     ├── PluginScreenModel.kt   #   插件配置加载
-    ├── LogScreenModel.kt      #   日志收集/筛选/缓冲区
-    ├── WebScreenModel.kt      #   WebView 地址管理
-    └── WebEngineService.kt    #   KCEF WebEngine 初始化生命周期
+    ├── LogScreenModel.kt      #   日志收集/筛选（缓冲区算法在 desktop-core）
+    └── WebScreenModel.kt      #   WebView 地址管理、订阅 WebEngine 状态流
 ```
 
 | 层级           | 职责                                      |
 |--------------|-----------------------------------------|
 | `navigation` | 页面注册、路由解析、URL 导航                        |
 | `screen`     | Compose 页面实现，纯渲染 + 轻量交互绑定               |
-| `viewModel`  | ScreenModel 状态管理、core 服务调用、Flow 收集、协程调度 |
-| `ui`         | 跨页面复用的 UI 组件和主题 Token                   |
+| `screenmodel`| ScreenModel 状态管理、core 服务调用、Flow 收集、协程调度 |
+| `ui`         | 跨页面复用的 UI 组件、主题 Token、设置存储与 WebEngine 服务 |
 
 核心设计原则：
 
@@ -262,7 +266,7 @@ desktop-app/
 - 插件配置服务：`desktop-core/src/main/kotlin/core/plugin/PluginConfigService.kt`
 - 文档索引服务：`desktop-core/src/main/kotlin/core/docs/DocsIndexService.kt`
 - 导航注册：`desktop-ui/src/main/kotlin/navigation/SharedScreen.kt`
-- 首页状态：`desktop-ui/src/main/kotlin/viewModel/HomeScreenModel.kt`
+- 首页状态：`desktop-ui/src/main/kotlin/screenmodel/HomeScreenModel.kt`
 - 本地化资源：`desktop-ui/src/main/composeResources/values-zh` 与 `desktop-ui/src/main/composeResources/values-en`
 
 ## 开发规范

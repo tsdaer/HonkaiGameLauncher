@@ -1,6 +1,5 @@
-package viewModel
+package core
 
-import core.LauncherLogEntry
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

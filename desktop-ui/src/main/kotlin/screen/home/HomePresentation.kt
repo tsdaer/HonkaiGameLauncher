@@ -19,8 +19,8 @@ import honkaigamelauncher.desktop_ui.generated.resources.homeStatusReady
 import honkaigamelauncher.desktop_ui.generated.resources.homeStatusRunning
 import org.jetbrains.compose.resources.stringResource
 import ui.fluent.theme.FluentTokens
-import viewModel.HomeLaunchStatus
-import viewModel.HomeUiState
+import screenmodel.HomeLaunchStatus
+import screenmodel.HomeUiState
 
 /** 根据启动状态返回本地化状态文本 */
 @Composable

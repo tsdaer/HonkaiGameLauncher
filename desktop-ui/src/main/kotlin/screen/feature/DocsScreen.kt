@@ -31,7 +31,7 @@ import screen.docs.DocsListPanel
 import screen.docs.DocsOverview
 import screen.docs.DocsReaderPanel
 import screen.docs.DocsTableOfContents
-import viewModel.DocsScreenModel
+import screenmodel.DocsScreenModel
 
 /**
  * 文档中心页。

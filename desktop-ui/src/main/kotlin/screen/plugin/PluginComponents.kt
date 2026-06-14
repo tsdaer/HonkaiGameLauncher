@@ -74,7 +74,7 @@ import org.jetbrains.compose.resources.stringResource
 import ui.fluent.components.FluentButton
 import ui.fluent.components.FluentCard
 import ui.fluent.theme.FluentTokens
-import viewModel.PluginUiState
+import screenmodel.PluginUiState
 
 @Composable
 fun PluginOverview(

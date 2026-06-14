@@ -1,4 +1,4 @@
-package viewModel
+package screenmodel
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +18,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import ui.settings.AppSettingsStore
+import ui.settings.SharedAppSettingsStore
 
 /**
  * 文档页 UI 状态。

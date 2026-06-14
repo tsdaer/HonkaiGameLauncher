@@ -1,4 +1,4 @@
-package viewModel
+package core.webengine
 
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,11 +26,12 @@ class WebEngineControllerTest {
         controller.ensureInitialized()
         advanceUntilIdle()
 
-        assertTrue(controller.ready)
-        assertEquals(WebEnginePhase.Ready, controller.phase)
-        assertEquals(1f, controller.progress)
-        assertNull(controller.error)
-        assertFalse(controller.restartRequired)
+        val state = controller.state.value
+        assertTrue(state.ready)
+        assertEquals(WebEnginePhase.Ready, state.phase)
+        assertEquals(1f, state.progress)
+        assertNull(state.error)
+        assertFalse(state.restartRequired)
     }
 
     @Test
@@ -42,9 +43,10 @@ class WebEngineControllerTest {
         controller.ensureInitialized()
         advanceUntilIdle()
 
-        assertFalse(controller.ready)
-        assertEquals("network unavailable", controller.error)
-        assertFalse(controller.restartRequired)
+        val state = controller.state.value
+        assertFalse(state.ready)
+        assertEquals("network unavailable", state.error)
+        assertFalse(state.restartRequired)
     }
 
     @Test
@@ -56,9 +58,10 @@ class WebEngineControllerTest {
         controller.ensureInitialized()
         advanceUntilIdle()
 
-        assertFalse(controller.ready)
-        assertTrue(controller.restartRequired)
-        assertNull(controller.error)
+        val state = controller.state.value
+        assertFalse(state.ready)
+        assertTrue(state.restartRequired)
+        assertNull(state.error)
     }
 
     @Test
@@ -78,9 +81,10 @@ class WebEngineControllerTest {
         firstAttempt.complete(WebEngineInitializationResult.Failed("old failure"))
         advanceUntilIdle()
 
-        assertTrue(controller.ready)
-        assertNull(controller.error)
-        assertFalse(controller.restartRequired)
+        val state = controller.state.value
+        assertTrue(state.ready)
+        assertNull(state.error)
+        assertFalse(state.restartRequired)
     }
 
     @Test
